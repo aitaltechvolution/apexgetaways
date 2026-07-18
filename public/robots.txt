@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /auth/reset-password
+Disallow: /booking/payment
+Disallow: /booking/confirmation
+Sitemap: https://apexgetaways.com/sitemap.
