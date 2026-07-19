@@ -94,14 +94,7 @@ export default function HeroSection() {
 
       <div className="relative z-10 container-pad pt-24 pb-16 w-full">
         <div className="max-w-4xl mx-auto">
-          {/* Badge */}
-          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }}
-            className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase"
-            style={{ background:'rgba(201,168,76,0.12)', border:'1px solid rgba(201,168,76,0.35)', color:'#F5C842' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-            {BRAND.tagline}
-          </motion.div>
-
+          
           {/* Headline */}
           <motion.h1 initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }}
             className="font-display font-bold text-white leading-[1.05] mb-4 text-balance"

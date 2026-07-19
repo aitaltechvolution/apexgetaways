@@ -19,7 +19,7 @@ export default function HomePage() {
         description="Apex Getaways & Travel LTD — trusted travel and immigration services in Nigeria. Flights, visa, hotels, study abroad, tour packages and more. Based in Abuja."
       />
       <HeroSection />
-      <MarqueeBanner />
+      {/* <MarqueeBanner /> */}
       <PopularDestinations />
       <PackagesSection />
       <StatsSection />
