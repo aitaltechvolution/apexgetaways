@@ -137,7 +137,7 @@ export const DESTINATIONS = [
   { id:6, name:'Maldives',     country:'Maldives',             flag:'🇲🇻', img:'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=700&q=80', tag:'Luxury',    rating:5.0, from:'From $2,700', attractions:['Overwater Villas','Coral Reefs','White Beaches','Lagoons'] },
   { id:7, name:'Kenya',        country:'Kenya',                flag:'🇰🇪', img:'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=700&q=80', tag:'Safari',    rating:4.7, from:'From $1,800', attractions:['Maasai Mara','Amboseli','Diani Beach','Nairobi Park'] },
   { id:8, name:'South Africa', country:'South Africa',         flag:'🇿🇦', img:'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=700&q=80', tag:'Adventure', rating:4.7, from:'From $2,100', attractions:['Table Mountain','Kruger Park','Cape Point','Robben Island'] },
-  { id:9, name:'Rwanda',       country:'Rwanda',               flag:'🇷🇼', img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80', tag:'Eco',       rating:4.8, from:'From $1,600', attractions:['Gorilla Trekking','Lake Kivu','Nyungwe Forest','Kigali'] },
+  { id:9, name:'Rwanda',       country:'Rwanda',               flag:'🇷🇼', img:'https://cdn1.matadornetwork.com/blogs/1/2019/06/Kigali-Rwanda-1200x854.jpg', tag:'Eco',       rating:4.8, from:'From $1,600', attractions:['Gorilla Trekking','Lake Kivu','Nyungwe Forest','Kigali'] },
   { id:10,name:'Singapore',    country:'Singapore',            flag:'🇸🇬', img:'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=700&q=80', tag:'Modern',   rating:4.8, from:'From $2,200', attractions:['Gardens by the Bay','Marina Bay Sands','Sentosa','Chinatown'] },
 ]
 
