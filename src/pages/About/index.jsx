@@ -151,9 +151,9 @@ export default function AboutPage() {
             <div className="p-8 md:p-10 rounded-3xl flex flex-col md:flex-row gap-8 items-center"
               style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(201,168,76,0.2)'}}>
               {/* Avatar */}
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl flex items-center justify-center shrink-0 font-display font-bold text-6xl"
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden flex items-center justify-center shrink-0 font-display font-bold text-6xl"
                 style={{background:'linear-gradient(135deg,#C9A84C,#F5C842)',color:'#0A1628'}}>
-                J
+                <img src="/CEO.jpg" alt="" />
               </div>
               <div>
                 <h3 className="font-display font-bold text-white text-2xl mb-1">{BRAND.ceo.name}</h3>

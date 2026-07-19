@@ -14,7 +14,7 @@ export const BRAND = {
   tiktok:    'https://www.tiktok.com/@visa_travel_support?_r=1&_t=ZS-97s38omonhg',
   facebook:  '#',
   founded:   '2026',
-  ceo:       { name:'Joy Abuh Ojochenemi', title:'Founder & CEO', bio:'Mrs. Joy Nathaniel is the Founder and CEO of Apex Getaways Travel LTD. She is passionate about helping individuals, families, students, and businesses access reliable travel and immigration solutions. Through integrity, professionalism, and exceptional customer service, she has built a company committed to making international travel simple, seamless, and stress-free.' },
+  ceo:       { name:'Joy Nathaniel', title:'Founder & CEO', bio:'Mrs. Joy Nathaniel is the Founder and CEO of Apex Getaways Travel LTD. She is passionate about helping individuals, families, students, and businesses access reliable travel and immigration solutions. Through integrity, professionalism, and exceptional customer service, she has built a company committed to making international travel simple, seamless, and stress-free.' },
 }
 
 // ─── SERVICES ────────────────────────────────────────────────────────────────
