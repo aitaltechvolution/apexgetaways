@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   Car, MapPin, Calendar, Clock, Users, CheckCircle,
-  ArrowRight, ArrowLeftRight, Plus
+  ArrowRight, ArrowLeftRight, Plus, Snowflake, Luggage, Plane, Building2, Bus
 } from 'lucide-react'
 import SEO from '../../../components/SEO'
 import { PICKUP_VEHICLES, PICKUP_LOCATIONS, formatNGN } from '../../../data'
@@ -19,15 +19,15 @@ function VehicleCard({ vehicle, selected, onSelect }) {
           : 'border-gray-100 dark:border-gray-800 bg-white dark:bg-card-dark shadow-card hover:border-primary/50'
       }`}>
       <div className="flex items-start justify-between mb-3">
-        <span className="text-4xl">{vehicle.img}</span>
+        <img src={vehicle.img} alt="" />
         {isSelected && <CheckCircle size={20} className="text-primary shrink-0" />}
       </div>
       <h3 className="font-bold text-gray-900 dark:text-white mb-1">{vehicle.name}</h3>
       <p className="text-xs text-gray-400 mb-3">{vehicle.desc}</p>
       <div className="flex gap-3 text-xs text-gray-500 dark:text-gray-400 mb-4">
         <span className="flex items-center gap-1"><Users size={11} /> {vehicle.seats} seats</span>
-        <span>🧳 {vehicle.luggage} bags</span>
-        {vehicle.ac && <span>❄️ A/C</span>}
+        <span className='flex items-center gap-1'><Luggage size={20}/> {vehicle.luggage} bags</span>
+        {vehicle.ac && <span className='flex items-center gap-1'><Snowflake size={20}/></span>}
       </div>
       <div className="border-t border-gray-100 dark:border-gray-800 pt-3">
         <p className="text-[11px] text-gray-400">Base fare</p>
@@ -106,16 +106,16 @@ export default function PickupPage() {
           {/* Service type tabs */}
           <div className="flex gap-2 mb-8 flex-wrap">
             {[
-              ['airport', '✈️ Airport Transfer'],
-              ['intercity', '🛣️ Intercity Transfer'],
-              ['charter', '🚌 Charter / Group Hire'],
-            ].map(([val, lbl]) => (
+              ['airport', <Plane size={18}/>, 'Airport Transfer'],
+              ['intercity', <Building2 size={18}/>, 'Intercity Transfer'],
+              ['charter', <Bus size={18}/>, 'Charter / Group Hire'],
+            ].map(([val, icon, lbl]) => (
               <button key={val} onClick={() => setServiceType(val)}
-                className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex gap-1 ${
                   serviceType === val
                     ? 'bg-primary text-white shadow-glow'
                     : 'bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-primary hover:text-primary'
-                }`}>{lbl}</button>
+                }`}>{icon}{lbl}</button>
             ))}
           </div>
 

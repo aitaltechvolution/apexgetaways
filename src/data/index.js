@@ -1,3 +1,22 @@
+import {
+  Plane,
+  FileCheck,
+  GraduationCap,
+  FileText,
+  Globe,
+  Hotel,
+  Car,
+  Palmtree,
+  Ship,
+  ShieldCheck,
+  Briefcase,
+  Coins,
+} from 'lucide-react';
+
+
+
+
+
 // ─── BRAND ───────────────────────────────────────────────────────────────────
 export const BRAND = {
   name:      'Apex Getaways & Travel LTD',
@@ -19,20 +38,91 @@ export const BRAND = {
 
 // ─── SERVICES ────────────────────────────────────────────────────────────────
 export const SERVICES = [
-  { id:'flights',       icon:'✈️', title:'Flight Reservation & Ticketing',  desc:'Domestic and international flights — one-way, round-trip, multi-city, and group bookings with expert fare guidance.', color:'from-blue-900 to-blue-700' },
-  { id:'visa',          icon:'🛂', title:'Visa Assistance',                  desc:'Tourist, business, student, visitor, and family visit visas. Documentation review, appointment scheduling, and guidance.', color:'from-navy to-navy-light' },
-  { id:'study-abroad',  icon:'🎓', title:'Study Abroad Services',            desc:'International school admissions, program selection, study permit guidance, and pre-departure orientation support.', color:'from-emerald-900 to-emerald-700' },
-  { id:'ielts',         icon:'📝', title:'IELTS & English Proficiency',      desc:'IELTS registration guidance, test preparation referrals, and advice on language requirements for study and immigration.', color:'from-purple-900 to-purple-700' },
-  { id:'immigration',   icon:'🌍', title:'Immigration Consultation',         desc:'General immigration information, guidance on pathways, documentation support, and settlement preparation.', color:'from-teal-900 to-teal-700' },
-  { id:'hotels',        icon:'🏨', title:'Hotel & Accommodation Booking',    desc:'Hotel reservations, serviced apartments, vacation accommodation, and short-term or long-term lodging arrangements.', color:'from-amber-900 to-amber-700' },
-  { id:'airport',       icon:'🚗', title:'Airport Services',                 desc:'Airport pick-up, drop-off, meet-and-greet, and transfer coordination — prompt, professional, reliable.', color:'from-rose-900 to-rose-700' },
-  { id:'holiday',       icon:'🧳', title:'Holiday & Tour Packages',          desc:'Family vacations, honeymoon packages, group tours, adventure travel, religious and pilgrimage tours.', color:'from-cyan-900 to-cyan-700' },
-  { id:'cruise',        icon:'🚢', title:'Cruise Bookings',                  desc:'International cruise reservations, vacation cruise packages, family and luxury cruises.', color:'from-indigo-900 to-indigo-700' },
-  { id:'insurance',     icon:'🛡️', title:'Travel Insurance Assistance',      desc:'Guidance on obtaining travel insurance and information on coverage options required for international travel.', color:'from-green-900 to-green-700' },
-  { id:'corporate',     icon:'👔', title:'Group & Corporate Travel',         desc:'Corporate travel planning, business travel coordination, conference travel, educational and church group travel.', color:'from-slate-900 to-slate-700' },
-  { id:'forex',         icon:'💱', title:'Foreign Exchange Guidance',        desc:'Information on travel-related foreign exchange procedures and currency planning guidance.', color:'from-yellow-900 to-yellow-700' },
-]
-
+  {
+    id: 'flights',
+    icon: Plane,
+    title: 'Flight Reservation & Ticketing',
+    desc: 'Domestic and international flights — one-way, round-trip, multi-city, and group bookings with expert fare guidance.',
+    color: 'from-blue-900 to-blue-700',
+  },
+  {
+    id: 'visa',
+    icon: FileCheck,
+    title: 'Visa Assistance',
+    desc: 'Tourist, business, student, visitor, and family visit visas. Documentation review, appointment scheduling, and guidance.',
+    color: 'from-navy to-navy-light',
+  },
+  {
+    id: 'study-abroad',
+    icon: GraduationCap,
+    title: 'Study Abroad Services',
+    desc: 'International school admissions, program selection, study permit guidance, and pre-departure orientation support.',
+    color: 'from-emerald-900 to-emerald-700',
+  },
+  {
+    id: 'ielts',
+    icon: FileText,
+    title: 'IELTS & English Proficiency',
+    desc: 'IELTS registration guidance, test preparation referrals, and advice on language requirements for study and immigration.',
+    color: 'from-purple-900 to-purple-700',
+  },
+  {
+    id: 'immigration',
+    icon: Globe,
+    title: 'Immigration Consultation',
+    desc: 'General immigration information, guidance on pathways, documentation support, and settlement preparation.',
+    color: 'from-teal-900 to-teal-700',
+  },
+  {
+    id: 'hotels',
+    icon: Hotel,
+    title: 'Hotel & Accommodation Booking',
+    desc: 'Hotel reservations, serviced apartments, vacation accommodation, and short-term or long-term lodging arrangements.',
+    color: 'from-amber-900 to-amber-700',
+  },
+  {
+    id: 'airport',
+    icon: Car,
+    title: 'Airport Services',
+    desc: 'Airport pick-up, drop-off, meet-and-greet, and transfer coordination — prompt, professional, reliable.',
+    color: 'from-rose-900 to-rose-700',
+  },
+  {
+    id: 'holiday',
+    icon: Palmtree,
+    title: 'Holiday & Tour Packages',
+    desc: 'Family vacations, honeymoon packages, group tours, adventure travel, religious and pilgrimage tours.',
+    color: 'from-cyan-900 to-cyan-700',
+  },
+  {
+    id: 'cruise',
+    icon: Ship,
+    title: 'Cruise Bookings',
+    desc: 'International cruise reservations, vacation cruise packages, family and luxury cruises.',
+    color: 'from-indigo-900 to-indigo-700',
+  },
+  {
+    id: 'insurance',
+    icon: ShieldCheck,
+    title: 'Travel Insurance Assistance',
+    desc: 'Guidance on obtaining travel insurance and information on coverage options required for international travel.',
+    color: 'from-green-900 to-green-700',
+  },
+  {
+    id: 'corporate',
+    icon: Briefcase,
+    title: 'Group & Corporate Travel',
+    desc: 'Corporate travel planning, business travel coordination, conference travel, educational and church group travel.',
+    color: 'from-slate-900 to-slate-700',
+  },
+  {
+    id: 'forex',
+    icon: Coins,
+    title: 'Foreign Exchange Guidance',
+    desc: 'Information on travel-related foreign exchange procedures and currency planning guidance.',
+    color: 'from-yellow-900 to-yellow-700',
+  },
+];
 // ─── PACKAGES ────────────────────────────────────────────────────────────────
 export const PACKAGES = [
   {
@@ -256,13 +346,63 @@ export function generateHotels(city, checkIn, checkOut) {
   })
 }
 
-export const PICKUP_VEHICLES=[
-  {id:'sedan',  name:'Sedan',          desc:'Toyota Camry or similar',  seats:4, luggage:2,img:'🚗', basePrice:12000,pricePerKm:350,ac:true},
-  {id:'suv',    name:'SUV',            desc:'Toyota Prado or similar',  seats:6, luggage:4,img:'🚙', basePrice:18000,pricePerKm:500,ac:true},
-  {id:'minivan',name:'Minivan',        desc:'Toyota Hiace or similar',  seats:14,luggage:8,img:'🚐', basePrice:25000,pricePerKm:650,ac:true},
-  {id:'luxury', name:'Luxury / Executive',desc:'Mercedes E-Class or similar',seats:4,luggage:2,img:'🏎️',basePrice:35000,pricePerKm:900,ac:true},
-  {id:'coaster',name:'Coaster Bus',    desc:'Toyota Coaster or similar',seats:30,luggage:10,img:'🚌',basePrice:45000,pricePerKm:800,ac:true},
-]
+export const PICKUP_VEHICLES = [
+  {
+    id: 'sedan',
+    name: 'Sedan',
+    desc: 'Toyota Camry or similar',
+    seats: 4,
+    luggage: 2,
+    img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&q=80&w=800',
+    basePrice: 12000,
+    pricePerKm: 350,
+    ac: true,
+  },
+  {
+    id: 'suv',
+    name: 'SUV',
+    desc: 'Toyota Prado or similar',
+    seats: 6,
+    luggage: 4,
+    img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800',
+    basePrice: 18000,
+    pricePerKm: 500,
+    ac: true,
+  },
+  {
+    id: 'minivan',
+    name: 'Minivan',
+    desc: 'Toyota Hiace or similar',
+    seats: 14,
+    luggage: 8,
+    img: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&q=80&w=800',
+    basePrice: 25000,
+    pricePerKm: 650,
+    ac: true,
+  },
+  {
+    id: 'luxury',
+    name: 'Luxury / Executive',
+    desc: 'Mercedes E-Class or similar',
+    seats: 4,
+    luggage: 2,
+    img: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&q=80&w=800',
+    basePrice: 35000,
+    pricePerKm: 900,
+    ac: true,
+  },
+  {
+    id: 'coaster',
+    name: 'Coaster Bus',
+    desc: 'Toyota Coaster or similar',
+    seats: 30,
+    luggage: 10,
+    img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=800',
+    basePrice: 45000,
+    pricePerKm: 800,
+    ac: true,
+  },
+];
 
 export const PICKUP_LOCATIONS=[
   'Nnamdi Azikiwe Airport (ABV) — Abuja',
