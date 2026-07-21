@@ -117,7 +117,7 @@ export default function PackagesPage() {
           {/* Custom package CTA */}
           <div className="mt-16 p-8 md:p-12 rounded-3xl text-center reveal"
             style={{background:'rgba(201,168,76,0.06)',border:'1px solid rgba(201,168,76,0.2)'}}>
-            <span className="text-3xl block mb-4">✈️</span>
+            <span className="text-3xl block mb-4"></span>
             <h3 className="font-display font-bold text-white text-2xl mb-3">Can't Find the Right Package?</h3>
             <p className="text-sm mb-6 max-w-md mx-auto" style={{color:'rgba(255,255,255,0.5)'}}>
               We create fully custom itineraries for families, honeymoons, groups, pilgrims, students, and corporate travellers. Just tell us your dream trip.

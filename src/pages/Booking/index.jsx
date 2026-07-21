@@ -1,77 +1,56 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Plane, Hotel, Car, Package, Bus, Shield } from 'lucide-react'
+import { Plane, Hotel, Car, Package } from 'lucide-react'
 import SEO from '../../components/SEO'
 
-const SERVICES = [
-  { to:'/booking/flights', icon:Plane, title:'Flight Booking', desc:'One-way, round trip, or multi-city. Economy to First Class. All airlines.', color:'from-blue-500 to-blue-700', badge:'Most Popular' },
-  { to:'/booking/hotels', icon:Hotel, title:'Hotel Reservation', desc:'Budget to 5-star luxury. 190+ countries. Free cancellation options.', color:'from-amber-500 to-orange-600', badge:null },
-  { to:'/booking/pickup', icon:Car, title:'Airport Pickup & Car Hire', desc:'Professional drivers. Sedans, SUVs, minivans, luxury & coaches.', color:'from-green-500 to-emerald-700', badge:null },
-  { to:'/packages', icon:Package, title:'Holiday Packages', desc:'All-inclusive bundles — flights, hotel, tours & transfers combined.', color:'from-purple-500 to-purple-700', badge:'Best Value' },
-  { to:'/contact', icon:Bus, title:'Bus & Coach Charter', desc:'Group travel across Nigeria. Comfortable, air-conditioned vehicles.', color:'from-red-500 to-red-700', badge:null },
-  { to:'/contact', icon:Shield, title:'Travel Insurance', desc:'Comprehensive cover for medical, cancellations, baggage & delays.', color:'from-teal-500 to-teal-700', badge:null },
+const BOOKING_TYPES = [
+  { to:'/booking/flights',  icon:Plane,   label:'Book a Flight',   sub:'Search across all airlines — one-way, return, multi-city',  color:'rgba(96,165,250,0.15)',  c:'#60a5fa', bg:'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=80' },
+  { to:'/booking/hotels',   icon:Hotel,   label:'Book a Hotel',    sub:'Budget to 5-star luxury hotels in 190+ countries',          color:'rgba(251,191,36,0.15)',  c:'#fbbf24', bg:'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80' },
+  { to:'/booking/pickup',   icon:Car,     label:'Airport Transfer', sub:'Reliable pickup and drop-off from any airport',            color:'rgba(52,211,153,0.15)',  c:'#34d399', bg:'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=80' },
+  { to:'/packages',         icon:Package, label:'Holiday Packages', sub:'All-inclusive deals — flights, hotels, transfers & tours', color:'rgba(201,168,76,0.15)', c:'#C9A84C', bg:'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80' },
 ]
 
 export default function BookingHubPage() {
   return (
     <>
-      <SEO title="Book Travel" description="Book flights, hotels, airport pickup and packages with Apex Getaways." />
-
-      <section className="relative bg-navy dark:bg-black pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1400&q=80" alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-navy via-navy/90 to-navy" />
-        </div>
-        <div className="relative container-pad text-center">
-          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold mb-5">
-              ✈️ Book with Nigeria's #1 Travel Agency
-            </div>
-            <h1 className="font-extrabold text-5xl md:text-6xl text-white mb-4 leading-tight">What are you<br />booking today?</h1>
-            <p className="text-blue-200 text-lg max-w-xl mx-auto">
-              Flights · Hotels · Airport Pickup · Packages · Insurance — all in one place
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="section-pad bg-surface-light dark:bg-surface-dark -mt-8">
-        <div className="container-pad">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            {SERVICES.map(({ to, icon:Icon, title, desc, color, badge }, i) => (
-              <motion.div key={title} initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }} transition={{ delay: i*0.08 }}>
+      <SEO title="Book Travel" description="Book flights, hotels, airport transfers and holiday packages with Apex Getaways."/>
+      <section className="pt-32 pb-20 min-h-screen" style={{ background:'#070D1A' }}>
+        <div className="container-pad max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="text-xs font-bold uppercase tracking-widest text-gold block mb-3">What would you like to book?</span>
+            <h1 className="font-display font-bold text-white text-4xl">Book Your Travel</h1>
+            <p className="text-sm mt-3" style={{ color:'rgba(255,255,255,0.45)' }}>Choose a travel service to get started. Our team handles everything from search to ticket delivery.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-5">
+            {BOOKING_TYPES.map(({ to, icon:Icon, label, sub, color, c, bg }, i) => (
+              <motion.div key={to} initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }} transition={{ delay: i*0.1 }}>
                 <Link to={to}
-                  className="group relative flex flex-col bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-card hover:shadow-card-hover hover:-translate-y-1.5 transition-all duration-300 overflow-hidden p-6 h-full">
-                  {badge && (
-                    <span className="absolute top-4 right-4 text-[10px] font-bold px-2.5 py-1 rounded-full bg-accent/10 text-accent">{badge}</span>
-                  )}
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon size={26} className="text-white" />
+                  className="group flex flex-col overflow-hidden rounded-2xl transition-all duration-300 h-full"
+                  style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.07)' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = c; e.currentTarget.style.transform = 'translateY(-4px)' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.transform = 'translateY(0)' }}>
+                  <div className="relative overflow-hidden" style={{ height:'180px' }}>
+                    <img src={bg} alt={label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
+                    <div className="absolute inset-0" style={{ background:'linear-gradient(to top,rgba(7,13,26,0.8) 0%,transparent 60%)' }}/>
+                    <div className="absolute top-4 left-4 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: color }}>
+                      <Icon size={20} style={{ color: c }}/>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">{title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-1">{desc}</p>
-                  <span className="mt-4 text-xs font-bold text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
-                    Book Now →
-                  </span>
+                  <div className="p-6">
+                    <h2 className="font-display font-bold text-white text-xl mb-2">{label}</h2>
+                    <p className="text-sm leading-relaxed" style={{ color:'rgba(255,255,255,0.5)' }}>{sub}</p>
+                    <div className="flex items-center gap-1.5 mt-4 text-xs font-bold group-hover:gap-2.5 transition-all" style={{ color: c }}>
+                      Get Started →
+                    </div>
+                  </div>
                 </Link>
               </motion.div>
             ))}
           </div>
-
-          {/* Trust strip */}
-          <div className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-5 max-w-3xl mx-auto text-center">
-            {[
-              ['🔒', 'Secure Payments', 'Bank-grade encryption'],
-              ['✅', 'Best Price', 'Price match guarantee'],
-              ['📞', '24/7 Support', 'Always available'],
-              ['⚡', 'Fast Booking', 'Confirmed in hours'],
-            ].map(([icon, title, sub]) => (
-              <div key={title} className="p-4 bg-white dark:bg-card-dark rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
-                <span className="text-2xl block mb-2">{icon}</span>
-                <p className="font-bold text-sm text-gray-900 dark:text-white">{title}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
-              </div>
-            ))}
+          <div className="mt-12 p-6 rounded-2xl text-center" style={{ background:'rgba(201,168,76,0.06)', border:'1px solid rgba(201,168,76,0.2)' }}>
+            <p className="text-white font-semibold mb-1">Need help choosing?</p>
+            <p className="text-sm mb-4" style={{ color:'rgba(255,255,255,0.5)' }}>Our consultants are available 24/7 to guide you through the best options for your needs and budget.</p>
+            <a href="https://wa.me/2348062841276" target="_blank" rel="noreferrer" className="btn-gold inline-flex items-center gap-2"> Chat on WhatsApp</a>
           </div>
         </div>
       </section>

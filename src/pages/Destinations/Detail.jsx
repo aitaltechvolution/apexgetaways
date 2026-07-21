@@ -90,7 +90,7 @@ export default function DestinationDetailPage() {
                 ))}
               </ul>
               <div className="mt-4 p-4 rounded-xl" style={{background:'rgba(201,168,76,0.06)',border:'1px solid rgba(201,168,76,0.15)'}}>
-                <p className="text-xs font-bold text-white mb-1">🛂 Need Visa Assistance?</p>
+                <p className="text-xs font-bold text-white mb-1"> Need Visa Assistance?</p>
                 <p className="text-xs mb-2" style={{color:'rgba(255,255,255,0.45)'}}>Apex Getaways provides full visa documentation support and guidance for all destinations.</p>
                 <Link to="/services/visa" className="text-xs font-bold" style={{color:'#C9A84C'}}>Learn about our Visa Service →</Link>
               </div>
@@ -143,7 +143,7 @@ export default function DestinationDetailPage() {
                 <Phone size={16}/> Chat on WhatsApp — 24/7
               </a>
               <div className="p-4 rounded-xl text-xs" style={{background:'rgba(201,168,76,0.06)',border:'1px solid rgba(201,168,76,0.15)',color:'rgba(255,255,255,0.45)'}}>
-                <p className="font-bold text-white mb-1">✅ All Inclusive</p>
+                <p className="font-bold text-white mb-1"> All Inclusive</p>
                 <p>Visa · Flights · Hotels · Transfers · Tours · Insurance</p>
               </div>
             </div>

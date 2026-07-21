@@ -27,12 +27,12 @@ function generateSeatMap(totalSeats = 120, config = {}) {
     rows.push({ num: rowNum, cabin: 'business', cols: bizCols, occupied: generateOccupied(bizCols, 0.35) })
   }
   // Premium Economy
-  rows.push({ num: rowNum++, cabin: 'exit', cols: [], label: '🚪 Emergency Exit' })
+  rows.push({ num: rowNum++, cabin: 'exit', cols: [], label: ' Emergency Exit' })
   for (let r = 0; r < premiumRows; r++, rowNum++) {
     rows.push({ num: rowNum, cabin: 'premium', cols: premCols, occupied: generateOccupied(premCols, 0.45) })
   }
   // Economy
-  rows.push({ num: rowNum++, cabin: 'exit', cols: [], label: '🚪 Emergency Exit' })
+  rows.push({ num: rowNum++, cabin: 'exit', cols: [], label: ' Emergency Exit' })
   for (let r = 0; r < economyRows; r++, rowNum++) {
     rows.push({ num: rowNum, cabin: 'economy', cols: ecoCols, occupied: generateOccupied(ecoCols, 0.6) })
   }
@@ -71,7 +71,7 @@ function Seat({ col, row, cabin, occupied, selected, onClick, selectable }) {
         title={occupied ? 'Occupied' : `Seat ${row}${col}${isWindow ? ' (Window)' : isAisle ? ' (Aisle)' : ' (Middle)'}`}
         className={`w-7 h-8 sm:w-8 sm:h-9 rounded-t-lg rounded-b-sm text-[10px] font-bold transition-all duration-150 ${seatStyle}`}
       >
-        {selected ? '✓' : occupied ? '' : col}
+        {selected ? '' : occupied ? '' : col}
       </motion.button>
     </div>
   )
@@ -138,7 +138,7 @@ export default function SeatMap({ flight, passengers = 1, onConfirm, onClose, se
         <div className="px-4 py-4 overflow-y-auto max-h-[50vh]">
           {/* Nose */}
           <div className="text-center mb-4">
-            <div className="inline-block text-3xl">✈️</div>
+            <div className="inline-block text-3xl"></div>
             <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest">Front of Aircraft</p>
           </div>
 

@@ -26,13 +26,6 @@ export function AuthProvider({ children }) {
     return unsub
   }, [])
 
-  const googleLogin = async () => {
-    const u = await signInWithGoogle()
-    const doc = await getUserDoc(u.uid).catch(() => null)
-    setUserDoc(doc)
-    return u
-  }
-
   const emailRegister = async (email, password, name) => {
     const u = await registerWithEmail(email, password, name)
     const doc = await getUserDoc(u.uid).catch(() => null)
@@ -58,7 +51,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       user, userDoc, loading, isAdmin,
-      googleLogin, emailRegister, emailLogin, logout, resetPassword
+      emailRegister, emailLogin, logout, resetPassword
     }}>
       {!loading && children}
     </AuthContext.Provider>

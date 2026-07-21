@@ -49,7 +49,13 @@ export default function Navbar() {
           borderBottom: solid ? '1px solid rgba(201,168,76,0.15)' : 'none',
         }}>
         <div className="container-pad flex items-center h-16 lg:h-20 gap-3">
-          <Link to="/" className="shrink-0 mr-4"><ApexLogo size={36} showText light /></Link>
+          <Link to="/" className="shrink-0 mr-4 flex items-center gap-2.5">
+          <img src="/logo.png" alt="Apex Getaways" style={{height:36,width:'auto',objectFit:'contain'}}/>
+          <div className="hidden sm:block leading-tight">
+            <p className="font-bold text-white text-sm tracking-tight">APEX</p>
+            <p className="text-[9px] font-semibold tracking-widest uppercase" style={{color:'#C9A84C'}}>Getaways & Travel</p>
+          </div>
+        </Link>
 
           {/* Desktop */}
           <div className="hidden lg:flex items-center gap-0.5 flex-1">

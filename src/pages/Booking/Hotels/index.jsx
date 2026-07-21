@@ -32,7 +32,7 @@ function HotelCard({ hotel, onSelect, selected }) {
           <img src={hotel.img} alt={hotel.name} className="w-full h-48 md:h-full object-cover transition-transform duration-500 hover:scale-105"/>
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"/>
           {hotel.freeCancellation && <span className="absolute top-2 left-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg">Free Cancel</span>}
-          {hotel.breakfastIncluded && <span className="absolute top-2 right-2 bg-accent text-navy text-[10px] font-bold px-2 py-1 rounded-lg">Breakfast ✓</span>}
+          {hotel.breakfastIncluded && <span className="absolute top-2 right-2 bg-accent text-navy text-[10px] font-bold px-2 py-1 rounded-lg">Breakfast check</span>}
         </div>
         {/* Body */}
         <div className="flex-1 p-5 flex flex-col">
@@ -232,9 +232,9 @@ export default function HotelsPage() {
                 <select value={filterStars} onChange={e => setFilterStars(e.target.value)}
                   className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-all">
                   <option value="all">All stars</option>
-                  <option value="5">5 ★</option>
-                  <option value="4">4 ★</option>
-                  <option value="3">3 ★</option>
+                  <option value="5">5 *</option>
+                  <option value="4">4 *</option>
+                  <option value="3">3 *</option>
                 </select>
                 <select value={sortBy} onChange={e => setSortBy(e.target.value)}
                   className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-all">

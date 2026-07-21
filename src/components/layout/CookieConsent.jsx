@@ -1,14 +1,26 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Cookie, X } from 'lucide-react'
 export default function CookieConsent() {
-  const [dismissed, setDismissed] = useState(() => !!localStorage.getItem('cookieOk'))
-  if (dismissed) return null
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    if (!localStorage.getItem('apex_cookie_consent')) setTimeout(() => setShow(true), 2000)
+  }, [])
+  if (!show) return null
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50 bg-navy dark:bg-card-dark text-white rounded-2xl p-5 shadow-2xl border border-white/10">
-      <p className="text-sm leading-relaxed text-gray-300 mb-4">We use cookies to improve your experience. By continuing, you accept our <a href="/privacy" className="text-accent underline">Privacy Policy</a>.</p>
-      <div className="flex gap-2">
-        <button onClick={() => { localStorage.setItem('cookieOk','1'); setDismissed(true) }} className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-primary text-white">Accept</button>
-        <button onClick={() => setDismissed(true)} className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-white/10 text-gray-300">Decline</button>
+    <div className="fixed bottom-20 left-4 right-4 md:left-auto md:right-6 md:max-w-sm z-50 p-4 rounded-2xl shadow-2xl"
+      style={{ background: '#0F1826', border: '1px solid rgba(201,168,76,0.2)', backdropFilter: 'blur(24px)' }}>
+      <div className="flex items-start gap-3 mb-3">
+        <Cookie size={18} style={{ color: '#C9A84C', shrink: 0, marginTop: 2 }}/>
+        <div>
+          <p className="text-sm font-semibold text-white mb-0.5">Cookie Notice</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>We use cookies to improve your experience. By continuing you agree to our Privacy Policy.</p>
+        </div>
+        <button onClick={() => setShow(false)} className="shrink-0 p-1 rounded-lg text-white/30 hover:text-white/60"><X size={14}/></button>
       </div>
+      <button onClick={() => { localStorage.setItem('apex_cookie_consent', '1'); setShow(false) }}
+        className="w-full py-2 rounded-xl text-xs font-bold text-navy" style={{ background: 'linear-gradient(135deg,#C9A84C,#F5C842)' }}>
+        Accept
+      </button>
     </div>
   )
 }

@@ -148,10 +148,10 @@ export default function ContactPage() {
                     <optgroup label="Destinations" style={{background:'#0F1826'}}>
                       {DESTINATIONS.map(d=><option key={d.id} value={`Trip to ${d.name}`} style={{background:'#0F1826'}}>{d.flag} Trip to {d.name}</option>)}
                     </optgroup>
-                    <option value="Custom Package" style={{background:'#0F1826'}}>🌍 Custom itinerary</option>
-                    <option value="Visa Enquiry" style={{background:'#0F1826'}}>🛂 Visa Enquiry</option>
-                    <option value="Study Abroad" style={{background:'#0F1826'}}>🎓 Study Abroad</option>
-                    <option value="Immigration" style={{background:'#0F1826'}}>📋 Immigration Consultation</option>
+                    <option value="Custom Package" style={{background:'#0F1826'}}> Custom itinerary</option>
+                    <option value="Visa Enquiry" style={{background:'#0F1826'}}> Visa Enquiry</option>
+                    <option value="Study Abroad" style={{background:'#0F1826'}}> Study Abroad</option>
+                    <option value="Immigration" style={{background:'#0F1826'}}> Immigration Consultation</option>
                   </select>
                 </div>
 
@@ -160,7 +160,7 @@ export default function ContactPage() {
 
                 <button type="submit" disabled={loading}
                   className="w-full btn-gold py-4 text-base disabled:opacity-60 flex items-center justify-center gap-2">
-                  {loading ? <><span className="animate-spin">⟳</span> Sending…</> : <><Send size={16}/> Send Message to Apex Getaways</>}
+                  {loading ? <><span className="animate-spin"></span> Sending…</> : <><Send size={16}/> Send Message to Apex Getaways</>}
                 </button>
                 <p className="text-[11px] text-center" style={{color:'rgba(255,255,255,0.25)'}}>
                   Your information is private and only used to respond to your enquiry.

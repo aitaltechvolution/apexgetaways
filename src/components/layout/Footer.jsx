@@ -40,7 +40,13 @@ export default function Footer() {
       <div className="container-pad py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* Brand */}
         <div className="lg:col-span-1">
-          <div className="mb-5"><ApexLogo size={36} showText light /></div>
+          <div className="mb-5 flex items-center gap-3">
+          <img src="/logo.png" alt="Apex Getaways" style={{height:40,width:'auto',objectFit:'contain'}}/>
+          <div className="leading-tight">
+            <p className="font-bold text-white text-sm tracking-tight">APEX</p>
+            <p className="text-[9px] font-semibold tracking-widest uppercase" style={{color:'#C9A84C'}}>Getaways & Travel</p>
+          </div>
+        </div>
           <p className="text-sm leading-relaxed mb-6" style={{ color:'rgba(255,255,255,0.38)' }}>
             Apex Getaways & Travel LTD — your trusted partner for flights, visa, study abroad, hotel bookings, and immigration services. Based in Abuja, Nigeria, serving the world.
           </p>

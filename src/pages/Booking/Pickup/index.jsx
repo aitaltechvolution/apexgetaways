@@ -1,81 +1,45 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import {
-  Car, MapPin, Calendar, Clock, Users, CheckCircle,
-  ArrowRight, ArrowLeftRight, Plus, Snowflake, Luggage, Plane, Building2, Bus
-} from 'lucide-react'
+import { MapPin, Clock, Users, ArrowRight, Car, CheckCircle, Luggage, Wind, RotateCcw } from 'lucide-react'
 import SEO from '../../../components/SEO'
-import { PICKUP_VEHICLES, PICKUP_LOCATIONS, formatNGN } from '../../../data'
 import { useBooking } from '../../../store/BookingContext'
+import { PICKUP_VEHICLES, PICKUP_LOCATIONS, formatNGN } from '../../../data'
 
-function VehicleCard({ vehicle, selected, onSelect }) {
-  const isSelected = selected?.id === vehicle.id
-  return (
-    <motion.div whileHover={{ y: -3 }} onClick={() => onSelect(vehicle)}
-      className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${
-        isSelected
-          ? 'border-primary bg-primary/5 shadow-glow'
-          : 'border-gray-100 dark:border-gray-800 bg-white dark:bg-card-dark shadow-card hover:border-primary/50'
-      }`}>
-      <div className="flex items-start justify-between mb-3">
-        <img src={vehicle.img} alt="" />
-        {isSelected && <CheckCircle size={20} className="text-primary shrink-0" />}
-      </div>
-      <h3 className="font-bold text-gray-900 dark:text-white mb-1">{vehicle.name}</h3>
-      <p className="text-xs text-gray-400 mb-3">{vehicle.desc}</p>
-      <div className="flex gap-3 text-xs text-gray-500 dark:text-gray-400 mb-4">
-        <span className="flex items-center gap-1"><Users size={11} /> {vehicle.seats} seats</span>
-        <span className='flex items-center gap-1'><Luggage size={20}/> {vehicle.luggage} bags</span>
-        {vehicle.ac && <span className='flex items-center gap-1'><Snowflake size={20}/></span>}
-      </div>
-      <div className="border-t border-gray-100 dark:border-gray-800 pt-3">
-        <p className="text-[11px] text-gray-400">Base fare</p>
-        <p className="font-extrabold text-primary text-lg">{formatNGN(vehicle.basePrice)}</p>
-        <p className="text-[11px] text-gray-400">+ {formatNGN(vehicle.pricePerKm)}/km</p>
-      </div>
-    </motion.div>
-  )
+const iStyle = {
+  width: '100%', padding: '13px 16px', borderRadius: '12px', fontSize: '0.875rem',
+  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+  color: '#fff', outline: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif',
+}
+const focus = e => { e.target.style.borderColor = '#C9A84C' }
+const blur  = e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)' }
+
+function Label({ children }) {
+  return <label className="block text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>{children}</label>
 }
 
 export default function PickupPage() {
-  const { update } = useBooking()
+  const { booking, update } = useBooking()
   const navigate = useNavigate()
 
-  const [pickupFrom, setPickupFrom] = useState('')
-  const [pickupFromCustom, setPickupFromCustom] = useState('')
-  const [pickupTo, setPickupTo] = useState('')
-  const [pickupToCustom, setPickupToCustom] = useState('')
-  const [date, setDate] = useState('')
-  const [time, setTime] = useState('')
-  const [pax, setPax] = useState(1)
+  const [pickupFrom, setPickupFrom] = useState(booking.heroPickupFrom || booking.pickupFrom || '')
+  const [pickupTo,   setPickupTo]   = useState(booking.heroPickupTo   || booking.pickupTo   || '')
+  const [date,   setDate]   = useState(booking.heroPickupDate || booking.pickupDate || '')
+  const [time,   setTime]   = useState(booking.pickupTime || '')
+  const [pax,    setPax]    = useState(booking.pickupPassengers || 1)
   const [vehicle, setVehicle] = useState(null)
-  const [returnTrip, setReturnTrip] = useState(false)
+  const [returnNeeded, setReturnNeeded] = useState(false)
   const [returnDate, setReturnDate] = useState('')
   const [returnTime, setReturnTime] = useState('')
   const [notes, setNotes] = useState('')
-  const [serviceType, setServiceType] = useState('airport') // airport | intercity | charter
-
   const today = new Date().toISOString().split('T')[0]
 
-  const totalFare = vehicle
-    ? vehicle.basePrice * (returnTrip ? 2 : 1)
-    : 0
-
-  const canProceed = pickupFrom && pickupTo && date && time && vehicle
+  const eligibleVehicles = PICKUP_VEHICLES.filter(v => v.seats >= pax)
 
   const proceed = () => {
     update({
-      bookingType: 'pickup',
-      pickupFrom: pickupFrom === 'Custom Location (specify in notes)' ? pickupFromCustom : pickupFrom,
-      pickupTo: pickupTo === 'Custom Location (specify in notes)' ? pickupToCustom : pickupTo,
-      pickupDate: date,
-      pickupTime: time,
-      pickupPassengers: pax,
-      pickupVehicle: vehicle,
-      pickupReturnNeeded: returnTrip,
-      pickupReturnDate: returnDate,
-      pickupReturnTime: returnTime,
+      bookingType: 'pickup', pickupFrom, pickupTo, pickupDate: date, pickupTime: time,
+      pickupPassengers: pax, pickupVehicle: vehicle,
+      pickupReturnNeeded: returnNeeded, pickupReturnDate: returnDate, pickupReturnTime: returnTime,
       pickupNotes: notes,
     })
     navigate('/booking/passengers')
@@ -83,214 +47,172 @@ export default function PickupPage() {
 
   return (
     <>
-      <SEO title="Airport Pickup & Car Hire" description="Book comfortable airport pickups, intercity transfers, and charter vehicles." />
-
-      {/* Hero */}
-      <section className="relative bg-navy dark:bg-black pt-24 pb-10 overflow-hidden">
-        <div className="absolute inset-0 opacity-15">
-          <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1400&q=80" alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-navy/80 to-navy" />
-        </div>
-        <div className="relative container-pad text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold mb-4">
-            <Car size={12} /> Professional Drivers · On-Time Guarantee
-          </div>
-          <h1 className="font-extrabold text-4xl md:text-5xl text-white mb-2">Airport Pickup & Car Hire</h1>
-          <p className="text-blue-200 text-base">Comfortable transfers across Nigeria — airports, intercity, charter</p>
+      <SEO title="Airport Transfer"/>
+      <section className="pt-28 pb-6" style={{ background: '#0A1628', borderBottom: '1px solid rgba(201,168,76,0.15)' }}>
+        <div className="container-pad">
+          <h1 className="font-display font-bold text-white text-3xl mb-1">Airport Transfer</h1>
+          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            Professional pickup and drop-off — airport, hotel, or any address
+          </p>
         </div>
       </section>
 
-      <section className="section-pad bg-surface-light dark:bg-surface-dark">
-        <div className="container-pad max-w-4xl mx-auto">
+      <section className="py-10" style={{ background: '#070D1A' }}>
+        <div className="container-pad max-w-3xl mx-auto space-y-5">
 
-          {/* Service type tabs */}
-          <div className="flex gap-2 mb-8 flex-wrap">
-            {[
-              ['airport', <Plane size={18}/>, 'Airport Transfer'],
-              ['intercity', <Building2 size={18}/>, 'Intercity Transfer'],
-              ['charter', <Bus size={18}/>, 'Charter / Group Hire'],
-            ].map(([val, icon, lbl]) => (
-              <button key={val} onClick={() => setServiceType(val)}
-                className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex gap-1 ${
-                  serviceType === val
-                    ? 'bg-primary text-white shadow-glow'
-                    : 'bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-primary hover:text-primary'
-                }`}>{icon}{lbl}</button>
-            ))}
-          </div>
-
-          {/* Form card */}
-          <div className="bg-white dark:bg-card-dark rounded-3xl shadow-card p-6 md:p-8 border border-gray-100 dark:border-gray-800 mb-8">
-            <h2 className="font-bold text-xl text-gray-900 dark:text-white mb-6">Trip Details</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-              {/* Pickup from */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                  Pickup Location
-                </label>
-                <div className="relative">
-                  <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-green-500 z-10" />
-                  <select value={pickupFrom} onChange={e => setPickupFrom(e.target.value)}
-                    className="w-full pl-9 pr-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none">
-                    <option value="">Select pickup location</option>
-                    {PICKUP_LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-                  </select>
-                </div>
-                {pickupFrom === 'Custom Location (specify in notes)' && (
-                  <input value={pickupFromCustom} onChange={e => setPickupFromCustom(e.target.value)}
-                    placeholder="Enter full pickup address"
-                    className="mt-2 w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-all" />
-                )}
-              </div>
-
-              {/* Drop-off */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                  Drop-off Location
-                </label>
-                <div className="relative">
-                  <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-red-500 z-10" />
-                  <select value={pickupTo} onChange={e => setPickupTo(e.target.value)}
-                    className="w-full pl-9 pr-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none">
-                    <option value="">Select drop-off location</option>
-                    {PICKUP_LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-                  </select>
-                </div>
-                {pickupTo === 'Custom Location (specify in notes)' && (
-                  <input value={pickupToCustom} onChange={e => setPickupToCustom(e.target.value)}
-                    placeholder="Enter full drop-off address"
-                    className="mt-2 w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-all" />
-                )}
-              </div>
-
-              {/* Date */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Pickup Date</label>
-                <div className="relative">
-                  <Calendar size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-primary" />
-                  <input type="date" min={today} value={date} onChange={e => setDate(e.target.value)}
-                    className="w-full pl-9 pr-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" />
-                </div>
-              </div>
-
-              {/* Time */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Pickup Time</label>
-                <div className="relative">
-                  <Clock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-primary" />
-                  <input type="time" value={time} onChange={e => setTime(e.target.value)}
-                    className="w-full pl-9 pr-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" />
-                </div>
-              </div>
-
-              {/* Passengers */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Number of Passengers</label>
-                <div className="relative">
-                  <Users size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-primary" />
-                  <input type="number" min={1} max={50} value={pax} onChange={e => setPax(Number(e.target.value))}
-                    className="w-full pl-9 pr-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" />
-                </div>
-              </div>
-
-              {/* Return trip toggle */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Return Trip?</label>
-                <div className="flex gap-3">
-                  {[['no', 'One Way'], ['yes', 'Return Trip']].map(([val, lbl]) => (
-                    <button key={val} onClick={() => setReturnTrip(val === 'yes')}
-                      className={`flex-1 py-3.5 rounded-xl text-sm font-bold border-2 transition-all ${
-                        (returnTrip && val === 'yes') || (!returnTrip && val === 'no')
-                          ? 'border-primary bg-primary/5 text-primary'
-                          : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400'
-                      }`}>{lbl}</button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Return details */}
-            {returnTrip && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-                className="grid grid-cols-2 gap-5 mb-5 overflow-hidden">
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Return Date</label>
-                  <input type="date" min={date || today} value={returnDate} onChange={e => setReturnDate(e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-all" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Return Pickup Time</label>
-                  <input type="time" value={returnTime} onChange={e => setReturnTime(e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-all" />
-                </div>
-              </motion.div>
-            )}
-
-            {/* Notes */}
+          {/* Route & date */}
+          <div className="p-6 rounded-2xl space-y-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <h2 className="font-bold text-white">Transfer Details</h2>
             <div>
-              <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Special Instructions / Notes</label>
-              <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3}
-                placeholder="Flight number for airport pickup, specific address details, luggage quantity, child seat needed, etc."
-                className="w-full px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none" />
+              <Label>Pickup Location</Label>
+              <select value={pickupFrom} onChange={e => setPickupFrom(e.target.value)} style={{ ...iStyle, appearance: 'none', cursor: 'pointer' }}
+                onFocus={focus} onBlur={blur}>
+                <option value="" style={{ background: '#0F1826' }}>Select pickup location</option>
+                {PICKUP_LOCATIONS.map(l => <option key={l} value={l} style={{ background: '#0F1826' }}>{l}</option>)}
+              </select>
+            </div>
+            <div>
+              <Label>Drop-off Location</Label>
+              <input value={pickupTo} onChange={e => setPickupTo(e.target.value)}
+                placeholder="Hotel name or full address" style={iStyle} onFocus={focus} onBlur={blur}/>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label>Date</Label>
+                <input type="date" min={today} value={date} onChange={e => setDate(e.target.value)} style={iStyle} onFocus={focus} onBlur={blur}/>
+              </div>
+              <div>
+                <Label>Time</Label>
+                <input type="time" value={time} onChange={e => setTime(e.target.value)} style={iStyle} onFocus={focus} onBlur={blur}/>
+              </div>
+              <div>
+                <Label>Passengers</Label>
+                <input type="number" min={1} max={30} value={pax} onChange={e => setPax(Number(e.target.value))} style={iStyle} onFocus={focus} onBlur={blur}/>
+              </div>
             </div>
           </div>
 
           {/* Vehicle selection */}
-          <div className="mb-8">
-            <h2 className="font-bold text-xl text-gray-900 dark:text-white mb-2">Choose Your Vehicle</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-              {pax > 1 ? `For ${pax} passengers, we recommend vehicles with at least ${pax} seats.` : 'Select the vehicle that best suits your needs.'}
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {PICKUP_VEHICLES.filter(v => v.seats >= pax || v.id === 'coaster').map(v => (
-                <VehicleCard key={v.id} vehicle={v} selected={vehicle} onSelect={setVehicle} />
-              ))}
-            </div>
+          <div className="p-6 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <h2 className="font-bold text-white mb-5">Select Vehicle</h2>
+            {eligibleVehicles.length === 0 ? (
+              <div className="text-center py-8">
+                <Car size={36} className="mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.2)' }}/>
+                <p className="text-sm font-semibold text-white mb-1">No vehicles for {pax} passengers</p>
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Please contact us for a custom group quote.</p>
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {eligibleVehicles.map(v => {
+                  const selected = vehicle?.id === v.id
+                  return (
+                    <button key={v.id} type="button" onClick={() => setVehicle(v)}
+                      className="text-left overflow-hidden rounded-2xl transition-all duration-200"
+                      style={{
+                        border: `2px solid ${selected ? '#C9A84C' : 'rgba(255,255,255,0.08)'}`,
+                        background: selected ? 'rgba(201,168,76,0.06)' : 'rgba(255,255,255,0.03)',
+                        transform: selected ? 'scale(1.01)' : 'scale(1)',
+                      }}>
+                      {/* Real vehicle photo */}
+                      <div className="relative overflow-hidden" style={{ height: '140px' }}>
+                        <img src={v.img} alt={v.name}
+                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"/>
+                        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(7,13,26,0.7) 0%, transparent 60%)' }}/>
+                        {selected && (
+                          <div className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center"
+                            style={{ background: '#C9A84C' }}>
+                            <CheckCircle size={14} style={{ color: '#0A1628' }}/>
+                          </div>
+                        )}
+                        <p className="absolute bottom-2 left-3 font-display font-bold text-white text-base">{v.name}</p>
+                      </div>
+                      {/* Details */}
+                      <div className="p-4">
+                        <p className="text-xs mb-3" style={{ color: 'rgba(255,255,255,0.45)' }}>{v.desc}</p>
+                        <div className="flex items-center gap-4 text-xs mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                          <span className="flex items-center gap-1"><Users size={12}/>{v.seats} seats</span>
+                          <span className="flex items-center gap-1"><Luggage size={12}/>{v.luggage} bags</span>
+                          {v.ac && <span className="flex items-center gap-1"><Wind size={12}/>A/C</span>}
+                        </div>
+                        <p className="font-bold text-base" style={{ color: '#C9A84C' }}>
+                          {formatNGN(v.basePrice)}
+                          <span className="text-xs font-normal ml-1" style={{ color: 'rgba(255,255,255,0.3)' }}>base fare</span>
+                        </p>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
-          {/* Summary & CTA */}
-          {vehicle && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-white dark:bg-card-dark rounded-2xl border border-primary/20 shadow-card p-6">
-              <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">Booking Summary</h3>
-              <div className="space-y-2 text-sm mb-5">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Vehicle</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">{vehicle.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Route</span>
-                  <span className="font-semibold text-gray-900 dark:text-white text-right max-w-[60%]">
-                    {pickupFrom || '—'} → {pickupTo || '—'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Date & Time</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">{date || '—'} at {time || '—'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Passengers</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">{pax}</span>
-                </div>
-                {returnTrip && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Return</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{returnDate || '—'} at {returnTime || '—'}</span>
-                  </div>
-                )}
-                <div className="flex justify-between pt-3 border-t border-gray-100 dark:border-gray-800 font-bold">
-                  <span className="text-gray-900 dark:text-white">Estimated Fare</span>
-                  <span className="text-primary text-lg">{formatNGN(totalFare)}</span>
-                </div>
-                <p className="text-[11px] text-gray-400">* Final price confirmed after trip distance calculation. Extra charges may apply for tolls.</p>
+          {/* Return trip */}
+          <div className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div className="relative shrink-0">
+                <input type="checkbox" checked={returnNeeded} onChange={e => setReturnNeeded(e.target.checked)} className="sr-only"/>
+                <div className="w-11 h-6 rounded-full transition-colors" style={{ background: returnNeeded ? '#C9A84C' : 'rgba(255,255,255,0.15)' }}/>
+                <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform"
+                  style={{ transform: returnNeeded ? 'translateX(20px)' : 'translateX(0)' }}/>
               </div>
-              <button onClick={proceed} disabled={!canProceed}
-                className="w-full py-4 rounded-xl font-bold text-sm text-white bg-primary-gradient shadow-glow hover:shadow-none transition-all hover:scale-[1.02] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2">
-                Continue to Passenger Details <ArrowRight size={15} />
-              </button>
-            </motion.div>
+              <div className="flex items-center gap-2">
+                <RotateCcw size={15} style={{ color: returnNeeded ? '#C9A84C' : 'rgba(255,255,255,0.4)' }}/>
+                <span className="text-sm font-semibold text-white">Add Return Transfer</span>
+              </div>
+            </label>
+            {returnNeeded && (
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <div>
+                  <Label>Return Date</Label>
+                  <input type="date" min={date || today} value={returnDate} onChange={e => setReturnDate(e.target.value)}
+                    style={iStyle} onFocus={focus} onBlur={blur}/>
+                </div>
+                <div>
+                  <Label>Return Time</Label>
+                  <input type="time" value={returnTime} onChange={e => setReturnTime(e.target.value)}
+                    style={iStyle} onFocus={focus} onBlur={blur}/>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Notes */}
+          <div>
+            <Label>Special Instructions (optional)</Label>
+            <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2}
+              placeholder="Flight number, extra stops, accessibility needs…"
+              className="w-full px-4 py-3 rounded-xl text-sm text-white focus:outline-none resize-none"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+              onFocus={focus} onBlur={blur}/>
+          </div>
+
+          {/* Price summary */}
+          {vehicle && (
+            <div className="p-4 rounded-xl" style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)' }}>
+              <div className="flex justify-between text-sm mb-1">
+                <span style={{ color: 'rgba(255,255,255,0.55)' }}>{vehicle.name}</span>
+                <span className="font-bold" style={{ color: '#C9A84C' }}>{formatNGN(vehicle.basePrice)}</span>
+              </div>
+              {returnNeeded && (
+                <div className="flex justify-between text-sm mb-1">
+                  <span style={{ color: 'rgba(255,255,255,0.55)' }}>Return transfer</span>
+                  <span className="font-bold" style={{ color: '#C9A84C' }}>{formatNGN(vehicle.basePrice)}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-base pt-2 mt-1" style={{ borderTop: '1px solid rgba(201,168,76,0.2)' }}>
+                <span className="text-white">Estimated Total</span>
+                <span style={{ color: '#C9A84C' }}>{formatNGN(vehicle.basePrice * (returnNeeded ? 2 : 1))}</span>
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                Final price may vary based on distance and waiting time
+              </p>
+            </div>
           )}
+
+          <button onClick={proceed} disabled={!pickupFrom || !pickupTo || !date || !time || !vehicle}
+            className="w-full btn-gold py-4 font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+            Continue <ArrowRight size={15}/>
+          </button>
         </div>
       </section>
     </>

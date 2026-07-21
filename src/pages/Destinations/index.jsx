@@ -81,7 +81,7 @@ export default function DestinationsPage() {
         <div className="container-pad">
           {filtered.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-4xl mb-3">🌍</p>
+              <p className="text-4xl mb-3"></p>
               <p className="text-white font-bold mb-1">No destinations found</p>
               <p className="text-sm" style={{color:'rgba(255,255,255,0.4)'}}>Try a different search or region</p>
             </div>

@@ -83,7 +83,7 @@ export default function PackageDetailPage() {
               </div>
             </div>
             <div className="reveal p-5 rounded-2xl" style={{background:'rgba(201,168,76,0.06)',border:'1px solid rgba(201,168,76,0.15)'}}>
-              <p className="text-sm font-bold text-white mb-1">💡 Need a Custom Version?</p>
+              <p className="text-sm font-bold text-white mb-1"> Need a Custom Version?</p>
               <p className="text-xs mb-3" style={{color:'rgba(255,255,255,0.45)'}}>We can adjust dates, hotel class, add extra nights, or include additional cities.</p>
               <a href={`tel:${BRAND.phone}`} className="inline-flex items-center gap-2 text-xs font-bold" style={{color:'#C9A84C'}}>
                 <Phone size={12}/> Call {BRAND.phone}
@@ -101,10 +101,10 @@ export default function PackageDetailPage() {
                 <p className="text-xs" style={{color:'rgba(255,255,255,0.35)'}}>per person · save {save}%</p>
               </div>
               <div className="space-y-2 text-xs" style={{color:'rgba(255,255,255,0.45)'}}>
-                <p>✅ Flexible payment available</p>
-                <p>✅ Visa assistance included</p>
-                <p>✅ Free cancellation (48hrs)</p>
-                <p>✅ 24/7 support during travel</p>
+                <p> Flexible payment available</p>
+                <p> Visa assistance included</p>
+                <p> Free cancellation (48hrs)</p>
+                <p> 24/7 support during travel</p>
               </div>
               <Link to={`/contact?package=${encodeURIComponent(pkg.title)}`}
                 className="block w-full text-center btn-gold py-4">

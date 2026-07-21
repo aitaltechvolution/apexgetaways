@@ -1,23 +1,4 @@
-import {
-  Plane,
-  FileCheck,
-  GraduationCap,
-  FileText,
-  Globe,
-  Hotel,
-  Car,
-  Palmtree,
-  Ship,
-  ShieldCheck,
-  Briefcase,
-  Coins,
-} from 'lucide-react';
-
-
-
-
-
-// ─── BRAND ───────────────────────────────────────────────────────────────────
+//  BRAND 
 export const BRAND = {
   name:      'Apex Getaways & Travel LTD',
   shortName: 'Apex Getaways',
@@ -33,102 +14,31 @@ export const BRAND = {
   tiktok:    'https://www.tiktok.com/@visa_travel_support?_r=1&_t=ZS-97s38omonhg',
   facebook:  '#',
   founded:   '2026',
-  ceo:       { name:'Joy Nathaniel', title:'Founder & CEO', bio:'Mrs. Joy Nathaniel is the Founder and CEO of Apex Getaways Travel LTD. She is passionate about helping individuals, families, students, and businesses access reliable travel and immigration solutions. Through integrity, professionalism, and exceptional customer service, she has built a company committed to making international travel simple, seamless, and stress-free.' },
+  ceo:       { name:'Mrs. Joy Nathaniel', title:'Founder & CEO', bio:'Mrs. Joy Nathaniel is the Founder and CEO of Apex Getaways & Travel LTD. She is passionate about helping individuals, families, students, and businesses access reliable travel and immigration solutions. Through integrity, professionalism, and exceptional customer service, she has built a company dedicated to making international travel simple, seamless, and stress-free for every Nigerian.' },
 }
 
-// ─── SERVICES ────────────────────────────────────────────────────────────────
+//  SERVICES 
 export const SERVICES = [
-  {
-    id: 'flights',
-    icon: Plane,
-    title: 'Flight Reservation & Ticketing',
-    desc: 'Domestic and international flights — one-way, round-trip, multi-city, and group bookings with expert fare guidance.',
-    color: 'from-blue-900 to-blue-700',
-  },
-  {
-    id: 'visa',
-    icon: FileCheck,
-    title: 'Visa Assistance',
-    desc: 'Tourist, business, student, visitor, and family visit visas. Documentation review, appointment scheduling, and guidance.',
-    color: 'from-navy to-navy-light',
-  },
-  {
-    id: 'study-abroad',
-    icon: GraduationCap,
-    title: 'Study Abroad Services',
-    desc: 'International school admissions, program selection, study permit guidance, and pre-departure orientation support.',
-    color: 'from-emerald-900 to-emerald-700',
-  },
-  {
-    id: 'ielts',
-    icon: FileText,
-    title: 'IELTS & English Proficiency',
-    desc: 'IELTS registration guidance, test preparation referrals, and advice on language requirements for study and immigration.',
-    color: 'from-purple-900 to-purple-700',
-  },
-  {
-    id: 'immigration',
-    icon: Globe,
-    title: 'Immigration Consultation',
-    desc: 'General immigration information, guidance on pathways, documentation support, and settlement preparation.',
-    color: 'from-teal-900 to-teal-700',
-  },
-  {
-    id: 'hotels',
-    icon: Hotel,
-    title: 'Hotel & Accommodation Booking',
-    desc: 'Hotel reservations, serviced apartments, vacation accommodation, and short-term or long-term lodging arrangements.',
-    color: 'from-amber-900 to-amber-700',
-  },
-  {
-    id: 'airport',
-    icon: Car,
-    title: 'Airport Services',
-    desc: 'Airport pick-up, drop-off, meet-and-greet, and transfer coordination — prompt, professional, reliable.',
-    color: 'from-rose-900 to-rose-700',
-  },
-  {
-    id: 'holiday',
-    icon: Palmtree,
-    title: 'Holiday & Tour Packages',
-    desc: 'Family vacations, honeymoon packages, group tours, adventure travel, religious and pilgrimage tours.',
-    color: 'from-cyan-900 to-cyan-700',
-  },
-  {
-    id: 'cruise',
-    icon: Ship,
-    title: 'Cruise Bookings',
-    desc: 'International cruise reservations, vacation cruise packages, family and luxury cruises.',
-    color: 'from-indigo-900 to-indigo-700',
-  },
-  {
-    id: 'insurance',
-    icon: ShieldCheck,
-    title: 'Travel Insurance Assistance',
-    desc: 'Guidance on obtaining travel insurance and information on coverage options required for international travel.',
-    color: 'from-green-900 to-green-700',
-  },
-  {
-    id: 'corporate',
-    icon: Briefcase,
-    title: 'Group & Corporate Travel',
-    desc: 'Corporate travel planning, business travel coordination, conference travel, educational and church group travel.',
-    color: 'from-slate-900 to-slate-700',
-  },
-  {
-    id: 'forex',
-    icon: Coins,
-    title: 'Foreign Exchange Guidance',
-    desc: 'Information on travel-related foreign exchange procedures and currency planning guidance.',
-    color: 'from-yellow-900 to-yellow-700',
-  },
-];
-// ─── PACKAGES ────────────────────────────────────────────────────────────────
+  { id:'flights',       iconName:'Plane',         title:'Flight Booking',           desc:'Domestic and international flights — one-way, return, multi-city, and group travel.' },
+  { id:'visa',          iconName:'FileCheck',      title:'Visa Assistance',          desc:'Tourist, business, student, and family visit visas — documentation review and guidance.' },
+  { id:'study-abroad',  iconName:'GraduationCap', title:'Study Abroad',             desc:'School admissions, study permits, and pre-departure orientation support.' },
+  { id:'ielts',         iconName:'BookOpen',       title:'IELTS Support',            desc:'Registration guidance, test prep referrals, and language requirement advice.' },
+  { id:'immigration',   iconName:'Globe',          title:'Immigration Consultation', desc:'Immigration pathways, documentation support, and settlement preparation.' },
+  { id:'hotels',        iconName:'Hotel',          title:'Hotel Booking',            desc:'Hotels, serviced apartments, and vacation accommodation worldwide.' },
+  { id:'airport',       iconName:'Car',            title:'Airport Transfers',        desc:'Pick-up, drop-off, and meet-and-greet — prompt and professional.' },
+  { id:'holiday',       iconName:'Package',        title:'Holiday Packages',         desc:'Family vacations, honeymoons, group tours, and pilgrimage travel.' },
+  { id:'cruise',        iconName:'Ship',           title:'Cruise Bookings',          desc:'International cruise reservations and vacation packages.' },
+  { id:'insurance',     iconName:'Shield',         title:'Travel Insurance',         desc:'Coverage guidance for cancellations, medical emergencies, and baggage loss.' },
+  { id:'corporate',     iconName:'Briefcase',      title:'Corporate Travel',         desc:'Business travel coordination, conferences, and group bookings.' },
+  { id:'forex',         iconName:'DollarSign',     title:'Forex Guidance',           desc:'Foreign exchange information and currency planning for international travel.' },
+]
+
+//  PACKAGES 
 export const PACKAGES = [
   {
     id: 1, tag:'Best Seller',
     title:'Dubai Explorer Package',
-    dest:'Dubai, United Arab Emirates', flag:'🇦🇪', nights:5, days:5,
+    dest:'Dubai, United Arab Emirates', flag:'', nights:5, days:5,
     price:2162500, oldPrice:2700000,   // ~$1350 @ 1600 NGN/USD
     img:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80',
     imgs:[
@@ -143,7 +53,7 @@ export const PACKAGES = [
   {
     id: 2, tag:'Popular',
     title:'Canada Experience Package',
-    dest:'Toronto, Niagara Falls & Ottawa', flag:'🇨🇦', nights:7, days:7,
+    dest:'Toronto, Niagara Falls & Ottawa', flag:'', nights:7, days:7,
     price:4560000, oldPrice:5600000,
     img:'https://images.unsplash.com/photo-1517935706615-2717063c2225?w=800&q=80',
     imgs:[
@@ -158,7 +68,7 @@ export const PACKAGES = [
   {
     id: 3, tag:'Romantic',
     title:'Paris & France Holiday',
-    dest:'Paris, France', flag:'🇫🇷', nights:6, days:6,
+    dest:'Paris, France', flag:'', nights:6, days:6,
     price:3680000, oldPrice:4480000,
     img:'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80',
     imgs:[
@@ -173,7 +83,7 @@ export const PACKAGES = [
   {
     id: 4, tag:'Cultural',
     title:'UK Discovery Package',
-    dest:'London, England', flag:'🇬🇧', nights:6, days:6,
+    dest:'London, England', flag:'', nights:6, days:6,
     price:3840000, oldPrice:4800000,
     img:'https://images.unsplash.com/photo-1520986606214-8b456906c813?w=800&q=80',
     imgs:[
@@ -188,7 +98,7 @@ export const PACKAGES = [
   {
     id: 5, tag:'Adventure',
     title:'Turkey Vacation Package',
-    dest:'Istanbul & Cappadocia, Türkiye', flag:'🇹🇷', nights:7, days:7,
+    dest:'Istanbul & Cappadocia, Türkiye', flag:'', nights:7, days:7,
     price:3120000, oldPrice:3840000,
     img:'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800&q=80',
     imgs:[
@@ -203,7 +113,7 @@ export const PACKAGES = [
   {
     id: 6, tag:'Luxury',
     title:'Maldives Luxury Escape',
-    dest:'Maldives', flag:'🇲🇻', nights:5, days:5,
+    dest:'Maldives', flag:'', nights:5, days:5,
     price:4320000, oldPrice:5400000,
     img:'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&q=80',
     imgs:[
@@ -217,21 +127,21 @@ export const PACKAGES = [
   },
 ]
 
-// ─── DESTINATIONS ────────────────────────────────────────────────────────────
+//  DESTINATIONS 
 export const DESTINATIONS = [
-  { id:1, name:'Dubai',        country:'United Arab Emirates', flag:'🇦🇪', img:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=700&q=80', tag:'Luxury',    rating:4.9, from:'From $1,350', attractions:['Burj Khalifa','Palm Jumeirah','Desert Safari','Dubai Mall'] },
-  { id:2, name:'Canada',       country:'Canada',               flag:'🇨🇦', img:'https://images.unsplash.com/photo-1517935706615-2717063c2225?w=700&q=80', tag:'Education', rating:4.8, from:'From $2,850', attractions:['Niagara Falls','CN Tower','Banff','Parliament Hill'] },
-  { id:3, name:'United Kingdom',country:'United Kingdom',       flag:'🇬🇧', img:'https://images.unsplash.com/photo-1520986606214-8b456906c813?w=700&q=80', tag:'Culture',   rating:4.8, from:'From $2,400', attractions:['Big Ben','Buckingham Palace','Stonehenge','London Eye'] },
-  { id:4, name:'France',       country:'France',               flag:'🇫🇷', img:'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=700&q=80', tag:'Romance',   rating:4.9, from:'From $2,300', attractions:['Eiffel Tower','Louvre','Versailles','Seine Cruise'] },
-  { id:5, name:'Türkiye',      country:'Türkiye',              flag:'🇹🇷', img:'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=700&q=80', tag:'Historic',  rating:4.8, from:'From $1,950', attractions:['Blue Mosque','Cappadocia','Hagia Sophia','Bosphorus'] },
-  { id:6, name:'Maldives',     country:'Maldives',             flag:'🇲🇻', img:'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=700&q=80', tag:'Luxury',    rating:5.0, from:'From $2,700', attractions:['Overwater Villas','Coral Reefs','White Beaches','Lagoons'] },
-  { id:7, name:'Kenya',        country:'Kenya',                flag:'🇰🇪', img:'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=700&q=80', tag:'Safari',    rating:4.7, from:'From $1,800', attractions:['Maasai Mara','Amboseli','Diani Beach','Nairobi Park'] },
-  { id:8, name:'South Africa', country:'South Africa',         flag:'🇿🇦', img:'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=700&q=80', tag:'Adventure', rating:4.7, from:'From $2,100', attractions:['Table Mountain','Kruger Park','Cape Point','Robben Island'] },
-  { id:9, name:'Rwanda',       country:'Rwanda',               flag:'🇷🇼', img:'https://cdn1.matadornetwork.com/blogs/1/2019/06/Kigali-Rwanda-1200x854.jpg', tag:'Eco',       rating:4.8, from:'From $1,600', attractions:['Gorilla Trekking','Lake Kivu','Nyungwe Forest','Kigali'] },
-  { id:10,name:'Singapore',    country:'Singapore',            flag:'🇸🇬', img:'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=700&q=80', tag:'Modern',   rating:4.8, from:'From $2,200', attractions:['Gardens by the Bay','Marina Bay Sands','Sentosa','Chinatown'] },
+  { id:1, name:'Dubai',        country:'United Arab Emirates', flag:'', img:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=700&q=80', tag:'Luxury',    rating:4.9, from:'From $1,350', attractions:['Burj Khalifa','Palm Jumeirah','Desert Safari','Dubai Mall'] },
+  { id:2, name:'Canada',       country:'Canada',               flag:'', img:'https://images.unsplash.com/photo-1517935706615-2717063c2225?w=700&q=80', tag:'Education', rating:4.8, from:'From $2,850', attractions:['Niagara Falls','CN Tower','Banff','Parliament Hill'] },
+  { id:3, name:'United Kingdom',country:'United Kingdom',       flag:'', img:'https://images.unsplash.com/photo-1520986606214-8b456906c813?w=700&q=80', tag:'Culture',   rating:4.8, from:'From $2,400', attractions:['Big Ben','Buckingham Palace','Stonehenge','London Eye'] },
+  { id:4, name:'France',       country:'France',               flag:'', img:'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=700&q=80', tag:'Romance',   rating:4.9, from:'From $2,300', attractions:['Eiffel Tower','Louvre','Versailles','Seine Cruise'] },
+  { id:5, name:'Türkiye',      country:'Türkiye',              flag:'', img:'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=700&q=80', tag:'Historic',  rating:4.8, from:'From $1,950', attractions:['Blue Mosque','Cappadocia','Hagia Sophia','Bosphorus'] },
+  { id:6, name:'Maldives',     country:'Maldives',             flag:'', img:'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=700&q=80', tag:'Luxury',    rating:5.0, from:'From $2,700', attractions:['Overwater Villas','Coral Reefs','White Beaches','Lagoons'] },
+  { id:7, name:'Kenya',        country:'Kenya',                flag:'', img:'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=700&q=80', tag:'Safari',    rating:4.7, from:'From $1,800', attractions:['Maasai Mara','Amboseli','Diani Beach','Nairobi Park'] },
+  { id:8, name:'South Africa', country:'South Africa',         flag:'', img:'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=700&q=80', tag:'Adventure', rating:4.7, from:'From $2,100', attractions:['Table Mountain','Kruger Park','Cape Point','Robben Island'] },
+  { id:9, name:'Rwanda',       country:'Rwanda',               flag:'', img:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFWln2vQmbc_qawhBLDdPdKZzeq0IvnVebrv26TC8A4w&s=10', tag:'Eco',       rating:4.8, from:'From $1,600', attractions:['Gorilla Trekking','Lake Kivu','Nyungwe Forest','Kigali'] },
+  { id:10,name:'Singapore',    country:'Singapore',            flag:'', img:'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=700&q=80', tag:'Modern',   rating:4.8, from:'From $2,200', attractions:['Gardens by the Bay','Marina Bay Sands','Sentosa','Chinatown'] },
 ]
 
-// ─── TESTIMONIALS ────────────────────────────────────────────────────────────
+//  TESTIMONIALS 
 export const TESTIMONIALS = [
   { name:'Chiamaka Okafor',   role:'Lagos',          dest:'Dubai',   stars:5, text:'Apex Getaways handled every single detail of our Dubai trip — visa, flights, hotel, transfers. We just showed up and enjoyed ourselves. Absolutely world-class service.' },
   { name:'Emeka Chukwuemeka', role:'Abuja',          dest:'UK',      stars:5, text:'I was struggling with my UK visa application for months. Within 2 weeks of contacting Apex, I had my visa. Their documentation guidance is unmatched in Nigeria.' },
@@ -241,7 +151,7 @@ export const TESTIMONIALS = [
   { name:'Hajiya Ramatu Sule',role:'Abuja',          dest:'Saudi Arabia', stars:5, text:'Apex organised our entire Umrah pilgrimage. The arrangements were seamless, the group was well-managed, and we focused entirely on worship. Truly a blessed experience.' },
 ]
 
-// ─── AIRPORTS ────────────────────────────────────────────────────────────────
+//  AIRPORTS 
 export const AIRPORTS = [
   { code:'ABV', name:'Nnamdi Azikiwe International', city:'Abuja', country:'Nigeria' },
   { code:'LOS', name:'Murtala Muhammed International', city:'Lagos', country:'Nigeria' },
@@ -276,16 +186,16 @@ export const AIRPORTS = [
 ]
 
 export const AIRLINES = [
-  { code:'ET', name:'Ethiopian Airlines',  logo:'🇪🇹' },
-  { code:'EK', name:'Emirates',            logo:'🇦🇪' },
-  { code:'QR', name:'Qatar Airways',       logo:'🇶🇦' },
-  { code:'BA', name:'British Airways',     logo:'🇬🇧' },
-  { code:'TK', name:'Turkish Airlines',    logo:'🇹🇷' },
-  { code:'AF', name:'Air France',          logo:'🇫🇷' },
-  { code:'KL', name:'KLM',                logo:'🇳🇱' },
-  { code:'W3', name:'Arik Air',           logo:'🇳🇬' },
-  { code:'MS', name:'Egyptair',           logo:'🇪🇬' },
-  { code:'SA', name:'South African Airways',logo:'🇿🇦' },
+  { code:'ET', name:'Ethiopian Airlines',  logo:'' },
+  { code:'EK', name:'Emirates',            logo:'' },
+  { code:'QR', name:'Qatar Airways',       logo:'' },
+  { code:'BA', name:'British Airways',     logo:'' },
+  { code:'TK', name:'Turkish Airlines',    logo:'' },
+  { code:'AF', name:'Air France',          logo:'' },
+  { code:'KL', name:'KLM',                logo:'' },
+  { code:'W3', name:'Arik Air',           logo:'' },
+  { code:'MS', name:'Egyptair',           logo:'' },
+  { code:'SA', name:'South African Airways',logo:'' },
 ]
 
 export function generateFlights(from, to, date) {
@@ -346,63 +256,13 @@ export function generateHotels(city, checkIn, checkOut) {
   })
 }
 
-export const PICKUP_VEHICLES = [
-  {
-    id: 'sedan',
-    name: 'Sedan',
-    desc: 'Toyota Camry or similar',
-    seats: 4,
-    luggage: 2,
-    img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&q=80&w=800',
-    basePrice: 12000,
-    pricePerKm: 350,
-    ac: true,
-  },
-  {
-    id: 'suv',
-    name: 'SUV',
-    desc: 'Toyota Prado or similar',
-    seats: 6,
-    luggage: 4,
-    img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800',
-    basePrice: 18000,
-    pricePerKm: 500,
-    ac: true,
-  },
-  {
-    id: 'minivan',
-    name: 'Minivan',
-    desc: 'Toyota Hiace or similar',
-    seats: 14,
-    luggage: 8,
-    img: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&q=80&w=800',
-    basePrice: 25000,
-    pricePerKm: 650,
-    ac: true,
-  },
-  {
-    id: 'luxury',
-    name: 'Luxury / Executive',
-    desc: 'Mercedes E-Class or similar',
-    seats: 4,
-    luggage: 2,
-    img: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&q=80&w=800',
-    basePrice: 35000,
-    pricePerKm: 900,
-    ac: true,
-  },
-  {
-    id: 'coaster',
-    name: 'Coaster Bus',
-    desc: 'Toyota Coaster or similar',
-    seats: 30,
-    luggage: 10,
-    img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=800',
-    basePrice: 45000,
-    pricePerKm: 800,
-    ac: true,
-  },
-];
+export const PICKUP_VEHICLES=[
+  {id:'sedan',  name:'Sedan',              desc:'Toyota Camry or similar',        seats:4,  luggage:2,  img:'https://images.unsplash.com/photo-1550355291-bbee04a92027?w=600&q=80', basePrice:12000,pricePerKm:350,ac:true},
+  {id:'suv',    name:'SUV',                desc:'Toyota Prado or similar',        seats:6,  luggage:4,  img:'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=80', basePrice:18000,pricePerKm:500,ac:true},
+  {id:'minivan',name:'Minivan',            desc:'Toyota Hiace or similar',        seats:14, luggage:8,  img:'https://images.unsplash.com/photo-1609520778583-eb51f40d1b6f?w=600&q=80', basePrice:25000,pricePerKm:650,ac:true},
+  {id:'luxury', name:'Luxury Executive',   desc:'Mercedes E-Class or similar',    seats:4,  luggage:2,  img:'https://images.unsplash.com/photo-1563720223185-11003d516935?w=600&q=80', basePrice:35000,pricePerKm:900,ac:true},
+  {id:'coaster',name:'Coaster Bus',        desc:'Toyota Coaster or similar',      seats:30, luggage:10, img:'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80', basePrice:45000,pricePerKm:800,ac:true},
+]
 
 export const PICKUP_LOCATIONS=[
   'Nnamdi Azikiwe Airport (ABV) — Abuja',

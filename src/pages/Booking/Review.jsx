@@ -1,180 +1,171 @@
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Plane, Hotel, Car, User, Mail, Phone, CheckCircle, ArrowLeft, ArrowRight, Shield } from 'lucide-react'
+import { Plane, Hotel, Car, User, Mail, Phone, Luggage, Shield, ArrowLeft, ArrowRight, CheckCircle, Clock } from 'lucide-react'
 import SEO from '../../components/SEO'
 import { useBooking } from '../../store/BookingContext'
 import { formatNGN } from '../../data'
+import { StepBar } from './Extras'
 
 function Row({ label, value }) {
   if (!value) return null
   return (
-    <div className="flex justify-between py-2 border-b border-gray-50 dark:border-gray-800 last:border-0">
-      <span className="text-sm text-gray-500">{label}</span>
-      <span className="text-sm font-semibold text-gray-900 dark:text-white text-right max-w-[60%]">{value}</span>
+    <div className="flex justify-between py-2 text-sm" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <span style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</span>
+      <span className="font-semibold text-white text-right max-w-[60%]">{value}</span>
+    </div>
+  )
+}
+
+function Section({ title, icon: Icon, children }) {
+  return (
+    <div className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <h3 className="font-bold text-base text-white mb-4 flex items-center gap-2">
+        {Icon && <Icon size={15} style={{ color: '#C9A84C' }} />}{title}
+      </h3>
+      {children}
     </div>
   )
 }
 
 export default function ReviewPage() {
-  const { booking } = useBooking()
+  const { booking, getFareBreakdown } = useBooking()
   const navigate = useNavigate()
-  const { bookingType, selectedFlight, selectedReturnFlight, selectedHotel, selectedRoomType,
-          pickupVehicle, pickupFrom, pickupTo, pickupDate, pickupTime,
-          passengers, cabinClass, hotelCheckIn, hotelCheckOut, hotelRooms,
-          passengers_info, contact } = booking
+  const fd = getFareBreakdown()
 
-  const totalPax = (passengers?.adults || 1) + (passengers?.children || 0)
+  const {
+    bookingType, selectedFlight, selectedReturnFlight,
+    selectedSeats, selectedReturnSeats, cabinClass,
+    baggage, addons, passengers_info, contact,
+    selectedHotel, selectedRoomType, hotelCheckIn, hotelCheckOut, hotelRooms,
+    pickupVehicle, pickupFrom, pickupTo, pickupDate, pickupTime,
+  } = booking
 
-  const flightTotal = () => {
-    const base = (selectedFlight?.[cabinClass] || 0) + (selectedReturnFlight?.[cabinClass] || 0)
-    return base * totalPax
-  }
-  const hotelTotal = selectedRoomType && selectedHotel
-    ? selectedRoomType.price * Math.max(1, Math.round((new Date(hotelCheckOut) - new Date(hotelCheckIn)) / 86400000))
-    : 0
-  const pickupTotal = pickupVehicle?.basePrice || 0
-
-  const grandTotal = bookingType === 'flight' ? flightTotal()
-    : bookingType === 'hotel' ? hotelTotal
-    : pickupTotal
+  const extras = (baggage?.outbound?.price || 0) + (baggage?.return?.price || 0) + (addons?.insurance ? 15000 : 0)
+  const grandTotal = fd
+    ? fd.total + extras
+    : selectedHotel
+      ? (selectedRoomType?.price || 0) * Math.max(1, Math.round((new Date(hotelCheckOut) - new Date(hotelCheckIn)) / 86400000))
+      : pickupVehicle?.basePrice || 0
 
   return (
     <>
       <SEO title="Review Booking" />
+      <StepBar step={3} />
 
-      {/* Step indicator */}
-      <div className="bg-white dark:bg-card-dark border-b border-gray-100 dark:border-gray-800 pt-20">
-        <div className="container-pad py-4">
-          <div className="flex items-center gap-3 max-w-md">
-            {['Search', 'Select', 'Passengers', 'Review', 'Confirm'].map((s, i) => (
-              <div key={s} className="flex items-center gap-2 flex-1">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                  i < 3 ? 'bg-green-500 text-white' : i === 3 ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
-                }`}>
-                  {i < 3 ? <CheckCircle size={14} /> : i + 1}
-                </div>
-                <span className={`text-xs font-medium hidden sm:block ${i === 3 ? 'text-primary' : i < 3 ? 'text-green-600' : 'text-gray-400'}`}>{s}</span>
-                {i < 4 && <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700 mx-1" />}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <section className="py-10" style={{ background: '#070D1A', minHeight: '80vh' }}>
+        <div className="container-pad max-w-4xl mx-auto">
+          <h1 className="font-display font-bold text-white text-2xl mb-2">Review Your Booking</h1>
+          <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            Check all details carefully before payment. Changes after payment may incur fees.
+          </p>
 
-      <section className="section-pad bg-surface-light dark:bg-surface-dark">
-        <div className="container-pad max-w-3xl mx-auto">
-          <h1 className="font-bold text-2xl text-gray-900 dark:text-white mb-2">Review Your Booking</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Please review all details carefully before confirming.</p>
-
-          <div className="space-y-5">
-            {/* Flight summary */}
+          <div className="space-y-4">
+            {/* Flight */}
             {bookingType === 'flight' && selectedFlight && (
-              <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-card p-6">
-                <h3 className="font-bold text-base text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <Plane size={18} className="text-primary" /> Flight Details
-                </h3>
+              <Section title="Flight Details" icon={Plane}>
                 <Row label="Trip Type" value={booking.flightType === 'roundTrip' ? 'Round Trip' : booking.flightType === 'oneWay' ? 'One Way' : 'Multi-City'} />
-                <Row label="Outbound Flight" value={`${selectedFlight.airline} ${selectedFlight.flightNo} · ${selectedFlight.from} → ${selectedFlight.to}`} />
-                <Row label="Departure" value={`${selectedFlight.date} at ${selectedFlight.dep}`} />
-                {selectedReturnFlight && (
-                  <>
-                    <Row label="Return Flight" value={`${selectedReturnFlight.airline} ${selectedReturnFlight.flightNo} · ${selectedReturnFlight.from} → ${selectedReturnFlight.to}`} />
-                    <Row label="Return Departure" value={`${selectedReturnFlight.date} at ${selectedReturnFlight.dep}`} />
-                  </>
-                )}
-                <Row label="Cabin Class" value={cabinClass?.replace('_', ' ').toUpperCase()} />
-                <Row label="Passengers" value={`${passengers?.adults} adult${passengers?.adults > 1 ? 's' : ''}${passengers?.children > 0 ? `, ${passengers.children} child${passengers.children > 1 ? 'ren' : ''}` : ''}`} />
-                <Row label="Baggage" value={selectedFlight.baggage} />
-                <div className="flex justify-between pt-3 mt-2 border-t border-gray-100 dark:border-gray-800">
-                  <span className="font-bold text-gray-900 dark:text-white">Total Fare</span>
-                  <span className="font-extrabold text-primary text-lg">{formatNGN(flightTotal())}</span>
-                </div>
-              </div>
+                <Row label="Outbound" value={`${selectedFlight.airline} ${selectedFlight.flightNo} · ${selectedFlight.from} → ${selectedFlight.to}`} />
+                <Row label="Departs" value={`${selectedFlight.date} at ${selectedFlight.dep}`} />
+                <Row label="Arrives" value={selectedFlight.arr} />
+                {selectedReturnFlight && <>
+                  <Row label="Return" value={`${selectedReturnFlight.airline} ${selectedReturnFlight.flightNo} · ${selectedReturnFlight.from} → ${selectedReturnFlight.to}`} />
+                  <Row label="Return Departs" value={`${selectedReturnFlight.date} at ${selectedReturnFlight.dep}`} />
+                </>}
+                <Row label="Cabin" value={cabinClass?.replace('_', ' ').toUpperCase()} />
+                <Row label="Seats" value={[...(selectedSeats || []), ...(selectedReturnSeats || [])].join(', ') || 'Airline assigned'} />
+                <Row label="Baggage" value={baggage?.outbound?.label || '—'} />
+                {baggage?.return && <Row label="Return Baggage" value={baggage.return.label} />}
+                <Row label="Meal" value={addons?.mealPref} />
+                <Row label="Insurance" value={addons?.insurance ? 'Included' : 'Not added'} />
+              </Section>
             )}
 
-            {/* Hotel summary */}
+            {/* Hotel */}
             {bookingType === 'hotel' && selectedHotel && (
-              <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-card p-6">
-                <h3 className="font-bold text-base text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <Hotel size={18} className="text-primary" /> Hotel Details
-                </h3>
+              <Section title="Hotel Details" icon={Hotel}>
                 <Row label="Hotel" value={selectedHotel.name} />
-                <Row label="Room Type" value={selectedRoomType?.type} />
+                <Row label="Room" value={selectedRoomType?.type} />
                 <Row label="Check-in" value={hotelCheckIn} />
                 <Row label="Check-out" value={hotelCheckOut} />
                 <Row label="Rooms" value={String(hotelRooms)} />
-                <Row label="Address" value={selectedHotel.address} />
-                {selectedHotel.freeCancellation && <Row label="Cancellation" value="✅ Free cancellation" />}
-                {selectedHotel.breakfastIncluded && <Row label="Breakfast" value="✅ Included" />}
-                <div className="flex justify-between pt-3 mt-2 border-t border-gray-100 dark:border-gray-800">
-                  <span className="font-bold text-gray-900 dark:text-white">Total Amount</span>
-                  <span className="font-extrabold text-primary text-lg">{formatNGN(hotelTotal)}</span>
-                </div>
-              </div>
+                <Row label="Free Cancel" value={selectedHotel.freeCancellation ? 'Yes' : 'No'} />
+              </Section>
             )}
 
-            {/* Pickup summary */}
+            {/* Pickup */}
             {bookingType === 'pickup' && pickupVehicle && (
-              <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-card p-6">
-                <h3 className="font-bold text-base text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <Car size={18} className="text-primary" /> Transfer Details
-                </h3>
+              <Section title="Transfer Details" icon={Car}>
                 <Row label="Vehicle" value={`${pickupVehicle.name} (${pickupVehicle.desc})`} />
-                <Row label="Pickup" value={pickupFrom} />
-                <Row label="Drop-off" value={pickupTo} />
+                <Row label="From" value={pickupFrom} />
+                <Row label="To" value={pickupTo} />
                 <Row label="Date & Time" value={`${pickupDate} at ${pickupTime}`} />
-                <Row label="Passengers" value={String(booking.pickupPassengers)} />
-                {booking.pickupReturnNeeded && <Row label="Return" value={`${booking.pickupReturnDate} at ${booking.pickupReturnTime}`} />}
-                {booking.pickupNotes && <Row label="Notes" value={booking.pickupNotes} />}
-                <div className="flex justify-between pt-3 mt-2 border-t border-gray-100 dark:border-gray-800">
-                  <span className="font-bold text-gray-900 dark:text-white">Estimated Fare</span>
-                  <span className="font-extrabold text-primary text-lg">{formatNGN(pickupTotal)}</span>
-                </div>
-              </div>
+              </Section>
             )}
 
-            {/* Passenger details */}
+            {/* Passengers */}
             {passengers_info?.length > 0 && (
-              <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-card p-6">
-                <h3 className="font-bold text-base text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <User size={18} className="text-primary" /> Passenger Details
-                </h3>
+              <Section title={`Passengers (${passengers_info.length})`} icon={User}>
                 {passengers_info.map((p, i) => (
-                  <div key={i} className="mb-3 last:mb-0">
-                    {passengers_info.length > 1 && <p className="text-xs font-bold text-gray-400 mb-1">Passenger {i + 1}</p>}
-                    <Row label="Name" value={`${p.title} ${p.firstName} ${p.lastName}`} />
-                    {p.nationality && <Row label="Nationality" value={p.nationality} />}
-                    {p.passportNo && <Row label="Passport No." value={p.passportNo} />}
+                  <div key={i} className={i > 0 ? 'mt-4 pt-4' : ''} style={i > 0 ? { borderTop: '1px solid rgba(255,255,255,0.06)' } : {}}>
+                    {passengers_info.length > 1 && (
+                      <p className="text-[11px] font-bold mb-2" style={{ color: '#C9A84C' }}>
+                        {i === 0 ? 'Lead Passenger' : `Passenger ${i + 1}`}
+                      </p>
+                    )}
+                    <Row label="Name" value={`${p.title || ''} ${p.firstName} ${p.middleName || ''} ${p.lastName}`.trim()} />
+                    <Row label="DOB" value={p.dob} />
+                    <Row label="Passport" value={p.passportNo} />
+                    <Row label="Expiry" value={p.passportExpiry} />
+                    <Row label="Nationality" value={p.nationality} />
+                    {p.passportUrl && <Row label="Scan" value="Uploaded" />}
                   </div>
                 ))}
-                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                  <Row label="Contact Email" value={contact?.email} />
-                  <Row label="Contact Phone" value={contact?.phone} />
+                <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                  <Row label="Email" value={contact?.email} />
+                  <Row label="Phone" value={contact?.phone} />
                 </div>
-              </div>
+              </Section>
             )}
 
-            {/* Total & Trust */}
-            <div className="bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20 p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-bold text-gray-900 dark:text-white text-lg">Grand Total</span>
-                <span className="font-extrabold text-primary text-2xl">{formatNGN(grandTotal)}</span>
+            {/* Price breakdown */}
+            <div className="p-5 rounded-2xl" style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.2)' }}>
+              <h3 className="font-bold text-white mb-4">Price Breakdown</h3>
+              {fd && (<>
+                <Row label={`Base fare — ${fd.pax.adults} adult${fd.pax.adults > 1 ? 's' : ''}`} value={formatNGN(fd.adultTotal)} />
+                {fd.pax.children > 0 && <Row label={`${fd.pax.children} child${fd.pax.children > 1 ? 'ren' : ''} (75%)`} value={formatNGN(fd.childTotal)} />}
+                {fd.pax.infants  > 0 && <Row label={`${fd.pax.infants} infant${fd.pax.infants > 1 ? 's' : ''} (10%)`} value={formatNGN(fd.infantTotal)} />}
+                <Row label="Taxes & surcharges (7.5%)" value={formatNGN(fd.taxes)} />
+              </>)}
+              {(baggage?.outbound?.price || 0) > 0 && (
+                <Row label="Baggage fee" value={formatNGN((baggage?.outbound?.price || 0) + (baggage?.return?.price || 0))} />
+              )}
+              {addons?.insurance && <Row label="Travel insurance" value={formatNGN(15000)} />}
+              <div className="flex justify-between pt-3 mt-2 font-bold text-lg" style={{ borderTop: '1px solid rgba(201,168,76,0.25)' }}>
+                <span className="text-white">Total</span>
+                <span style={{ color: '#C9A84C' }}>{formatNGN(grandTotal)}</span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <Shield size={13} className="text-green-500" />
-                Secure booking — your payment is protected by bank-grade encryption
+            </div>
+
+            {/* Payment notice */}
+            <div className="p-4 rounded-xl flex items-start gap-3" style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)' }}>
+              <Shield size={16} className="shrink-0 mt-0.5" style={{ color: '#22c55e' }} />
+              <div>
+                <p className="text-sm font-bold text-green-400">Secured by Paystack</p>
+                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                  Card details are encrypted and never stored on our servers.
+                </p>
               </div>
             </div>
           </div>
 
           <div className="flex gap-3 mt-8">
             <button onClick={() => navigate(-1)}
-              className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm border-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-primary hover:text-primary transition-all">
-              <ArrowLeft size={15} /> Back
+              className="flex items-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold border-2 transition-all"
+              style={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.55)' }}>
+              <ArrowLeft size={14} /> Back
             </button>
-            <button onClick={() => navigate('/booking/confirmation')}
-              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white bg-primary-gradient shadow-glow hover:shadow-none transition-all hover:scale-[1.02]">
-              Confirm & Proceed to Payment <ArrowRight size={15} />
+            <button onClick={() => navigate('/booking/payment')}
+              className="flex-1 btn-gold py-3.5 flex items-center justify-center gap-2 font-bold text-base">
+              Pay {formatNGN(grandTotal)} <ArrowRight size={15} />
             </button>
           </div>
         </div>

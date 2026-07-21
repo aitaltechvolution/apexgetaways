@@ -1,5 +1,6 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
 import { CheckCircle, ArrowRight, Phone } from 'lucide-react'
+import * as LucideIcons from 'lucide-react'
 import SEO from '../../components/SEO'
 import { SERVICES, BRAND } from '../../data'
 import { Breadcrumb } from '../../components/ui'

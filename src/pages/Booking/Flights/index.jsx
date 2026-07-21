@@ -3,19 +3,27 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plane, ArrowLeftRight, Plus, Minus, ChevronDown, ChevronUp,
-  Clock, Luggage, RefreshCcw, CheckCircle, AlertCircle, ArrowRight, X
+  Clock, Luggage, RefreshCcw, CheckCircle, AlertCircle, ArrowRight, X, Filter, Star
 } from 'lucide-react'
 import SEO from '../../../components/SEO'
 import AirportInput from '../../../components/search/AirportInput'
 import SeatMap from '../../../components/booking/SeatMap'
-import { generateFlights, formatNGN } from '../../../data'
+import { generateFlights, formatNGN, AIRLINES } from '../../../data'
 import { useBooking } from '../../../store/BookingContext'
 
 const CABIN_CLASSES = [
-  { value:'economy', label:'Economy' },
-  { value:'premium_economy', label:'Premium Economy' },
-  { value:'business', label:'Business' },
-  { value:'first', label:'First Class' },
+  { value:'economy', label:'Economy', sub:'Standard fare' },
+  { value:'premium_economy', label:'Premium Economy', sub:'Extra legroom' },
+  { value:'business', label:'Business', sub:'Lie-flat seats' },
+  { value:'first', label:'First Class', sub:'Ultimate luxury' },
+]
+
+const BAGGAGE_OPTIONS = [
+  { label:'No extra bag',   pieces:0, weight:'Cabin only', price:0 },
+  { label:'1 × 20kg',      pieces:1, weight:'20kg',       price:12000 },
+  { label:'1 × 23kg',      pieces:1, weight:'23kg',       price:15000 },
+  { label:'1 × 32kg',      pieces:1, weight:'32kg',       price:22000 },
+  { label:'2 × 23kg',      pieces:2, weight:'23kg×2',     price:28000 },
 ]
 
 function PassengerPicker({ value, onChange }) {
@@ -28,27 +36,29 @@ function PassengerPicker({ value, onChange }) {
   }
   return (
     <div className="relative">
-      <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Passengers</label>
+      <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{color:'rgba(255,255,255,0.45)'}}>Passengers</label>
       <button onClick={() => setOpen(!open)} type="button"
-        className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-all">
-        <span>{total} Passenger{total!==1?'s':''}</span>
-        <ChevronDown size={15} className="text-gray-400" />
+        className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm text-white focus:outline-none transition-all"
+        style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)'}}>
+        <span>{total} Passenger{total!==1?'s':''} · {CABIN_CLASSES.find(c=>c.value===value.cabinClass)?.label||'Economy'}</span>
+        <ChevronDown size={15} style={{color:'rgba(255,255,255,0.5)'}}/>
       </button>
       <AnimatePresence>
         {open && (
           <motion.div initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}}
-            className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-card-dark rounded-2xl shadow-card-hover border border-gray-100 dark:border-gray-800 z-50 p-4 space-y-4">
-            {[['adults','Adults','12+ yrs'],['children','Children','2-11 yrs'],['infants','Infants','Under 2']].map(([k,lbl,sub]) => (
+            className="absolute top-full left-0 right-0 mt-1 z-50 rounded-2xl shadow-2xl p-5 space-y-4"
+            style={{background:'#0F1826',border:'1px solid rgba(201,168,76,0.2)'}}>
+            {[['adults','Adults','12+ years'],['children','Children','2-11 years'],['infants','Infants','Under 2']].map(([k,lbl,sub]) => (
               <div key={k} className="flex items-center justify-between">
-                <div><p className="font-semibold text-sm text-gray-900 dark:text-white">{lbl}</p><p className="text-xs text-gray-400">{sub}</p></div>
+                <div><p className="font-semibold text-sm text-white">{lbl}</p><p className="text-xs" style={{color:'rgba(255,255,255,0.35)'}}>{sub}</p></div>
                 <div className="flex items-center gap-3">
-                  <button type="button" onClick={() => adjust(k,-1)} className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:border-primary hover:text-primary transition-colors"><Minus size={13}/></button>
-                  <span className="w-5 text-center font-bold text-sm">{value[k]}</span>
-                  <button type="button" onClick={() => adjust(k,1)} className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:border-primary hover:text-primary transition-colors"><Plus size={13}/></button>
+                  <button type="button" onClick={() => adjust(k,-1)} className="w-9 h-9 rounded-full flex items-center justify-center font-bold transition-all" style={{background:'rgba(255,255,255,0.07)',border:'1px solid rgba(255,255,255,0.15)',color:'white'}}><Minus size={13}/></button>
+                  <span className="w-6 text-center font-bold text-white">{value[k]}</span>
+                  <button type="button" onClick={() => adjust(k,1)} className="w-9 h-9 rounded-full flex items-center justify-center font-bold transition-all hover:scale-110" style={{background:'linear-gradient(135deg,#C9A84C,#F5C842)',color:'#0A1628'}}><Plus size={13}/></button>
                 </div>
               </div>
             ))}
-            <button type="button" onClick={() => setOpen(false)} className="w-full py-2.5 rounded-xl bg-primary text-white text-sm font-bold">Done</button>
+            <button type="button" onClick={() => setOpen(false)} className="w-full py-3 rounded-xl font-bold text-sm btn-gold">Done</button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -56,92 +66,113 @@ function PassengerPicker({ value, onChange }) {
   )
 }
 
-function FlightCard({ flight, cabinClass, onSelect, selected, onPickSeats, seats }) {
+function FlightCard({ flight, cabinClass, onSelect, selected, onPickSeats, seats, isReturn }) {
   const [expanded, setExpanded] = useState(false)
   const price = flight[cabinClass] || flight.economy
   const isSelected = selected?.id === flight.id
-  const mySeats = seats || []
 
   return (
     <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}}
-      className={`bg-white dark:bg-card-dark rounded-2xl border transition-all duration-200 overflow-hidden ${isSelected ? 'border-primary shadow-glow' : 'border-gray-100 dark:border-gray-800 shadow-card hover:shadow-card-hover hover:-translate-y-0.5'}`}>
+      className="rounded-2xl overflow-hidden transition-all duration-200"
+      style={{
+        background:'rgba(255,255,255,0.04)',
+        border:`1px solid ${isSelected?'rgba(201,168,76,0.6)':'rgba(255,255,255,0.08)'}`,
+        boxShadow: isSelected ? '0 0 0 2px rgba(201,168,76,0.3)' : 'none',
+      }}>
       <div className="p-5">
         <div className="flex flex-wrap items-center gap-4">
           {/* Airline */}
-          <div className="flex items-center gap-2 w-36 shrink-0">
+          <div className="flex items-center gap-2.5 w-36 shrink-0">
             <span className="text-2xl">{flight.logo}</span>
             <div>
-              <p className="font-bold text-xs text-gray-900 dark:text-white">{flight.airline}</p>
-              <p className="text-[11px] text-gray-400">{flight.flightNo}</p>
+              <p className="font-bold text-xs text-white">{flight.airline}</p>
+              <p className="text-[11px]" style={{color:'rgba(255,255,255,0.35)'}}>{flight.flightNo}</p>
             </div>
           </div>
           {/* Times */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
             <div className="text-center">
-              <p className="font-bold text-xl text-gray-900 dark:text-white">{flight.dep}</p>
-              <p className="text-xs text-gray-400">{flight.from}</p>
+              <p className="font-bold text-2xl text-white">{flight.dep}</p>
+              <p className="text-xs font-semibold" style={{color:'#C9A84C'}}>{flight.from}</p>
             </div>
             <div className="flex-1 flex flex-col items-center gap-1 min-w-[80px]">
-              <p className="text-[11px] text-gray-400">{flight.duration}</p>
+              <p className="text-[11px]" style={{color:'rgba(255,255,255,0.4)'}}>{flight.duration}</p>
               <div className="relative w-full flex items-center">
-                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700"/>
-                <Plane size={12} className="text-primary mx-1 shrink-0"/>
-                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700"/>
+                <div className="flex-1 h-px" style={{background:'rgba(255,255,255,0.15)'}}/>
+                <Plane size={12} style={{color:'#C9A84C'}} className="mx-1 shrink-0"/>
+                <div className="flex-1 h-px" style={{background:'rgba(255,255,255,0.15)'}}/>
               </div>
-              <p className="text-[11px] text-gray-400">{flight.stops===0?'Direct':`${flight.stops} stop${flight.stops>1?'s':''}${flight.stopCity?' · '+flight.stopCity:''}`}</p>
+              <p className="text-[11px]" style={{color:'rgba(255,255,255,0.4)'}}>
+                {flight.stops===0?'Direct':`${flight.stops} stop${flight.stops>1?'s':''}${flight.stopCity?` · ${flight.stopCity}`:''}`}
+              </p>
             </div>
             <div className="text-center">
-              <p className="font-bold text-xl text-gray-900 dark:text-white">{flight.arr}</p>
-              <p className="text-xs text-gray-400">{flight.to}</p>
+              <p className="font-bold text-2xl text-white">{flight.arr}</p>
+              <p className="text-xs font-semibold" style={{color:'#C9A84C'}}>{flight.to}</p>
             </div>
           </div>
-          {/* Price + CTA */}
-          <div className="flex items-center gap-3 ml-auto shrink-0">
+          {/* Price + select */}
+          <div className="flex items-center gap-4 ml-auto shrink-0">
             <div className="text-right">
-              <p className="font-extrabold text-lg text-primary">{formatNGN(price)}</p>
-              <p className="text-[11px] text-gray-400">per person</p>
-              <p className={`text-[10px] font-semibold mt-0.5 ${flight.refundable?'text-green-600':'text-gray-400'}`}>{flight.refundable?'Refundable':'Non-refund.'}</p>
+              <p className="font-bold text-xl" style={{color:'#C9A84C'}}>{formatNGN(price)}</p>
+              <p className="text-[11px]" style={{color:'rgba(255,255,255,0.35)'}}>per person</p>
+              <div className="flex items-center justify-end gap-1 mt-0.5">
+                <Luggage size={10} style={{color:'rgba(255,255,255,0.3)'}}/>
+                <span className="text-[10px]" style={{color:'rgba(255,255,255,0.3)'}}>{flight.baggage}</span>
+              </div>
+              <span className={`text-[10px] font-semibold ${flight.refundable?'text-green-400':'text-red-400'}`}>
+                {flight.refundable?' Refundable':' Non-refundable'}
+              </span>
             </div>
             <button onClick={() => onSelect(flight)}
-              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-105 ${isSelected ? 'bg-green-500 text-white' : 'bg-primary-gradient text-white shadow-glow hover:shadow-none'}`}>
-              {isSelected ? <span className="flex items-center gap-1"><CheckCircle size={14}/>Selected</span> : 'Select'}
+              className={`px-5 py-3 rounded-xl font-bold text-sm transition-all hover:scale-105 ${isSelected?'text-navy':'text-navy'}`}
+              style={{background:isSelected?'linear-gradient(135deg,#22c55e,#16a34a)':'linear-gradient(135deg,#C9A84C,#F5C842)'}}>
+              {isSelected ? ' Selected' : 'Select'}
             </button>
           </div>
         </div>
 
         {/* Seat badges */}
-        {isSelected && mySeats.length > 0 && (
+        {isSelected && seats.length > 0 && (
           <div className="mt-3 flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-gray-500">Seats:</span>
-            {mySeats.map(s => (
-              <span key={s} className="px-2 py-0.5 rounded-lg bg-primary/10 text-primary text-xs font-bold">{s}</span>
-            ))}
-            <button onClick={() => onPickSeats(flight)} className="text-xs text-primary underline">Change</button>
+            <span className="text-xs" style={{color:'rgba(255,255,255,0.4)'}}>Seats:</span>
+            {seats.map(s => <span key={s} className="px-2.5 py-1 rounded-lg text-xs font-bold" style={{background:'rgba(201,168,76,0.15)',color:'#C9A84C'}}>{s}</span>)}
+            <button onClick={() => onPickSeats(flight, isReturn)} className="text-xs underline" style={{color:'#C9A84C'}}>Change</button>
           </div>
         )}
-        {isSelected && mySeats.length === 0 && (
-          <button onClick={() => onPickSeats(flight)} className="mt-3 text-xs text-primary font-semibold underline flex items-center gap-1">
-            <Plane size={11}/> Choose your seat (optional)
+        {isSelected && seats.length === 0 && (
+          <button onClick={() => onPickSeats(flight, isReturn)}
+            className="mt-3 text-xs font-semibold flex items-center gap-1.5 underline" style={{color:'#C9A84C'}}>
+            <Plane size={11}/> Choose seat (optional — free)
           </button>
         )}
 
-        {/* Details toggle */}
-        <button onClick={() => setExpanded(!expanded)} className="mt-3 flex items-center gap-1 text-xs text-primary font-semibold">
-          {expanded ? <><ChevronUp size={12}/>Hide details</> : <><ChevronDown size={12}/>Flight details</>}
+        <button onClick={() => setExpanded(!expanded)} className="mt-3 flex items-center gap-1 text-xs font-semibold" style={{color:'rgba(255,255,255,0.5)'}}>
+          {expanded ? <><ChevronUp size={12}/>Hide details</> : <><ChevronDown size={12}/>Flight details & amenities</>}
         </button>
       </div>
 
       <AnimatePresence>
         {expanded && (
           <motion.div initial={{height:0}} animate={{height:'auto'}} exit={{height:0}} className="overflow-hidden">
-            <div className="px-5 pb-5 border-t border-gray-100 dark:border-gray-800 grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4">
-              <div><p className="text-xs text-gray-400 mb-1">Duration</p><p className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-1"><Clock size={12}/>{flight.duration}</p></div>
-              <div><p className="text-xs text-gray-400 mb-1">Baggage</p><p className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-1"><Luggage size={12}/>{flight.baggage}</p></div>
-              <div><p className="text-xs text-gray-400 mb-1">Cabin</p><p className="text-sm font-semibold text-gray-900 dark:text-white capitalize">{cabinClass.replace('_',' ')}</p></div>
-              <div><p className="text-xs text-gray-400 mb-1">Seats left</p>
-                <p className={`text-sm font-semibold flex items-center gap-1 ${flight.seatsLeft<=3?'text-red-500':'text-gray-900 dark:text-white'}`}>
-                  <AlertCircle size={12}/>{flight.seatsLeft} left
-                </p>
+            <div className="px-5 pb-5 pt-0 border-t" style={{borderColor:'rgba(255,255,255,0.07)'}}>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
+                {[
+                  ['Duration', flight.duration, Clock],
+                  ['Checked Bag', flight.baggage, Luggage],
+                  ['Cabin', (cabinClass||'economy').replace('_',' '), Plane],
+                  ['Seats left', `${flight.seatsLeft} remaining`, AlertCircle],
+                ].map(([label, val, Icon]) => (
+                  <div key={label}>
+                    <p className="text-[11px] mb-1" style={{color:'rgba(255,255,255,0.35)'}}>{label}</p>
+                    <p className="text-sm font-semibold text-white flex items-center gap-1"><Icon size={12} style={{color:'#C9A84C'}}/>{val}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {['Cabin bag included','USB charging port','In-flight entertainment','Meal service'].map(a => (
+                  <span key={a} className="text-[11px] px-2.5 py-1 rounded-full" style={{background:'rgba(255,255,255,0.05)',color:'rgba(255,255,255,0.45)'}}>{a}</span>
+                ))}
               </div>
             </div>
           </motion.div>
@@ -155,148 +186,125 @@ export default function FlightsPage() {
   const { booking, update } = useBooking()
   const navigate = useNavigate()
 
-  // Restore state from booking context (persisted via sessionStorage)
-  const [type, setType] = useState(booking.heroFlightType || booking.flightType || 'roundTrip')
-  const [segments, setSegments] = useState(() => {
-    // Pre-fill from hero if available
-    if (booking.heroFrom || booking.heroTo) {
-      return [
-        { from: booking.heroFrom || null, to: booking.heroTo || null, date: booking.heroDeparture || '' },
-        { from: booking.heroTo || null, to: booking.heroFrom || null, date: booking.heroReturn || '' },
-      ]
-    }
+  const [type, setType]           = useState(booking.heroFlightType || booking.flightType || 'roundTrip')
+  const [segments, setSegments]   = useState(() => {
+    if (booking.heroFrom || booking.heroTo) return [
+      { from: booking.heroFrom, to: booking.heroTo, date: booking.heroDeparture || '' },
+      { from: booking.heroTo,   to: booking.heroFrom, date: booking.heroReturn || '' },
+    ]
     return booking.segments?.length ? booking.segments : [{ from:null,to:null,date:'' },{ from:null,to:null,date:'' }]
   })
-  const [passengers, setPassengers] = useState(booking.heroPassengers || booking.passengers || { adults:1,children:0,infants:0 })
+  const [passengers, setPassengers] = useState(booking.heroPassengers || booking.passengers || { adults:1, children:0, infants:0 })
   const [cabinClass, setCabinClass] = useState(booking.heroCabinClass || booking.cabinClass || 'economy')
 
-  const [searched, setSearched] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [outboundFlights, setOutboundFlights] = useState([])
-  const [returnFlights, setReturnFlights] = useState([])
+  const [loading, setLoading]         = useState(false)
+  const [searched, setSearched]       = useState(false)
+  const [outFlights, setOutFlights]   = useState([])
+  const [retFlights, setRetFlights]   = useState([])
   const [selectedOut, setSelectedOut] = useState(null)
   const [selectedRet, setSelectedRet] = useState(null)
-  const [sortBy, setSortBy] = useState('price')
+  const [outSeats, setOutSeats]       = useState([])
+  const [retSeats, setRetSeats]       = useState([])
+  const [seatMapFor, setSeatMapFor]   = useState(null) // { flight, isReturn }
+  const [sortBy, setSortBy]           = useState('price')
   const [filterStops, setFilterStops] = useState('all')
-
-  // Seat map state
-  const [seatMapFlight, setSeatMapFlight] = useState(null) // which flight we're picking seats for
-  const [seatMapIsReturn, setSeatMapIsReturn] = useState(false)
-  const [selectedSeats, setSelectedSeats] = useState([])
-  const [selectedReturnSeats, setSelectedReturnSeats] = useState([])
-
-  const totalPax = passengers.adults + passengers.children
-
-  const updateSeg = (i, patch) => setSegments(s => s.map((seg,idx) => idx===i ? {...seg,...patch} : seg))
-  const swapAirports = (i) => setSegments(s => s.map((seg,idx) => idx===i ? {...seg,from:seg.to,to:seg.from} : seg))
-  const addLeg = () => setSegments(s => [...s, {from:null,to:null,date:''}])
-  const removeLeg = (i) => setSegments(s => s.filter((_,idx) => idx!==i))
+  const [filterAirline, setFilterAirline] = useState('all')
 
   const today = new Date().toISOString().split('T')[0]
+  const totalPax = passengers.adults + passengers.children + passengers.infants
 
-  const search = () => {
+  const updateSeg = (i, patch) => setSegments(s => s.map((seg,idx) => idx===i ? {...seg,...patch} : seg))
+  const swap = (i) => setSegments(s => s.map((seg,idx) => idx===i ? {...seg,from:seg.to,to:seg.from} : seg))
+
+  const doSearch = () => {
     if (!segments[0].from || !segments[0].to || !segments[0].date) return
-    setLoading(true)
-    setSelectedOut(null); setSelectedRet(null)
-    setSelectedSeats([]); setSelectedReturnSeats([])
+    setLoading(true); setSelectedOut(null); setSelectedRet(null); setOutSeats([]); setRetSeats([])
     setTimeout(() => {
-      setOutboundFlights(generateFlights(segments[0].from.code, segments[0].to.code, segments[0].date))
-      if (type==='roundTrip' && segments[1].date) {
-        setReturnFlights(generateFlights(segments[0].to.code, segments[0].from.code, segments[1].date))
-      } else { setReturnFlights([]) }
+      setOutFlights(generateFlights(segments[0].from.code, segments[0].to.code, segments[0].date))
+      if (type==='roundTrip' && segments[1].date)
+        setRetFlights(generateFlights(segments[0].to.code, segments[0].from.code, segments[1].date))
+      else setRetFlights([])
       setLoading(false); setSearched(true)
-    }, 1200)
+    }, 1400)
   }
 
-  const openSeatMap = (flight, isReturn = false) => {
-    setSeatMapFlight(flight)
-    setSeatMapIsReturn(isReturn)
+  const sortAndFilter = (list) => {
+    let out = [...list]
+    if (filterStops !== 'all') out = out.filter(f => filterStops==='direct' ? f.stops===0 : f.stops>0)
+    if (filterAirline !== 'all') out = out.filter(f => f.airline===filterAirline)
+    out.sort((a,b) => sortBy==='price' ? a[cabinClass]-b[cabinClass] : sortBy==='duration' ? a.durationMins-b.durationMins : a.dep.localeCompare(b.dep))
+    return out
   }
-
-  const handleSeatConfirm = (seats) => {
-    if (seatMapIsReturn) setSelectedReturnSeats(seats)
-    else setSelectedSeats(seats)
-    setSeatMapFlight(null)
-  }
-
-  const sortFn = (a,b) => sortBy==='price' ? a[cabinClass]-b[cabinClass] : sortBy==='duration' ? a.durationMins-b.durationMins : a.dep.localeCompare(b.dep)
-  const filterFn = f => filterStops==='all' ? true : filterStops==='direct' ? f.stops===0 : f.stops>0
-  const sortedOut = [...outboundFlights].filter(filterFn).sort(sortFn)
-  const sortedRet = [...returnFlights].filter(filterFn).sort(sortFn)
 
   const canProceed = selectedOut && (type!=='roundTrip' || selectedRet)
-
-  const totalFare = () => {
-    const base = (selectedOut?.[cabinClass]||0) + (selectedRet?.[cabinClass]||0)
-    return base * totalPax
-  }
+  const outPrice = selectedOut ? (selectedOut[cabinClass]||selectedOut.economy) : 0
+  const retPrice = selectedRet ? (selectedRet[cabinClass]||selectedRet.economy) : 0
+  const totalFare = (outPrice + retPrice) * totalPax
 
   const proceed = () => {
     update({
       bookingType:'flight', flightType:type, segments, passengers, cabinClass,
-      selectedFlight: selectedOut, selectedReturnFlight: selectedRet,
-      selectedSeats, selectedReturnSeats,
+      selectedFlight:selectedOut, selectedReturnFlight:selectedRet,
+      selectedSeats:outSeats, selectedReturnSeats:retSeats,
     })
-    navigate('/booking/passengers')
+    navigate('/booking/extras')
   }
+
+  const airlines = [...new Set(outFlights.map(f=>f.airline))]
 
   return (
     <>
-      <SEO title="Search Flights" description="Search and book flights worldwide — one-way, round trip, or multi-city." />
-
-      {/* Seat Map Modal */}
-      {seatMapFlight && (
-        <SeatMap
-          flight={seatMapFlight}
-          passengers={totalPax}
-          selectedClass={cabinClass}
-          onConfirm={handleSeatConfirm}
-          onClose={() => setSeatMapFlight(null)}
-        />
+      <SEO title="Search Flights"/>
+      {seatMapFor && (
+        <SeatMap flight={seatMapFor.flight} passengers={totalPax} selectedClass={cabinClass}
+          onConfirm={seats => { seatMapFor.isReturn ? setRetSeats(seats) : setOutSeats(seats); setSeatMapFor(null) }}
+          onClose={() => setSeatMapFor(null)}/>
       )}
 
-      {/* Hero Search */}
-      <section className="relative bg-navy dark:bg-black pt-24 pb-10 overflow-hidden">
-        <div className="absolute inset-0 opacity-15">
-          <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1400&q=80" alt="" className="w-full h-full object-cover"/>
-          <div className="absolute inset-0 bg-gradient-to-b from-navy/80 to-navy"/>
-        </div>
-        <div className="relative container-pad">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold mb-4">
-              <Plane size={12}/> Best Flight Deals — All Airlines
-            </div>
-            <h1 className="font-extrabold text-4xl md:text-5xl text-white mb-2">Search Flights</h1>
-            <p className="text-blue-200">One-way · Round trip · Multi-city</p>
+      {/* Search header */}
+      <section className="pt-20 pb-8" style={{background:'#0A1628',borderBottom:'1px solid rgba(201,168,76,0.15)'}}>
+        <div className="container-pad">
+          <div className="text-center mb-6 pt-4">
+            <h1 className="font-display font-bold text-white text-3xl">Search Flights</h1>
+            <p className="text-sm mt-1" style={{color:'rgba(255,255,255,0.45)'}}>One-way · Round trip · Multi-city · All airlines</p>
           </div>
 
-          <div className="bg-white dark:bg-card-dark rounded-3xl shadow-2xl p-6 md:p-8">
+          <div className="rounded-2xl p-5 md:p-6" style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.1)'}}>
             {/* Trip type */}
-            <div className="flex gap-2 mb-6 flex-wrap">
-              {[['oneWay','One Way'],['roundTrip','Round Trip'],['multiCity','Multi-City']].map(([val,lbl]) => (
-                <button key={val} type="button" onClick={() => { setType(val); setSearched(false) }}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${type===val ? 'bg-primary text-white shadow-glow' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
-                  {lbl}
-                </button>
+            <div className="flex gap-2 mb-5 flex-wrap">
+              {[['oneWay','One Way'],['roundTrip','Round Trip'],['multiCity','Multi-City']].map(([v,l]) => (
+                <button key={v} type="button" onClick={() => { setType(v); setSearched(false) }}
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold transition-all"
+                  style={{
+                    background:type===v?'linear-gradient(135deg,#C9A84C,#F5C842)':'rgba(255,255,255,0.06)',
+                    color:type===v?'#0A1628':'rgba(255,255,255,0.55)',
+                    border:`1px solid ${type===v?'#C9A84C':'rgba(255,255,255,0.1)'}`,
+                  }}>{l}</button>
               ))}
             </div>
 
             {/* Segments */}
-            <div className="space-y-4">
+            <div className="space-y-3 mb-4">
               {(type==='multiCity' ? segments : segments.slice(0,1)).map((seg,i) => (
-                <div key={i} className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_1fr] gap-3 items-end">
-                  <AirportInput value={seg.from} onChange={v => updateSeg(i,{from:v})} label={i===0?'From':`From (Leg ${i+1})`} placeholder="Departure city"/>
-                  <button type="button" onClick={() => swapAirports(i)} className="hidden md:flex w-10 h-10 mb-0.5 rounded-xl border border-gray-200 dark:border-gray-700 items-center justify-center hover:border-primary hover:text-primary transition-colors text-gray-400 self-end">
+                <div key={i} className="grid grid-cols-1 md:grid-cols-[1fr_40px_1fr_auto] gap-3 items-end">
+                  <AirportInput value={seg.from} onChange={v=>updateSeg(i,{from:v})} label={i===0?'From':`From (Leg ${i+1})`} placeholder="Departure city or airport"/>
+                  <button type="button" onClick={() => swap(i)} className="hidden md:flex w-10 h-10 rounded-xl items-center justify-center self-end transition-all hover:scale-110"
+                    style={{background:'rgba(201,168,76,0.1)',border:'1px solid rgba(201,168,76,0.25)',color:'#C9A84C'}}>
                     <ArrowLeftRight size={15}/>
                   </button>
-                  <AirportInput value={seg.to} onChange={v => updateSeg(i,{to:v})} label={i===0?'To':`To (Leg ${i+1})`} placeholder="Destination city"/>
+                  <AirportInput value={seg.to} onChange={v=>updateSeg(i,{to:v})} label={i===0?'To':`To (Leg ${i+1})`} placeholder="Destination city or airport"/>
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{type==='multiCity'?`Depart (Leg ${i+1})`:'Departure Date'}</label>
-                    <input type="date" min={today} value={seg.date} onChange={e => updateSeg(i,{date:e.target.value})}
-                      className="w-full px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"/>
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{color:'rgba(255,255,255,0.45)'}}>
+                      {type==='multiCity'?`Date (Leg ${i+1})`:'Depart'}
+                    </label>
+                    <input type="date" min={today} value={seg.date} onChange={e=>updateSeg(i,{date:e.target.value})}
+                      className="w-full px-4 py-3.5 rounded-xl text-sm text-white focus:outline-none"
+                      style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)'}}
+                      onFocus={e=>{e.target.style.borderColor='#C9A84C'}} onBlur={e=>{e.target.style.borderColor='rgba(255,255,255,0.15)'}}/>
                   </div>
                   {type==='multiCity' && i>1 && (
-                    <button type="button" onClick={() => removeLeg(i)} className="self-end w-10 h-10 rounded-xl border border-red-200 text-red-400 flex items-center justify-center hover:bg-red-50 transition-colors"><X size={15}/></button>
+                    <button type="button" onClick={() => setSegments(s=>s.filter((_,idx)=>idx!==i))}
+                      className="self-end w-10 h-10 rounded-xl flex items-center justify-center" style={{border:'1px solid rgba(239,68,68,0.4)',color:'#ef4444'}}><X size={15}/></button>
                   )}
                 </div>
               ))}
@@ -304,33 +312,38 @@ export default function FlightsPage() {
               {type==='roundTrip' && (
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <div className="md:col-start-4">
-                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Return Date</label>
-                    <input type="date" min={segments[0].date||today} value={segments[1].date} onChange={e => updateSeg(1,{date:e.target.value})}
-                      className="w-full px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"/>
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{color:'rgba(255,255,255,0.45)'}}>Return</label>
+                    <input type="date" min={segments[0].date||today} value={segments[1].date} onChange={e=>updateSeg(1,{date:e.target.value})}
+                      className="w-full px-4 py-3.5 rounded-xl text-sm text-white focus:outline-none"
+                      style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)'}}
+                      onFocus={e=>{e.target.style.borderColor='#C9A84C'}} onBlur={e=>{e.target.style.borderColor='rgba(255,255,255,0.15)'}}/>
                   </div>
                 </div>
               )}
 
-              {type==='multiCity' && segments.length < 5 && (
-                <button type="button" onClick={addLeg} className="flex items-center gap-2 text-sm font-bold text-primary border-2 border-dashed border-primary/30 hover:border-primary rounded-xl px-4 py-3 w-full justify-center transition-all">
+              {type==='multiCity' && segments.length<5 && (
+                <button type="button" onClick={() => setSegments(s=>[...s,{from:null,to:null,date:''}])}
+                  className="flex items-center gap-2 text-sm font-bold w-full justify-center py-3 rounded-xl border-2 border-dashed transition-all"
+                  style={{borderColor:'rgba(201,168,76,0.3)',color:'#C9A84C'}}>
                   <Plus size={15}/> Add Another City
                 </button>
               )}
             </div>
 
-            {/* Class + Passengers + Search */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Cabin Class</label>
-                <select value={cabinClass} onChange={e => setCabinClass(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-all">
-                  {CABIN_CLASSES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{color:'rgba(255,255,255,0.45)'}}>Cabin Class</label>
+                <select value={cabinClass} onChange={e=>setCabinClass(e.target.value)}
+                  className="w-full px-4 py-3.5 rounded-xl text-sm text-white focus:outline-none"
+                  style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',appearance:'none'}}>
+                  {CABIN_CLASSES.map(c=><option key={c.value} value={c.value} style={{background:'#0F1826'}}>{c.label}</option>)}
                 </select>
               </div>
               <PassengerPicker value={passengers} onChange={setPassengers}/>
               <div className="flex items-end">
-                <button onClick={search} type="button" disabled={!segments[0].from||!segments[0].to||!segments[0].date||loading}
-                  className="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-primary-gradient shadow-glow hover:shadow-none transition-all hover:scale-[1.02] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2">
+                <button onClick={doSearch} type="button"
+                  disabled={!segments[0].from||!segments[0].to||!segments[0].date||loading}
+                  className="w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 btn-gold text-navy">
                   {loading ? <><RefreshCcw size={15} className="animate-spin"/>Searching…</> : <><Plane size={15}/>Search Flights</>}
                 </button>
               </div>
@@ -341,74 +354,82 @@ export default function FlightsPage() {
 
       {/* Results */}
       {searched && (
-        <section className="section-pad bg-surface-light dark:bg-surface-dark">
+        <section className="py-10" style={{background:'#070D1A',minHeight:'60vh'}}>
           <div className="container-pad">
-            {/* Sort/Filter bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                {sortedOut.length} flights · {segments[0].from?.city} → {segments[0].to?.city}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <select value={filterStops} onChange={e => setFilterStops(e.target.value)}
-                  className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-all">
+            {/* Filter bar */}
+            <div className="flex flex-wrap items-center gap-3 mb-6 p-4 rounded-2xl" style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)'}}>
+              <Filter size={15} style={{color:'#C9A84C'}}/>
+              <span className="text-xs font-bold text-white">{sortAndFilter(outFlights).length} results</span>
+              <div className="flex flex-wrap gap-2 ml-auto">
+                <select value={filterStops} onChange={e=>setFilterStops(e.target.value)}
+                  className="px-3 py-2 rounded-xl text-xs font-bold focus:outline-none"
+                  style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',color:'white'}}>
                   <option value="all">All stops</option>
                   <option value="direct">Direct only</option>
-                  <option value="stops">With stops</option>
+                  <option value="stops">1+ stops</option>
                 </select>
-                <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-                  className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-all">
-                  <option value="price">Sort: Price</option>
-                  <option value="duration">Sort: Duration</option>
-                  <option value="dep">Sort: Departure</option>
+                <select value={filterAirline} onChange={e=>setFilterAirline(e.target.value)}
+                  className="px-3 py-2 rounded-xl text-xs font-bold focus:outline-none"
+                  style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',color:'white'}}>
+                  <option value="all">All airlines</option>
+                  {airlines.map(a=><option key={a} value={a} style={{background:'#0F1826'}}>{a}</option>)}
+                </select>
+                <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
+                  className="px-3 py-2 rounded-xl text-xs font-bold focus:outline-none"
+                  style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',color:'white'}}>
+                  <option value="price">Cheapest first</option>
+                  <option value="duration">Shortest first</option>
+                  <option value="dep">Earliest depart</option>
                 </select>
               </div>
             </div>
 
             {/* Outbound */}
-            <h2 className="font-bold text-lg text-gray-900 dark:text-white mb-4">
-              {type==='roundTrip' ? '✈️ Outbound' : '✈️ Flights'} · {segments[0].from?.city} → {segments[0].to?.city}
+            <h2 className="font-bold text-lg text-white mb-4">
+              {type==='roundTrip'?' Outbound ·':' '} {segments[0].from?.city} → {segments[0].to?.city}
+              <span className="text-sm font-normal ml-2" style={{color:'rgba(255,255,255,0.4)'}}>{segments[0].date}</span>
             </h2>
             <div className="space-y-3 mb-10">
-              {sortedOut.map(f => (
+              {sortAndFilter(outFlights).map(f => (
                 <FlightCard key={f.id} flight={f} cabinClass={cabinClass}
                   onSelect={setSelectedOut} selected={selectedOut}
-                  onPickSeats={(fl) => openSeatMap(fl, false)}
-                  seats={selectedOut?.id===f.id ? selectedSeats : []}/>
+                  onPickSeats={(fl, isRet) => setSeatMapFor({flight:fl, isReturn:isRet})}
+                  seats={selectedOut?.id===f.id ? outSeats : []} isReturn={false}/>
               ))}
             </div>
 
             {/* Return */}
-            {type==='roundTrip' && sortedRet.length > 0 && (
+            {type==='roundTrip' && retFlights.length>0 && (
               <>
-                <h2 className="font-bold text-lg text-gray-900 dark:text-white mb-4">
-                  🔁 Return · {segments[0].to?.city} → {segments[0].from?.city}
+                <h2 className="font-bold text-lg text-white mb-4">
+                   Return · {segments[0].to?.city} → {segments[0].from?.city}
+                  <span className="text-sm font-normal ml-2" style={{color:'rgba(255,255,255,0.4)'}}>{segments[1].date}</span>
                 </h2>
                 <div className="space-y-3 mb-10">
-                  {sortedRet.map(f => (
+                  {sortAndFilter(retFlights).map(f => (
                     <FlightCard key={f.id} flight={f} cabinClass={cabinClass}
                       onSelect={setSelectedRet} selected={selectedRet}
-                      onPickSeats={(fl) => openSeatMap(fl, true)}
-                      seats={selectedRet?.id===f.id ? selectedReturnSeats : []}/>
+                      onPickSeats={(fl, isRet) => setSeatMapFor({flight:fl, isReturn:isRet})}
+                      seats={selectedRet?.id===f.id ? retSeats : []} isReturn={true}/>
                   ))}
                 </div>
               </>
             )}
 
-            {/* Sticky summary */}
+            {/* Sticky proceed bar */}
             {canProceed && (
               <motion.div initial={{opacity:0,y:40}} animate={{opacity:1,y:0}}
-                className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-2xl bg-white dark:bg-card-dark rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 p-4 flex items-center justify-between gap-4 z-40">
+                className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-2xl z-40 rounded-2xl p-4 flex items-center justify-between gap-4"
+                style={{background:'rgba(10,22,40,0.97)',border:'1px solid rgba(201,168,76,0.3)',backdropFilter:'blur(24px)',boxShadow:'0 8px 40px rgba(0,0,0,0.5)'}}>
                 <div>
-                  <p className="text-xs text-gray-400 mb-0.5">Total · {totalPax} passenger{totalPax>1?'s':''}</p>
-                  <p className="font-extrabold text-xl text-primary">{formatNGN(totalFare())}</p>
-                  {(selectedSeats.length > 0 || selectedReturnSeats.length > 0) && (
-                    <p className="text-xs text-green-600 font-semibold mt-0.5">
-                      Seats: {[...selectedSeats,...selectedReturnSeats].join(', ')}
-                    </p>
+                  <p className="text-xs mb-0.5" style={{color:'rgba(255,255,255,0.4)'}}>Total for {totalPax} passenger{totalPax>1?'s':''}</p>
+                  <p className="font-display font-bold text-xl" style={{color:'#C9A84C'}}>{formatNGN(totalFare)}</p>
+                  {(outSeats.length>0||retSeats.length>0) && (
+                    <p className="text-xs text-green-400 mt-0.5">Seats: {[...outSeats,...retSeats].join(', ')}</p>
                   )}
                 </div>
-                <button onClick={proceed} className="flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm text-white bg-primary-gradient shadow-glow hover:shadow-none transition-all hover:scale-105">
-                  Continue <ArrowRight size={15}/>
+                <button onClick={proceed} className="btn-gold px-8 py-3.5 text-sm font-bold flex items-center gap-2">
+                  Continue — Add Extras <ArrowRight size={15}/>
                 </button>
               </motion.div>
             )}

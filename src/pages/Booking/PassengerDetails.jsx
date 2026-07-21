@@ -1,161 +1,249 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { User, Mail, Phone, CreditCard, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react'
+import { User, ArrowRight, ArrowLeft, Upload, CheckCircle, Camera, AlertTriangle, X } from 'lucide-react'
 import SEO from '../../components/SEO'
 import { useBooking } from '../../store/BookingContext'
-import { formatNGN } from '../../data'
+import { useAuth } from '../../store/AuthContext'
+import { uploadPassport, updateUserDoc } from '../../lib/firebase'
+import { StepBar } from './Extras'
 
-const COUNTRIES = ['Nigeria','Ghana','Kenya','South Africa','UK','USA','Canada','UAE','Germany','France','Other']
+const TITLES    = ['Mr','Mrs','Ms','Dr','Prof','Engr']
+const COUNTRIES = ['Nigeria','Ghana','Kenya','South Africa','Egypt','United Kingdom','United States','Canada','UAE','Germany','France','Italy','India','China','Australia','Other']
+const GENDERS   = ['Male','Female']
+const MEALS     = ['Standard','Vegetarian','Vegan','Halal','Kosher','Child','None']
 
-function Field({ label, children }) {
-  return (
+function isPassportExpiring(expiry, travelDate) {
+  if (!expiry || !travelDate) return false
+  const exp   = new Date(expiry)
+  const travel = new Date(travelDate)
+  travel.setMonth(travel.getMonth() + 6)
+  return exp < travel
+}
+
+function PassengerForm({ index, data, onChange, isLead, travelDate }) {
+  const [uploading, setUploading] = useState(false)
+  const { user } = useAuth()
+  const fileRef = useRef(null)
+
+  const F = (label, field, props = {}) => (
     <div>
-      <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{label}</label>
-      {children}
+      <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{label}{props.required && ' *'}</label>
+      <input value={data[field] || ''} onChange={e => onChange(field, e.target.value)}
+        className="w-full px-4 py-3 rounded-xl text-sm text-white focus:outline-none transition-all"
+        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+        onFocus={e => e.target.style.borderColor = '#C9A84C'}
+        onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+        {...props} />
+    </div>
+  )
+
+  const Sel = (label, field, options) => (
+    <div>
+      <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</label>
+      <select value={data[field] || ''} onChange={e => onChange(field, e.target.value)}
+        className="w-full px-4 py-3 rounded-xl text-sm text-white focus:outline-none transition-all"
+        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', appearance: 'none' }}>
+        {options.map(o => <option key={o} value={o} style={{ background: '#0F1826' }}>{o}</option>)}
+      </select>
+    </div>
+  )
+
+  const handlePassportUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file || !user) return
+    setUploading(true)
+    try {
+      const url = await uploadPassport(user.uid, file)
+      onChange('passportUrl', url)
+      if (isLead) await updateUserDoc(user.uid, { passportUrl: url })
+    } finally { setUploading(false) }
+  }
+
+  const passportWarn = isPassportExpiring(data.passportExpiry, travelDate)
+
+  return (
+    <div className="p-6 rounded-2xl space-y-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: 'linear-gradient(135deg,#C9A84C,#F5C842)', color: '#0A1628' }}>{index + 1}</div>
+        <div>
+          <p className="font-bold text-white">{isLead ? 'Lead Passenger' : `Passenger ${index + 1}`}</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Details must match international passport exactly</p>
+        </div>
+      </div>
+
+      {/* Name row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {Sel('Title', 'title', TITLES)}
+        {F('First Name', 'firstName', { required: true, placeholder: 'As on passport' })}
+        {F('Middle Name', 'middleName', { placeholder: 'Optional' })}
+        {F('Last Name', 'lastName', { required: true, placeholder: 'As on passport' })}
+      </div>
+
+      {/* Personal details */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {F('Date of Birth', 'dob', { type: 'date', required: true })}
+        {Sel('Gender', 'gender', GENDERS)}
+        {Sel('Nationality', 'nationality', COUNTRIES)}
+      </div>
+
+      {/* Passport */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {F('Passport / ID Number', 'passportNo', { required: true, placeholder: 'A12345678' })}
+        <div>
+          {F('Passport Expiry', 'passportExpiry', { type: 'date', required: true })}
+          {passportWarn && (
+            <p className="mt-1.5 text-xs flex items-center gap-1" style={{ color: '#f59e0b' }}>
+              <AlertTriangle size={11} /> Passport expires within 6 months of travel
+            </p>
+          )}
+        </div>
+        {F('Frequent Flyer No.', 'frequentFlyer', { placeholder: 'Optional' })}
+      </div>
+
+      {/* Passport upload */}
+      <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.12)' }}>
+        <p className="text-xs font-bold text-white mb-2"> Passport Scan / Photo (optional but recommended)</p>
+        <p className="text-xs mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>Upload a clear scan or photo of the passport data page. This helps our team process your ticket faster.</p>
+        {data.passportUrl ? (
+          <div className="flex items-center gap-3">
+            <CheckCircle size={16} style={{ color: '#22c55e' }} />
+            <span className="text-sm text-green-400 font-semibold">Passport uploaded</span>
+            <button onClick={() => onChange('passportUrl', '')} className="text-xs text-red-400 underline ml-auto">Remove</button>
+          </div>
+        ) : (
+          <div>
+            <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={handlePassportUpload} />
+            <button type="button" onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all hover:scale-105"
+              style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)', color: '#C9A84C' }}>
+              {uploading ? <><span className="animate-spin"></span> Uploading…</> : <><Upload size={13} /> Upload Passport</>}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Contact info for lead passenger */}
+      {isLead && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="sm:col-span-2">
+            <p className="text-xs font-bold text-white mb-3"> Contact Information (lead passenger)</p>
+          </div>
+          {F('Email Address', 'email', { type: 'email', required: true, placeholder: 'you@example.com' })}
+          {F('Phone / WhatsApp', 'phone', { required: true, placeholder: '+234 800 000 0000' })}
+          {F('Alternative Phone', 'altPhone', { placeholder: 'Optional' })}
+          {Sel('Meal Preference', 'mealPref', MEALS)}
+        </div>
+      )}
+
+      {!isLead && Sel('Meal Preference', 'mealPref', MEALS)}
     </div>
   )
 }
 
-const iCls = "w-full px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-
 export default function PassengerDetailsPage() {
   const { booking, update } = useBooking()
   const navigate = useNavigate()
+  const { user, userDoc } = useAuth()
 
   const totalPax = (booking.passengers?.adults || 1) + (booking.passengers?.children || 0)
-  const numForms = booking.bookingType === 'flight' ? totalPax : 1
+  const travelDate = booking.segments?.[0]?.date || ''
 
-  const [contacts, setContacts] = useState(
-    Array.from({ length: numForms }, () => ({
-      title: 'Mr', firstName: '', lastName: '',
-      dob: '', nationality: 'Nigeria',
-      passportNo: '', passportExpiry: '',
-      email: '', phone: '',
+  const [passengers, setPassengers] = useState(() =>
+    Array.from({ length: totalPax }, (_, i) => ({
+      title: 'Mr', firstName: '', middleName: '', lastName: '',
+      dob: '', gender: 'Male', nationality: 'Nigeria',
+      passportNo: '', passportExpiry: '', passportUrl: '',
+      frequentFlyer: '', mealPref: booking.addons?.mealPref || 'Standard',
+      email: i === 0 ? (user?.email || '') : '',
+      phone: i === 0 ? (userDoc?.phone || '') : '',
+      altPhone: '',
+      // Pre-fill lead from userDoc
+      ...(i === 0 && userDoc ? {
+        firstName: userDoc.displayName?.split(' ')[0] || '',
+        lastName:  userDoc.displayName?.split(' ').slice(-1)[0] || '',
+        nationality: userDoc.nationality || 'Nigeria',
+        passportNo: userDoc.passportNo || '',
+        passportExpiry: userDoc.passportExpiry || '',
+        passportUrl: userDoc.passportUrl || '',
+        dob: userDoc.dob || '',
+      } : {}),
+      ...((booking.passengers_info?.[i]) || {}),
     }))
   )
-  const [mainEmail, setMainEmail] = useState('')
-  const [mainPhone, setMainPhone] = useState('')
-  const [agreedTerms, setAgreedTerms] = useState(false)
+  const [agreed, setAgreed] = useState(false)
 
-  const updateContact = (i, field, val) => {
-    setContacts(c => c.map((p, idx) => idx === i ? { ...p, [field]: val } : p))
-  }
+  const update1 = (i, field, val) =>
+    setPassengers(p => p.map((px, idx) => idx === i ? { ...px, [field]: val } : px))
 
-  const canProceed = contacts.every(c => c.firstName && c.lastName) && mainEmail && mainPhone && agreedTerms
+  const canProceed = passengers.every(p => p.firstName && p.lastName && p.passportNo) && agreed
 
   const proceed = () => {
-    update({ passengers_info: contacts, contact: { email: mainEmail, phone: mainPhone } })
+    update({
+      passengers_info: passengers,
+      contact: { name: `${passengers[0].firstName} ${passengers[0].lastName}`, email: passengers[0].email, phone: passengers[0].phone, altPhone: passengers[0].altPhone },
+    })
+    // Also save to user profile
+    if (user && passengers[0]) {
+      updateUserDoc(user.uid, {
+        phone: passengers[0].phone,
+        nationality: passengers[0].nationality,
+        passportNo: passengers[0].passportNo,
+        passportExpiry: passengers[0].passportExpiry,
+        passportUrl: passengers[0].passportUrl,
+        dob: passengers[0].dob,
+        profileComplete: true,
+      }).catch(() => {})
+    }
     navigate('/booking/review')
   }
 
   return (
     <>
       <SEO title="Passenger Details" />
+      <StepBar step={2} />
 
-      {/* Step indicator */}
-      <div className="bg-white dark:bg-card-dark border-b border-gray-100 dark:border-gray-800 pt-20">
-        <div className="container-pad py-4">
-          <div className="flex items-center gap-3 max-w-md">
-            {['Search', 'Select', 'Passengers', 'Review', 'Confirm'].map((s, i) => (
-              <div key={s} className="flex items-center gap-2 flex-1">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                  i < 2 ? 'bg-green-500 text-white' : i === 2 ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
-                }`}>
-                  {i < 2 ? <CheckCircle size={14} /> : i + 1}
-                </div>
-                <span className={`text-xs font-medium hidden sm:block ${i === 2 ? 'text-primary' : i < 2 ? 'text-green-600' : 'text-gray-400'}`}>{s}</span>
-                {i < 4 && <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700 mx-1" />}
+      <section className="py-10" style={{ background: '#070D1A', minHeight: '80vh' }}>
+        <div className="container-pad max-w-4xl mx-auto">
+          <h1 className="font-display font-bold text-white text-2xl mb-2">Passenger Details</h1>
+          <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            Enter details <strong className="text-gold">exactly as they appear on the passport</strong>. Incorrect information may result in denied boarding.
+          </p>
+
+          {userDoc && !userDoc.passportNo && (
+            <div className="mb-6 p-4 rounded-xl flex items-start gap-3" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)' }}>
+              <AlertTriangle size={18} style={{ color: '#f59e0b' }} className="shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-bold" style={{ color: '#f59e0b' }}>Complete Your Profile</p>
+                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>Add your passport details to your profile to speed up future bookings.</p>
               </div>
+            </div>
+          )}
+
+          <div className="space-y-6">
+            {passengers.map((p, i) => (
+              <PassengerForm key={i} index={i} data={p} onChange={(f, v) => update1(i, f, v)}
+                isLead={i === 0} travelDate={travelDate} />
             ))}
           </div>
-        </div>
-      </div>
 
-      <section className="section-pad bg-surface-light dark:bg-surface-dark">
-        <div className="container-pad max-w-3xl mx-auto">
-          <h1 className="font-bold text-2xl text-gray-900 dark:text-white mb-2">Passenger Details</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Enter details exactly as they appear on the travel document.</p>
-
-          {contacts.map((contact, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-              className="bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-card p-6 mb-5">
-              <h3 className="font-bold text-base text-gray-900 dark:text-white mb-5 flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold">{i + 1}</div>
-                {numForms > 1 ? `Passenger ${i + 1}${i === 0 ? ' (Lead)' : ''}` : 'Your Details'}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Title">
-                  <select value={contact.title} onChange={e => updateContact(i, 'title', e.target.value)} className={iCls}>
-                    {['Mr','Mrs','Ms','Dr','Prof'].map(t => <option key={t}>{t}</option>)}
-                  </select>
-                </Field>
-                <Field label="First Name *">
-                  <input value={contact.firstName} onChange={e => updateContact(i, 'firstName', e.target.value)}
-                    placeholder="As on passport" className={iCls} />
-                </Field>
-                <Field label="Last Name *">
-                  <input value={contact.lastName} onChange={e => updateContact(i, 'lastName', e.target.value)}
-                    placeholder="As on passport" className={iCls} />
-                </Field>
-                <Field label="Date of Birth">
-                  <input type="date" value={contact.dob} onChange={e => updateContact(i, 'dob', e.target.value)} className={iCls} />
-                </Field>
-                <Field label="Nationality">
-                  <select value={contact.nationality} onChange={e => updateContact(i, 'nationality', e.target.value)} className={iCls}>
-                    {COUNTRIES.map(c => <option key={c}>{c}</option>)}
-                  </select>
-                </Field>
-                {booking.bookingType === 'flight' && (
-                  <>
-                    <Field label="Passport / ID Number">
-                      <input value={contact.passportNo} onChange={e => updateContact(i, 'passportNo', e.target.value)}
-                        placeholder="A12345678" className={iCls} />
-                    </Field>
-                    <Field label="Passport Expiry">
-                      <input type="date" value={contact.passportExpiry} onChange={e => updateContact(i, 'passportExpiry', e.target.value)} className={iCls} />
-                    </Field>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          ))}
-
-          {/* Contact info */}
-          <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-card p-6 mb-6">
-            <h3 className="font-bold text-base text-gray-900 dark:text-white mb-5 flex items-center gap-2">
-              <Mail size={18} className="text-primary" /> Contact Information
-            </h3>
-            <p className="text-xs text-gray-400 mb-4">Booking confirmation and e-tickets will be sent to these details.</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="Email Address *">
-                <input type="email" value={mainEmail} onChange={e => setMainEmail(e.target.value)}
-                  placeholder="you@example.com" className={iCls} />
-              </Field>
-              <Field label="Phone / WhatsApp *">
-                <input value={mainPhone} onChange={e => setMainPhone(e.target.value)}
-                  placeholder="+234 800 000 0000" className={iCls} />
-              </Field>
-            </div>
-          </div>
-
-          {/* Terms */}
-          <label className="flex items-start gap-3 mb-8 cursor-pointer">
-            <input type="checkbox" checked={agreedTerms} onChange={e => setAgreedTerms(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              I agree to the <a href="/terms" className="text-primary font-semibold">Terms of Service</a> and <a href="/privacy" className="text-primary font-semibold">Privacy Policy</a>. I confirm that all passenger details are accurate and match the travel documents.
+          <label className="flex items-start gap-3 mt-6 cursor-pointer">
+            <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} className="mt-0.5" />
+            <span className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              I confirm all passenger details are accurate and match the travel documents. I agree to the{' '}
+              <a href="/terms" className="underline" style={{ color: '#C9A84C' }}>Terms & Conditions</a> and{' '}
+              <a href="/privacy" className="underline" style={{ color: '#C9A84C' }}>Privacy Policy</a>.
             </span>
           </label>
 
-          <div className="flex gap-3">
-            <button onClick={() => navigate(-1)}
-              className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm border-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-primary hover:text-primary transition-all">
-              <ArrowLeft size={15} /> Back
+          <div className="flex gap-3 mt-6">
+            <button onClick={() => navigate(-1)} className="flex items-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold border-2 transition-all" style={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
+              <ArrowLeft size={14} /> Back
             </button>
             <button onClick={proceed} disabled={!canProceed}
-              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white bg-primary-gradient shadow-glow hover:shadow-none transition-all hover:scale-[1.02] disabled:opacity-50 disabled:pointer-events-none">
-              Review Booking <ArrowRight size={15} />
+              className="flex-1 btn-gold py-3.5 flex items-center justify-center gap-2 font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed">
+              Continue — Review Booking <ArrowRight size={14} />
             </button>
           </div>
         </div>
