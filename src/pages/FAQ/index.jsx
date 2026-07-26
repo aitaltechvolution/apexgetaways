@@ -34,29 +34,29 @@ export default function FAQPage() {
       <SEO title="FAQ" description="Frequently asked questions about Apex Getaways — visa, flights, packages, payments, study abroad and more."/>
 
       {/* Hero */}
-      <section className="pt-36 pb-20" style={{background:'#0A1628'}}>
+      <section className="pt-36 pb-20" style={{background:'#F8F6F2'}}>
         <div className="container-pad text-center">
           <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}}>
-            <span className="text-xs font-bold uppercase tracking-widest text-gold block mb-4">Got Questions?</span>
-            <h1 className="font-display font-bold text-white mb-4" style={{fontSize:'clamp(2.5rem,6vw,4rem)'}}>Frequently Asked Questions</h1>
-            <p className="text-lg max-w-xl mx-auto" style={{color:'rgba(255,255,255,0.5)'}}>
+            <span className="text-sm font-bold uppercase tracking-widest text-gold block mb-4">Got Questions?</span>
+            <h1 className="font-display font-bold text-primary mb-4" style={{fontSize:'clamp(2.5rem,6vw,4rem)'}}>Frequently Asked Questions</h1>
+            <p className="text-lg max-w-xl mx-auto" style={{color:'#374151'}}>
               Everything you need to know about travelling with Apex Getaways. Can't find your answer? Contact us directly.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <section className="section-pad" style={{background:'#070D1A'}}>
+      <section className="section-pad" style={{background:'#F8F6F2'}}>
         <div className="container-pad max-w-3xl mx-auto">
           {/* Category filter */}
           <div className="flex flex-wrap gap-2 mb-10 justify-center reveal">
             {CATS.map(c=>(
               <button key={c} onClick={()=>{setCat(c);setOpen(null)}}
-                className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                className="px-4 py-2 rounded-full text-sm font-bold transition-all"
                 style={{
-                  background:cat===c?'linear-gradient(135deg,#C9A84C,#F5C842)':'rgba(255,255,255,0.05)',
-                  color:cat===c?'#0A1628':'rgba(255,255,255,0.5)',
-                  border:cat===c?'none':'1px solid rgba(255,255,255,0.1)',
+                  background:cat===c?'linear-gradient(135deg,#C9A84C,#F5C842)':'#F3F4F6',
+                  color:cat===c?'#0A1628':'#374151',
+                  border:cat===c?'none':'1px solid #E5E7EB',
                 }}>{c}</button>
             ))}
           </div>
@@ -64,24 +64,24 @@ export default function FAQPage() {
           <div className="space-y-3">
             {filtered.map((faq,i)=>(
               <div key={i} className="reveal rounded-2xl overflow-hidden transition-all duration-200"
-                style={{background:'rgba(255,255,255,0.03)',border:`1px solid ${open===i?'rgba(201,168,76,0.4)':'rgba(255,255,255,0.07)'}`}}>
+                style={{background:'#F3F4F6',border:`1px solid ${open===i?'rgba(201,168,76,0.4)':'#F3F4F6'}`}}>
                 <button onClick={()=>setOpen(open===i?null:i)}
                   className="w-full flex items-center justify-between px-6 py-5 text-left gap-4">
                   <div className="flex items-center gap-3">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0"
+                    <span className="px-2 py-0.5 rounded-full text-[12px] font-bold shrink-0"
                       style={{background:'rgba(201,168,76,0.1)',color:'#C9A84C'}}>{faq.cat}</span>
-                    <span className="font-semibold text-sm text-white leading-snug">{faq.q}</span>
+                    <span className="font-semibold text-base text-primary leading-snug">{faq.q}</span>
                   </div>
                   <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors"
-                    style={{background:open===i?'#C9A84C':'rgba(255,255,255,0.07)'}}>
-                    <ChevronDown size={15} style={{color:open===i?'#0A1628':'rgba(255,255,255,0.5)',transform:open===i?'rotate(180deg)':'none',transition:'transform 0.3s'}}/>
+                    style={{background:open===i?'#C9A84C':'#F3F4F6'}}>
+                    <ChevronDown size={15} style={{color:open===i?'#0A1628':'#374151',transform:open===i?'rotate(180deg)':'none',transition:'transform 0.3s'}}/>
                   </div>
                 </button>
                 <AnimatePresence>
                   {open===i && (
                     <motion.div initial={{height:0,opacity:0}} animate={{height:'auto',opacity:1}} exit={{height:0,opacity:0}}
                       transition={{duration:0.3}} className="overflow-hidden">
-                      <p className="px-6 pb-6 text-sm leading-relaxed" style={{color:'rgba(255,255,255,0.5)'}}>{faq.a}</p>
+                      <p className="px-6 pb-6 text-base leading-relaxed" style={{color:'#374151'}}>{faq.a}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -93,8 +93,8 @@ export default function FAQPage() {
           <div className="mt-14 p-8 rounded-2xl text-center reveal"
             style={{background:'rgba(201,168,76,0.06)',border:'1px solid rgba(201,168,76,0.2)'}}>
             <MessageCircle size={36} className="mx-auto mb-4" style={{color:'#C9A84C'}}/>
-            <h3 className="font-display font-bold text-white text-xl mb-2">Still Have Questions?</h3>
-            <p className="text-sm mb-6" style={{color:'rgba(255,255,255,0.45)'}}>Our team is available 24/7 to help with anything not covered above.</p>
+            <h3 className="font-display font-bold text-primary text-xl mb-2">Still Have Questions?</h3>
+            <p className="text-base mb-6" style={{color:'#4B5563'}}>Our team is available 24/7 to help with anything not covered above.</p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link to="/contact" className="btn-gold">Contact Us</Link>
               <a href={`https://wa.me/${BRAND.whatsapp.replace('+','')}`} target="_blank" rel="noreferrer"

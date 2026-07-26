@@ -8,17 +8,17 @@ import { StepBar } from './Extras'
 function Row({ label, value }) {
   if (!value) return null
   return (
-    <div className="flex justify-between py-2 text-sm" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-      <span style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</span>
-      <span className="font-semibold text-white text-right max-w-[60%]">{value}</span>
+    <div className="flex justify-between py-2 text-base" style={{ borderBottom: '1px solid #F3F4F6' }}>
+      <span style={{ color: '#4B5563' }}>{label}</span>
+      <span className="font-semibold text-primary text-right max-w-[60%]">{value}</span>
     </div>
   )
 }
 
 function Section({ title, icon: Icon, children }) {
   return (
-    <div className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-      <h3 className="font-bold text-base text-white mb-4 flex items-center gap-2">
+    <div className="p-5 rounded-2xl" style={{ background:'#FFFFFF', border:'1px solid rgba(201,168,76,0.2)', boxShadow:'0 4px 20px rgba(10,22,40,0.06)' }}>
+      <h3 className="font-bold text-base text-primary mb-4 flex items-center gap-2">
         {Icon && <Icon size={15} style={{ color: '#C9A84C' }} />}{title}
       </h3>
       {children}
@@ -51,10 +51,10 @@ export default function ReviewPage() {
       <SEO title="Review Booking" />
       <StepBar step={3} />
 
-      <section className="py-10" style={{ background: '#070D1A', minHeight: '80vh' }}>
+      <section className="py-10" style={{ background: '#F8F6F2', minHeight: '80vh' }}>
         <div className="container-pad max-w-4xl mx-auto">
-          <h1 className="font-display font-bold text-white text-2xl mb-2">Review Your Booking</h1>
-          <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          <h1 className="font-display font-bold text-primary text-2xl mb-2">Review Your Booking</h1>
+          <p className="text-base mb-8" style={{ color: '#4B5563' }}>
             Check all details carefully before payment. Changes after payment may incur fees.
           </p>
 
@@ -105,9 +105,9 @@ export default function ReviewPage() {
             {passengers_info?.length > 0 && (
               <Section title={`Passengers (${passengers_info.length})`} icon={User}>
                 {passengers_info.map((p, i) => (
-                  <div key={i} className={i > 0 ? 'mt-4 pt-4' : ''} style={i > 0 ? { borderTop: '1px solid rgba(255,255,255,0.06)' } : {}}>
+                  <div key={i} className={i > 0 ? 'mt-4 pt-4' : ''} style={i > 0 ? { borderTop: '1px solid #F3F4F6' } : {}}>
                     {passengers_info.length > 1 && (
-                      <p className="text-[11px] font-bold mb-2" style={{ color: '#C9A84C' }}>
+                      <p className="text-[13px] font-bold mb-2" style={{ color: '#C9A84C' }}>
                         {i === 0 ? 'Lead Passenger' : `Passenger ${i + 1}`}
                       </p>
                     )}
@@ -119,7 +119,7 @@ export default function ReviewPage() {
                     {p.passportUrl && <Row label="Scan" value="Uploaded" />}
                   </div>
                 ))}
-                <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="mt-4 pt-3" style={{ borderTop: '1px solid #F3F4F6' }}>
                   <Row label="Email" value={contact?.email} />
                   <Row label="Phone" value={contact?.phone} />
                 </div>
@@ -128,7 +128,7 @@ export default function ReviewPage() {
 
             {/* Price breakdown */}
             <div className="p-5 rounded-2xl" style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.2)' }}>
-              <h3 className="font-bold text-white mb-4">Price Breakdown</h3>
+              <h3 className="font-bold text-primary mb-4">Price Breakdown</h3>
               {fd && (<>
                 <Row label={`Base fare — ${fd.pax.adults} adult${fd.pax.adults > 1 ? 's' : ''}`} value={formatNGN(fd.adultTotal)} />
                 {fd.pax.children > 0 && <Row label={`${fd.pax.children} child${fd.pax.children > 1 ? 'ren' : ''} (75%)`} value={formatNGN(fd.childTotal)} />}
@@ -140,7 +140,7 @@ export default function ReviewPage() {
               )}
               {addons?.insurance && <Row label="Travel insurance" value={formatNGN(15000)} />}
               <div className="flex justify-between pt-3 mt-2 font-bold text-lg" style={{ borderTop: '1px solid rgba(201,168,76,0.25)' }}>
-                <span className="text-white">Total</span>
+                <span className="text-primary">Total</span>
                 <span style={{ color: '#C9A84C' }}>{formatNGN(grandTotal)}</span>
               </div>
             </div>
@@ -149,8 +149,8 @@ export default function ReviewPage() {
             <div className="p-4 rounded-xl flex items-start gap-3" style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)' }}>
               <Shield size={16} className="shrink-0 mt-0.5" style={{ color: '#22c55e' }} />
               <div>
-                <p className="text-sm font-bold text-green-400">Secured by Paystack</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                <p className="text-base font-bold text-green-400">Secured by Paystack</p>
+                <p className="text-sm mt-0.5" style={{ color: '#4B5563' }}>
                   Card details are encrypted and never stored on our servers.
                 </p>
               </div>
@@ -159,8 +159,8 @@ export default function ReviewPage() {
 
           <div className="flex gap-3 mt-8">
             <button onClick={() => navigate(-1)}
-              className="flex items-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold border-2 transition-all"
-              style={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.55)' }}>
+              className="flex items-center gap-2 px-5 py-3.5 rounded-xl text-base font-bold border-2 transition-all"
+              style={{ borderColor: '#E5E7EB', color: '#374151' }}>
               <ArrowLeft size={14} /> Back
             </button>
             <button onClick={() => navigate('/booking/payment')}

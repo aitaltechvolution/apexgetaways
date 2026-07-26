@@ -20,7 +20,7 @@ export default function ApexLogo({ size = 40, showText = true, light = false }) 
             APEX
           </p>
           <p
-            className="text-[10px] font-semibold tracking-widest uppercase"
+            className="text-[12px] font-semibold tracking-widest uppercase"
             style={{ color: '#C9A84C' }}
           >
             Getaways & Travel

@@ -14,7 +14,7 @@ export default function TravelTips() {
       <div className="container-pad">
         <div className="flex items-end justify-between mb-12">
           <SectionTitle label="From Our Blog" title="Travel Tips & Guides" center={false} />
-          <Link to="/blog" className="hidden sm:flex items-center gap-1.5 text-sm font-bold text-primary hover:gap-2.5 transition-all">All Articles <ArrowRight size={14} /></Link>
+          <Link to="/blog" className="hidden sm:flex items-center gap-1.5 text-base font-bold text-primary hover:gap-2.5 transition-all">All Articles <ArrowRight size={14} /></Link>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {TIPS.map((t,i) => (
@@ -24,10 +24,10 @@ export default function TravelTips() {
               </div>
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg">{t.cat}</span>
-                  <span className="text-xs text-gray-400">{t.min} min read</span>
+                  <span className="text-sm font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg">{t.cat}</span>
+                  <span className="text-sm text-gray-600">{t.min} min read</span>
                 </div>
-                <h3 className="font-bold text-gray-900 dark:text-white text-sm leading-snug group-hover:text-primary transition-colors">{t.title}</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white text-base leading-snug group-hover:text-primary transition-colors">{t.title}</h3>
               </div>
             </Link>
           ))}

@@ -95,7 +95,7 @@ export default function AirportInput({
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       {label && (
-        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+        <label className="block text-sm font-bold text-gray-600 dark:text-gray-600 uppercase tracking-wider mb-2">
           {label}
         </label>
       )}
@@ -111,7 +111,7 @@ export default function AirportInput({
           autoComplete="off"
           spellCheck={false}
           className="w-full pl-9 pr-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700
-            bg-white dark:bg-card-dark text-sm text-gray-900 dark:text-white
+            bg-white dark:bg-card-dark text-base text-gray-900 dark:text-white
             placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2
             focus:ring-primary/20 transition-all"
           aria-expanded={open}
@@ -141,17 +141,17 @@ export default function AirportInput({
             >
               <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors
                 ${cursor === i ? 'bg-primary text-white' : 'bg-primary/10'}`}>
-                <span className={`text-xs font-extrabold ${cursor === i ? 'text-white' : 'text-primary'}`}>
+                <span className={`text-sm font-extrabold ${cursor === i ? 'text-white' : 'text-primary'}`}>
                   {a.code}
                 </span>
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <p className="font-semibold text-sm text-gray-900 dark:text-white">{a.city}</p>
-                  <span className="text-xs text-gray-400">·</span>
-                  <p className="text-xs text-gray-400">{a.country}</p>
+                  <p className="font-semibold text-base text-gray-900 dark:text-white">{a.city}</p>
+                  <span className="text-sm text-gray-600">·</span>
+                  <p className="text-sm text-gray-600">{a.country}</p>
                 </div>
-                <p className="text-xs text-gray-400 truncate">{a.name}</p>
+                <p className="text-sm text-gray-600 truncate">{a.name}</p>
               </div>
               <Plane size={12} className="text-gray-300 shrink-0" />
             </button>

@@ -62,7 +62,7 @@ export default function HeroSection() {
     navigate(tab === 'packages' ? '/packages' : `/booking/${tab}`)
   }
 
-  const iCls = "w-full px-4 py-3 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none transition-all"
+  const iCls = "w-full px-4 py-3 rounded-xl text-base text-white placeholder-white/40 focus:outline-none transition-all"
   const iSt  = { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }
   const iFoc = e => { e.target.style.borderColor = 'rgba(201,168,76,0.7)'; e.target.style.background = 'rgba(255,255,255,0.12)' }
   const iBlr = e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.background = 'rgba(255,255,255,0.08)' }
@@ -115,9 +115,9 @@ export default function HeroSection() {
             <div className="flex" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
               {TABS.map(({ id, icon: Icon, label }) => (
                 <button key={id} type="button" onClick={() => setTab(id)}
-                  className="flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-bold uppercase tracking-wider transition-all"
+                  className="flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider transition-all"
                   style={{
-                    color: tab === id ? '#C9A84C' : 'rgba(255,255,255,0.35)',
+                    color: tab === id ? '#C9A84C' : 'rgba(255,255,255,0.55)',
                     borderBottom: tab === id ? '2px solid #C9A84C' : '2px solid transparent',
                     background: tab === id ? 'rgba(201,168,76,0.05)' : 'transparent',
                   }}>
@@ -133,34 +133,34 @@ export default function HeroSection() {
                   <div className="flex gap-2">
                     {[['oneWay', 'One Way'], ['roundTrip', 'Round Trip'], ['multiCity', 'Multi-City']].map(([v, l]) => (
                       <button key={v} type="button" onClick={() => setFlightType(v)}
-                        className="px-4 py-1.5 rounded-full text-xs font-bold transition-all"
+                        className="px-4 py-1.5 rounded-full text-sm font-bold transition-all"
                         style={{
                           background: flightType === v ? '#C9A84C' : 'rgba(255,255,255,0.06)',
-                          color: flightType === v ? '#0A1628' : 'rgba(255,255,255,0.5)',
+                          color: flightType === v ? '#0A1628' : 'rgba(255,255,255,0.7)',
                           border: `1px solid ${flightType === v ? '#C9A84C' : 'rgba(255,255,255,0.1)'}`,
                         }}>{l}</button>
                     ))}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-[1fr_36px_1fr] gap-2 items-end">
                     <AirportInput value={from} onChange={setFrom} placeholder="From — city or airport" label="From"
-                      className="[&_input]:bg-white/8 [&_input]:border-white/15 [&_input]:text-white [&_input]:placeholder-white/40 [&_label]:text-white/45 [&_label]:text-[11px]"/>
+                      className="[&_input]:bg-white/8 [&_input]:border-white/15 [&_input]:text-white [&_input]:placeholder-white/40 [&_label]:text-white/45 [&_label]:text-[13px]"/>
                     <button type="button" onClick={() => { const t = from; setFrom(to); setTo(t) }}
                       className="self-end w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 hidden md:flex"
                       style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)', color: '#C9A84C' }}>
                       <ArrowLeftRight size={14}/>
                     </button>
                     <AirportInput value={to} onChange={setTo} placeholder="To — city or airport" label="To"
-                      className="[&_input]:bg-white/8 [&_input]:border-white/15 [&_input]:text-white [&_input]:placeholder-white/40 [&_label]:text-white/45 [&_label]:text-[11px]"/>
+                      className="[&_input]:bg-white/8 [&_input]:border-white/15 [&_input]:text-white [&_input]:placeholder-white/40 [&_label]:text-white/45 [&_label]:text-[13px]"/>
                   </div>
                   <div className={`grid gap-3 ${flightType === 'roundTrip' ? 'grid-cols-2' : 'grid-cols-1'}`}>
                     <div>
-                      <p className="text-[11px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Departure</p>
+                      <p className="text-[13px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Departure</p>
                       <input type="date" min={today} value={departure} onChange={e => setDeparture(e.target.value)}
                         className={iCls} style={iSt} onFocus={iFoc} onBlur={iBlr}/>
                     </div>
                     {flightType === 'roundTrip' && (
                       <div>
-                        <p className="text-[11px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Return</p>
+                        <p className="text-[13px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Return</p>
                         <input type="date" min={departure || today} value={returnDate} onChange={e => setReturnDate(e.target.value)}
                           className={iCls} style={iSt} onFocus={iFoc} onBlur={iBlr}/>
                       </div>
@@ -173,7 +173,7 @@ export default function HeroSection() {
               {tab === 'hotels' && (
                 <div className="space-y-3">
                   <div>
-                    <p className="text-[11px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Destination</p>
+                    <p className="text-[13px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Destination</p>
                     <div className="relative">
                       <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 z-10" style={{ color: '#C9A84C' }}/>
                       <input value={hotelCity} onChange={e => setHotelCity(e.target.value)} placeholder="City or destination"
@@ -182,12 +182,12 @@ export default function HeroSection() {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <p className="text-[11px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Check-in</p>
+                      <p className="text-[13px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Check-in</p>
                       <input type="date" min={today} value={checkIn} onChange={e => setCheckIn(e.target.value)}
                         className={iCls} style={iSt} onFocus={iFoc} onBlur={iBlr}/>
                     </div>
                     <div>
-                      <p className="text-[11px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Check-out</p>
+                      <p className="text-[13px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Check-out</p>
                       <input type="date" min={checkIn || today} value={checkOut} onChange={e => setCheckOut(e.target.value)}
                         className={iCls} style={iSt} onFocus={iFoc} onBlur={iBlr}/>
                     </div>
@@ -199,7 +199,7 @@ export default function HeroSection() {
               {tab === 'pickup' && (
                 <div className="space-y-3">
                   <div>
-                    <p className="text-[11px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Pickup Location</p>
+                    <p className="text-[13px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Pickup Location</p>
                     <div className="relative">
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-green-400 z-10"/>
                       <input value={pickupFrom} onChange={e => setPickupFrom(e.target.value)} placeholder="Airport or hotel"
@@ -207,7 +207,7 @@ export default function HeroSection() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-[11px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Drop-off</p>
+                    <p className="text-[13px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Drop-off</p>
                     <div className="relative">
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-400 z-10"/>
                       <input value={pickupTo} onChange={e => setPickupTo(e.target.value)} placeholder="Destination address"
@@ -215,7 +215,7 @@ export default function HeroSection() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-[11px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Date</p>
+                    <p className="text-[13px] text-white/45 font-bold uppercase tracking-wider mb-1.5">Date</p>
                     <input type="date" min={today} value={pickupDate} onChange={e => setPickupDate(e.target.value)}
                       className={iCls} style={iSt} onFocus={iFoc} onBlur={iBlr}/>
                   </div>
@@ -227,7 +227,7 @@ export default function HeroSection() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 py-1">
                   {['Dubai', 'Canada', 'Paris', 'London', 'Turkey', 'Maldives'].map(dest => (
                     <button key={dest} type="button" onClick={() => navigate('/packages')}
-                      className="py-2.5 rounded-xl text-sm font-semibold text-white/70 hover:text-white transition-all hover:scale-105"
+                      className="py-2.5 rounded-xl text-base font-semibold text-white/70 hover:text-white transition-all hover:scale-105"
                       style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
                       {dest}
                     </button>
@@ -250,7 +250,7 @@ export default function HeroSection() {
             {STATS.map(({ val, label }) => (
               <div key={label}>
                 <p className="font-display font-bold text-2xl" style={{ color: '#C9A84C' }}>{val}</p>
-                <p className="text-xs text-white/40">{label}</p>
+                <p className="text-sm text-white/40">{label}</p>
               </div>
             ))}
           </motion.div>

@@ -5,10 +5,10 @@ function StatItem({ end, suffix, label, prefix }) {
   const { count, ref } = useCounter(end, 2200)
   return (
     <div ref={ref} className="text-center">
-      <p className="font-display font-bold text-4xl md:text-5xl mb-2" style={{ color:'#C9A84C' }}>
+      <p className="font-display font-bold text-4xl md:text-5xl mb-2 text-primary">
         {prefix}{count}{suffix}
       </p>
-      <p className="text-sm font-medium" style={{ color:'rgba(255,255,255,0.5)' }}>{label}</p>
+      <p className="text-base font-medium text-gray-700">{label}</p>
     </div>
   )
 }
@@ -16,7 +16,7 @@ function StatItem({ end, suffix, label, prefix }) {
 export default function StatsSection() {
   useReveal()
   return (
-    <section className="py-16" style={{ background:'linear-gradient(135deg,#0A1628 0%,#162040 100%)', borderTop:'1px solid rgba(201,168,76,0.15)', borderBottom:'1px solid rgba(201,168,76,0.15)' }}>
+    <section className="py-16" style={{ background:'#F8F6F2', borderTop:'1px solid rgba(201,168,76,0.25)', borderBottom:'1px solid rgba(201,168,76,0.25)' }}>
       <div className="container-pad">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
           <StatItem end={5000} suffix="+" label="Happy Travellers" />

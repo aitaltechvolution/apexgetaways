@@ -6,29 +6,18 @@ export const useTheme = () => useContext(ThemeContext)
 export function ThemeProvider({ children }) {
   const [mode, setMode] = useState(() => {
     const saved = localStorage.getItem('theme')
-    if (saved) return saved  // 'light' | 'dark' | 'system'
-    return 'system'
+    if (saved) return saved  // 'light' | 'dark'
+    return 'light' // site is designed as a light-mode experience by default
   })
 
-  const isDark = () => {
-    if (mode === 'system') return window.matchMedia('(prefers-color-scheme: dark)').matches
-    return mode === 'dark'
-  }
+  const isDark = () => mode === 'dark'
 
   const [dark, setDark] = useState(isDark)
 
   useEffect(() => {
-    const apply = () => {
-      const shouldBeDark = isDark()
-      setDark(shouldBeDark)
-      document.documentElement.classList.toggle('dark', shouldBeDark)
-    }
-    apply()
-    if (mode === 'system') {
-      const mq = window.matchMedia('(prefers-color-scheme: dark)')
-      mq.addEventListener('change', apply)
-      return () => mq.removeEventListener('change', apply)
-    }
+    const shouldBeDark = isDark()
+    setDark(shouldBeDark)
+    document.documentElement.classList.toggle('dark', shouldBeDark)
   }, [mode])
 
   const setTheme = (val) => {

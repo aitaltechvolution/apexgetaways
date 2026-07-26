@@ -11,10 +11,10 @@ import confetti from 'canvas-confetti'
 function InfoRow({ label, value, icon: Icon }) {
   if (!value) return null
   return (
-    <div className="flex items-start gap-3 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+    <div className="flex items-start gap-3 py-2.5" style={{ borderBottom: '1px solid #F3F4F6' }}>
       {Icon && <Icon size={13} className="shrink-0 mt-0.5" style={{ color: '#C9A84C' }} />}
-      <span className="text-xs w-28 shrink-0" style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</span>
-      <span className="text-xs font-semibold text-white flex-1">{value}</span>
+      <span className="text-sm w-28 shrink-0" style={{ color: '#4B5563' }}>{label}</span>
+      <span className="text-sm font-semibold text-primary flex-1">{value}</span>
     </div>
   )
 }
@@ -45,7 +45,7 @@ export default function ConfirmationPage() {
       <SEO title="Booking Confirmed" />
       <StepBar step={5} />
 
-      <section className="py-12" style={{ background: '#070D1A', minHeight: '80vh' }}>
+      <section className="py-12" style={{ background: '#F8F6F2', minHeight: '80vh' }}>
         <div className="container-pad max-w-2xl mx-auto">
 
           {/* Success header */}
@@ -55,8 +55,8 @@ export default function ConfirmationPage() {
               style={{ background: 'rgba(34,197,94,0.1)', border: '2px solid rgba(34,197,94,0.25)' }}>
               <CheckCircle size={44} style={{ color: '#22c55e' }} />
             </div>
-            <h1 className="font-display font-bold text-white text-3xl mb-2">Payment Confirmed</h1>
-            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            <h1 className="font-display font-bold text-primary text-3xl mb-2">Payment Confirmed</h1>
+            <p className="text-base" style={{ color: '#374151' }}>
               Your booking is confirmed. Your e-ticket will be issued within <strong className="text-gold">2–4 hours</strong>.
             </p>
           </motion.div>
@@ -65,23 +65,23 @@ export default function ConfirmationPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             className="p-6 rounded-2xl mb-5 text-center"
             style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.25)' }}>
-            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>Booking Reference</p>
+            <p className="text-sm font-bold uppercase tracking-widest mb-2" style={{ color: '#4B5563' }}>Booking Reference</p>
             <p className="font-display font-bold tracking-widest mb-1" style={{ fontSize: '2.2rem', color: '#C9A84C' }}>
               {orderRef || 'APX-DEMO'}
             </p>
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Payment ref: {paymentRef || 'demo_ref'}</p>
+            <p className="text-sm" style={{ color: '#6B7280' }}>Payment ref: {paymentRef || 'demo_ref'}</p>
             {total > 0 && (
               <div className="flex items-center justify-center gap-2 mt-3">
                 <CheckCircle size={15} style={{ color: '#22c55e' }} />
-                <span className="text-sm font-bold text-green-400">{formatNGN(total)} — Payment Received</span>
+                <span className="text-base font-bold text-green-400">{formatNGN(total)} — Payment Received</span>
               </div>
             )}
           </motion.div>
 
           {/* Trip summary */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            className="p-6 rounded-2xl mb-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <h2 className="font-bold text-white mb-4 flex items-center gap-2">
+            className="p-6 rounded-2xl mb-5" style={{ background:'#FFFFFF', border:'1px solid rgba(201,168,76,0.2)', boxShadow:'0 4px 20px rgba(10,22,40,0.06)' }}>
+            <h2 className="font-bold text-primary mb-4 flex items-center gap-2">
               <TypeIcon size={16} style={{ color: '#C9A84C' }} /> Trip Summary
             </h2>
             {selectedFlight && (
@@ -97,7 +97,7 @@ export default function ConfirmationPage() {
               </div>
             )}
             {passengers_info?.length > 0 && (
-              <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+              <div className="mt-3 pt-3" style={{ borderTop: '1px solid #F3F4F6' }}>
                 {passengers_info.map((p, i) => (
                   <InfoRow key={i}
                     label={i === 0 ? 'Lead Passenger' : `Passenger ${i + 1}`}
@@ -109,8 +109,8 @@ export default function ConfirmationPage() {
 
           {/* What happens next */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-            className="p-6 rounded-2xl mb-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <h2 className="font-bold text-white mb-4 flex items-center gap-2">
+            className="p-6 rounded-2xl mb-5" style={{ background:'#FFFFFF', border:'1px solid rgba(201,168,76,0.2)', boxShadow:'0 4px 20px rgba(10,22,40,0.06)' }}>
+            <h2 className="font-bold text-primary mb-4 flex items-center gap-2">
               <Clock size={16} style={{ color: '#C9A84C' }} /> What Happens Next
             </h2>
             <ol className="space-y-3">
@@ -121,11 +121,11 @@ export default function ConfirmationPage() {
                 ['Before departure', 'Use your PNR to check in online with the airline'],
               ].map(([time, text], i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5"
+                  <span className="w-6 h-6 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0 mt-0.5"
                     style={{ background: 'linear-gradient(135deg,#C9A84C,#F5C842)', color: '#0A1628' }}>{i + 1}</span>
                   <div>
-                    <span className="text-xs font-bold" style={{ color: '#C9A84C' }}>{time} — </span>
-                    <span className="text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>{text}</span>
+                    <span className="text-sm font-bold" style={{ color: '#C9A84C' }}>{time} — </span>
+                    <span className="text-sm" style={{ color: '#374151' }}>{text}</span>
                   </div>
                 </li>
               ))}
@@ -134,21 +134,21 @@ export default function ConfirmationPage() {
 
           {/* Contact */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-            className="p-4 rounded-2xl mb-8" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <p className="text-xs font-bold text-white mb-3">Need Help?</p>
+            className="p-4 rounded-2xl mb-8" style={{ background:'#FFFFFF', border:'1px solid rgba(201,168,76,0.2)', boxShadow:'0 4px 20px rgba(10,22,40,0.06)' }}>
+            <p className="text-sm font-bold text-primary mb-3">Need Help?</p>
             <div className="flex flex-wrap gap-2">
-              <a href={`tel:${BRAND.phone}`} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all hover:scale-105"
+              <a href={`tel:${BRAND.phone}`} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all hover:scale-105"
                 style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)', color: '#C9A84C' }}>
                 <Phone size={12} />{BRAND.phone}
               </a>
               <a href={`https://wa.me/${BRAND.whatsapp.replace('+', '')}`} target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white transition-all hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-primary transition-all hover:scale-105"
                 style={{ background: '#25D366' }}>
                 <Phone size={12} /> WhatsApp
               </a>
               <a href={`mailto:${BRAND.email}?subject=Booking ${orderRef}`}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all hover:scale-105"
-                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}>
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all hover:scale-105"
+                style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', color: '#111827' }}>
                 <Mail size={12} />{BRAND.email}
               </a>
             </div>

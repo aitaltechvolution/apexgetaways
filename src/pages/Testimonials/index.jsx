@@ -21,10 +21,10 @@ export default function TestimonialsPage() {
           {ALL.map((t, i) => (
             <motion.div key={t.name} initial={{opacity:0,y:24}} animate={{opacity:1,y:0}} transition={{delay:i*0.08}} className="bg-white dark:bg-card-dark rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 flex flex-col">
               <Quote size={28} className="text-primary/20 mb-4" />
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex-1 italic">"{t.text}"</p>
+              <p className="text-base text-gray-600 dark:text-gray-600 leading-relaxed flex-1 italic">"{t.text}"</p>
               <div className="flex items-center gap-3 mt-5 pt-4 border-t border-gray-100 dark:border-gray-800">
                 <div className="w-10 h-10 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold">{t.name[0]}</div>
-                <div><p className="font-bold text-sm text-gray-900 dark:text-white">{t.name}</p><p className="text-xs text-gray-400">{t.role}</p></div>
+                <div><p className="font-bold text-base text-gray-900 dark:text-white">{t.name}</p><p className="text-sm text-gray-600">{t.role}</p></div>
                 <div className="ml-auto flex gap-0.5">{Array.from({length:t.stars}).map((_,j)=><Star key={j} size={12} fill="#F5A623" className="text-accent"/>)}</div>
               </div>
             </motion.div>

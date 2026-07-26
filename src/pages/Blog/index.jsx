@@ -23,10 +23,10 @@ export default function BlogPage() {
           <Link to={`/blog/${featured.slug}`} className="group block bg-white dark:bg-card-dark rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 mb-8 grid md:grid-cols-2">
             <div className="overflow-hidden h-64 md:h-auto"><img src={featured.img} alt={featured.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /></div>
             <div className="p-8 flex flex-col justify-center">
-              <span className="inline-block text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg mb-3">{featured.cat}</span>
+              <span className="inline-block text-sm font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg mb-3">{featured.cat}</span>
               <h2 className="font-bold text-2xl text-gray-900 dark:text-white mb-3 group-hover:text-primary transition-colors">{featured.title}</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4">{featured.excerpt}</p>
-              <div className="flex items-center gap-3 text-xs text-gray-400"><span>{featured.date}</span><span>·</span><span>{featured.min} min read</span></div>
+              <p className="text-base text-gray-600 dark:text-gray-600 leading-relaxed mb-4">{featured.excerpt}</p>
+              <div className="flex items-center gap-3 text-sm text-gray-600"><span>{featured.date}</span><span>·</span><span>{featured.min} min read</span></div>
             </div>
           </Link>
           {/* Grid */}
@@ -35,9 +35,9 @@ export default function BlogPage() {
               <Link key={post.slug} to={`/blog/${post.slug}`} className="group bg-white dark:bg-card-dark rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300">
                 <div className="overflow-hidden h-44"><img src={post.img} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /></div>
                 <div className="p-5">
-                  <div className="flex items-center gap-2 mb-2"><span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg">{post.cat}</span><span className="text-xs text-gray-400">{post.min} min</span></div>
-                  <h3 className="font-bold text-gray-900 dark:text-white text-sm leading-snug group-hover:text-primary transition-colors">{post.title}</h3>
-                  <p className="text-xs text-gray-400 mt-2">{post.date}</p>
+                  <div className="flex items-center gap-2 mb-2"><span className="text-sm font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg">{post.cat}</span><span className="text-sm text-gray-600">{post.min} min</span></div>
+                  <h3 className="font-bold text-gray-900 dark:text-white text-base leading-snug group-hover:text-primary transition-colors">{post.title}</h3>
+                  <p className="text-sm text-gray-600 mt-2">{post.date}</p>
                 </div>
               </Link>
             ))}

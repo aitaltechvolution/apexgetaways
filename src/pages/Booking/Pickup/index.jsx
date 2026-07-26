@@ -7,14 +7,14 @@ import { PICKUP_VEHICLES, PICKUP_LOCATIONS, formatNGN } from '../../../data'
 
 const iStyle = {
   width: '100%', padding: '13px 16px', borderRadius: '12px', fontSize: '0.875rem',
-  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+  background: '#F3F4F6', border: '1px solid #E5E7EB',
   color: '#fff', outline: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif',
 }
 const focus = e => { e.target.style.borderColor = '#C9A84C' }
-const blur  = e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)' }
+const blur  = e => { e.target.style.borderColor = '#E5E7EB' }
 
 function Label({ children }) {
-  return <label className="block text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>{children}</label>
+  return <label className="block text-[13px] font-bold uppercase tracking-wider mb-2" style={{ color: '#4B5563' }}>{children}</label>
 }
 
 export default function PickupPage() {
@@ -48,27 +48,27 @@ export default function PickupPage() {
   return (
     <>
       <SEO title="Airport Transfer"/>
-      <section className="pt-28 pb-6" style={{ background: '#0A1628', borderBottom: '1px solid rgba(201,168,76,0.15)' }}>
+      <section className="pt-28 pb-6" style={{ background: '#F8F6F2', borderBottom: '1px solid rgba(201,168,76,0.2)' }}>
         <div className="container-pad">
-          <h1 className="font-display font-bold text-white text-3xl mb-1">Airport Transfer</h1>
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          <h1 className="font-display font-bold text-primary text-3xl mb-1">Airport Transfer</h1>
+          <p className="text-base" style={{ color: '#4B5563' }}>
             Professional pickup and drop-off — airport, hotel, or any address
           </p>
         </div>
       </section>
 
-      <section className="py-10" style={{ background: '#070D1A' }}>
+      <section className="py-10" style={{ background: '#F8F6F2' }}>
         <div className="container-pad max-w-3xl mx-auto space-y-5">
 
           {/* Route & date */}
-          <div className="p-6 rounded-2xl space-y-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <h2 className="font-bold text-white">Transfer Details</h2>
+          <div className="p-6 rounded-2xl space-y-4" style={{ background:'#FFFFFF', border:'1px solid rgba(201,168,76,0.2)', boxShadow:'0 4px 20px rgba(10,22,40,0.06)' }}>
+            <h2 className="font-bold text-primary">Transfer Details</h2>
             <div>
               <Label>Pickup Location</Label>
               <select value={pickupFrom} onChange={e => setPickupFrom(e.target.value)} style={{ ...iStyle, appearance: 'none', cursor: 'pointer' }}
                 onFocus={focus} onBlur={blur}>
-                <option value="" style={{ background: '#0F1826' }}>Select pickup location</option>
-                {PICKUP_LOCATIONS.map(l => <option key={l} value={l} style={{ background: '#0F1826' }}>{l}</option>)}
+                <option value="" style={{ background: '#FFFFFF' }}>Select pickup location</option>
+                {PICKUP_LOCATIONS.map(l => <option key={l} value={l} style={{ background: '#FFFFFF' }}>{l}</option>)}
               </select>
             </div>
             <div>
@@ -93,13 +93,13 @@ export default function PickupPage() {
           </div>
 
           {/* Vehicle selection */}
-          <div className="p-6 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <h2 className="font-bold text-white mb-5">Select Vehicle</h2>
+          <div className="p-6 rounded-2xl" style={{ background:'#FFFFFF', border:'1px solid rgba(201,168,76,0.2)', boxShadow:'0 4px 20px rgba(10,22,40,0.06)' }}>
+            <h2 className="font-bold text-primary mb-5">Select Vehicle</h2>
             {eligibleVehicles.length === 0 ? (
               <div className="text-center py-8">
-                <Car size={36} className="mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.2)' }}/>
-                <p className="text-sm font-semibold text-white mb-1">No vehicles for {pax} passengers</p>
-                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Please contact us for a custom group quote.</p>
+                <Car size={36} className="mx-auto mb-3" style={{ color: '#9CA3AF' }}/>
+                <p className="text-base font-semibold text-primary mb-1">No vehicles for {pax} passengers</p>
+                <p className="text-sm" style={{ color: '#4B5563' }}>Please contact us for a custom group quote.</p>
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 gap-4">
@@ -109,8 +109,8 @@ export default function PickupPage() {
                     <button key={v.id} type="button" onClick={() => setVehicle(v)}
                       className="text-left overflow-hidden rounded-2xl transition-all duration-200"
                       style={{
-                        border: `2px solid ${selected ? '#C9A84C' : 'rgba(255,255,255,0.08)'}`,
-                        background: selected ? 'rgba(201,168,76,0.06)' : 'rgba(255,255,255,0.03)',
+                        border: `2px solid ${selected ? '#C9A84C' : '#F3F4F6'}`,
+                        background: selected ? 'rgba(201,168,76,0.06)' : '#F3F4F6',
                         transform: selected ? 'scale(1.01)' : 'scale(1)',
                       }}>
                       {/* Real vehicle photo */}
@@ -124,19 +124,19 @@ export default function PickupPage() {
                             <CheckCircle size={14} style={{ color: '#0A1628' }}/>
                           </div>
                         )}
-                        <p className="absolute bottom-2 left-3 font-display font-bold text-white text-base">{v.name}</p>
+                        <p className="absolute bottom-2 left-3 font-display font-bold text-primary text-base">{v.name}</p>
                       </div>
                       {/* Details */}
                       <div className="p-4">
-                        <p className="text-xs mb-3" style={{ color: 'rgba(255,255,255,0.45)' }}>{v.desc}</p>
-                        <div className="flex items-center gap-4 text-xs mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                        <p className="text-sm mb-3" style={{ color: '#4B5563' }}>{v.desc}</p>
+                        <div className="flex items-center gap-4 text-sm mb-3" style={{ color: '#374151' }}>
                           <span className="flex items-center gap-1"><Users size={12}/>{v.seats} seats</span>
                           <span className="flex items-center gap-1"><Luggage size={12}/>{v.luggage} bags</span>
                           {v.ac && <span className="flex items-center gap-1"><Wind size={12}/>A/C</span>}
                         </div>
                         <p className="font-bold text-base" style={{ color: '#C9A84C' }}>
                           {formatNGN(v.basePrice)}
-                          <span className="text-xs font-normal ml-1" style={{ color: 'rgba(255,255,255,0.3)' }}>base fare</span>
+                          <span className="text-sm font-normal ml-1" style={{ color: '#6B7280' }}>base fare</span>
                         </p>
                       </div>
                     </button>
@@ -147,17 +147,17 @@ export default function PickupPage() {
           </div>
 
           {/* Return trip */}
-          <div className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="p-5 rounded-2xl" style={{ background:'#FFFFFF', border:'1px solid rgba(201,168,76,0.2)', boxShadow:'0 4px 20px rgba(10,22,40,0.06)' }}>
             <label className="flex items-center gap-3 cursor-pointer">
               <div className="relative shrink-0">
                 <input type="checkbox" checked={returnNeeded} onChange={e => setReturnNeeded(e.target.checked)} className="sr-only"/>
-                <div className="w-11 h-6 rounded-full transition-colors" style={{ background: returnNeeded ? '#C9A84C' : 'rgba(255,255,255,0.15)' }}/>
+                <div className="w-11 h-6 rounded-full transition-colors" style={{ background: returnNeeded ? '#C9A84C' : '#E5E7EB' }}/>
                 <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform"
                   style={{ transform: returnNeeded ? 'translateX(20px)' : 'translateX(0)' }}/>
               </div>
               <div className="flex items-center gap-2">
-                <RotateCcw size={15} style={{ color: returnNeeded ? '#C9A84C' : 'rgba(255,255,255,0.4)' }}/>
-                <span className="text-sm font-semibold text-white">Add Return Transfer</span>
+                <RotateCcw size={15} style={{ color: returnNeeded ? '#C9A84C' : '#4B5563' }}/>
+                <span className="text-base font-semibold text-primary">Add Return Transfer</span>
               </div>
             </label>
             {returnNeeded && (
@@ -181,36 +181,36 @@ export default function PickupPage() {
             <Label>Special Instructions (optional)</Label>
             <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2}
               placeholder="Flight number, extra stops, accessibility needs…"
-              className="w-full px-4 py-3 rounded-xl text-sm text-white focus:outline-none resize-none"
-              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+              className="w-full px-4 py-3 rounded-xl text-base text-primary focus:outline-none resize-none"
+              style={{ background: '#F3F4F6', border: '1px solid #E5E7EB' }}
               onFocus={focus} onBlur={blur}/>
           </div>
 
           {/* Price summary */}
           {vehicle && (
             <div className="p-4 rounded-xl" style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)' }}>
-              <div className="flex justify-between text-sm mb-1">
-                <span style={{ color: 'rgba(255,255,255,0.55)' }}>{vehicle.name}</span>
+              <div className="flex justify-between text-base mb-1">
+                <span style={{ color: '#374151' }}>{vehicle.name}</span>
                 <span className="font-bold" style={{ color: '#C9A84C' }}>{formatNGN(vehicle.basePrice)}</span>
               </div>
               {returnNeeded && (
-                <div className="flex justify-between text-sm mb-1">
-                  <span style={{ color: 'rgba(255,255,255,0.55)' }}>Return transfer</span>
+                <div className="flex justify-between text-base mb-1">
+                  <span style={{ color: '#374151' }}>Return transfer</span>
                   <span className="font-bold" style={{ color: '#C9A84C' }}>{formatNGN(vehicle.basePrice)}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-base pt-2 mt-1" style={{ borderTop: '1px solid rgba(201,168,76,0.2)' }}>
-                <span className="text-white">Estimated Total</span>
+                <span className="text-primary">Estimated Total</span>
                 <span style={{ color: '#C9A84C' }}>{formatNGN(vehicle.basePrice * (returnNeeded ? 2 : 1))}</span>
               </div>
-              <p className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              <p className="text-[13px] mt-1" style={{ color: '#6B7280' }}>
                 Final price may vary based on distance and waiting time
               </p>
             </div>
           )}
 
           <button onClick={proceed} disabled={!pickupFrom || !pickupTo || !date || !time || !vehicle}
-            className="w-full btn-gold py-4 font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+            className="w-full btn-gold py-4 font-bold text-base flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
             Continue <ArrowRight size={15}/>
           </button>
         </div>

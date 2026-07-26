@@ -13,7 +13,7 @@ import { useAuth } from '../../store/AuthContext'
 import {
   subscribeBookings, getAllUsers, updateBooking,
   getUsersByRole, setUserRole, BOOKING_STATUSES
-} from '../../lib/firebase'
+} from '../../lib/supabase'
 import { formatNGN, BRAND } from '../../data'
 
 //  Shared helpers 
@@ -29,14 +29,15 @@ const STATUS_CONFIG = {
 function StatusBadge({ status }) {
   const s = STATUS_CONFIG[status] || STATUS_CONFIG.pending_payment
   return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold"
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[13px] font-bold"
       style={{ background: s.bg, color: s.color }}>{s.label}</span>
   )
 }
 
-const PANEL_BG  = '#070D1A'
-const CARD_BG   = 'rgba(255,255,255,0.04)'
-const BORDER    = 'rgba(255,255,255,0.08)'
+const PANEL_BG  = '#F4F5F7'
+const CARD_BG   = '#FFFFFF'
+const BORDER    = '#E5E7EB'
+const CARD_SHADOW = '0 1px 3px rgba(10,22,40,0.06)'
 const GOLD      = '#C9A84C'
 
 //  Sidebar 
@@ -61,8 +62,8 @@ function Sidebar({ open, setOpen }) {
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Apex Getaways" style={{height:32,width:'auto',objectFit:'contain'}}/>
             <div>
-              <p className="font-bold text-white text-sm leading-tight">Apex Getaways</p>
-              <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color:'#ef4444' }}>Admin Panel</p>
+              <p className="font-bold text-white text-base leading-tight">Apex Getaways</p>
+              <p className="text-[12px] font-bold uppercase tracking-wider" style={{ color:'#ef4444' }}>Admin Panel</p>
             </div>
           </div>
         </div>
@@ -72,7 +73,7 @@ function Sidebar({ open, setOpen }) {
             const active = exact ? loc.pathname === to : loc.pathname.startsWith(to) && to !== '/admin'
             return (
               <Link key={to} to={to} onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all"
+                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-medium transition-all"
                 style={{
                   background: active ? 'linear-gradient(135deg,rgba(201,168,76,0.18),rgba(201,168,76,0.06))' : 'transparent',
                   color: active ? GOLD : 'rgba(255,255,255,0.5)',
@@ -84,8 +85,8 @@ function Sidebar({ open, setOpen }) {
           })}
         </nav>
         <div className="p-4" style={{ borderTop:'1px solid rgba(255,255,255,0.06)' }}>
-          <p className="text-[11px] mb-2 truncate" style={{ color:'rgba(255,255,255,0.35)' }}>{user?.email}</p>
-          <button onClick={logout} className="flex items-center gap-2 text-sm transition-colors w-full"
+          <p className="text-[13px] mb-2 truncate" style={{ color:'rgba(255,255,255,0.35)' }}>{user?.email}</p>
+          <button onClick={logout} className="flex items-center gap-2 text-base transition-colors w-full"
             style={{ color:'rgba(255,255,255,0.45)' }}
             onMouseEnter={e=>e.currentTarget.style.color='#ef4444'}
             onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.45)'}>
@@ -102,16 +103,16 @@ function Sidebar({ open, setOpen }) {
 function Topbar({ onMenu, pendingCount }) {
   return (
     <header className="flex items-center justify-between px-5 py-3 sticky top-0 z-20"
-      style={{ background:'rgba(10,22,40,0.97)', borderBottom:'1px solid rgba(255,255,255,0.06)', backdropFilter:'blur(24px)' }}>
-      <button onClick={onMenu} className="xl:hidden p-2 rounded-xl text-white hover:bg-white/10"><Menu size={18}/></button>
+      style={{ background:'rgba(255,255,255,0.97)', borderBottom:'1px solid #F3F4F6', backdropFilter:'blur(24px)' }}>
+      <button onClick={onMenu} className="xl:hidden p-2 rounded-xl text-gray-900 hover:bg-gray-100"><Menu size={18}/></button>
       <div className="flex items-center gap-3 ml-auto">
         {pendingCount > 0 && (
           <div className="relative">
-            <Bell size={18} style={{ color:'rgba(255,255,255,0.5)' }}/>
-            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white bg-red-500">{pendingCount}</span>
+            <Bell size={18} style={{ color:'#374151' }}/>
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[12px] font-bold flex items-center justify-center text-gray-900 bg-red-500">{pendingCount}</span>
           </div>
         )}
-        <span className="text-xs font-bold px-3 py-1.5 rounded-lg" style={{ background:'rgba(239,68,68,0.15)', color:'#ef4444' }}> Admin</span>
+        <span className="text-sm font-bold px-3 py-1.5 rounded-lg" style={{ background:'rgba(239,68,68,0.15)', color:'#ef4444' }}> Admin</span>
       </div>
     </header>
   )
@@ -138,15 +139,15 @@ function DashboardHome({ bookings, users }) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display font-bold text-white text-2xl">Dashboard</h1>
-        <p className="text-sm mt-1" style={{ color:'rgba(255,255,255,0.4)' }}>Welcome back — here's what's happening</p>
+        <h1 className="font-display font-bold text-gray-900 text-2xl">Dashboard</h1>
+        <p className="text-base mt-1" style={{ color:'#4B5563' }}>Welcome back — here's what's happening</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {STATS.map(({ label, val, icon:Icon, color, big }) => (
           <motion.div key={label} initial={{ opacity:0,y:16 }} animate={{ opacity:1,y:0 }}
-            className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
+            className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-bold uppercase tracking-wider" style={{ color:'rgba(255,255,255,0.4)' }}>{label}</p>
+              <p className="text-sm font-bold uppercase tracking-wider" style={{ color:'#4B5563' }}>{label}</p>
               <Icon size={16} style={{ color }}/>
             </div>
             <p className="font-display font-bold" style={{ fontSize: big ? '1.3rem' : '2rem', color }}>{val}</p>
@@ -154,26 +155,26 @@ function DashboardHome({ bookings, users }) {
         ))}
       </div>
       {/* Recent bookings */}
-      <div className="rounded-2xl overflow-hidden" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
+      <div className="rounded-2xl overflow-hidden" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom:`1px solid ${BORDER}` }}>
-          <h2 className="font-bold text-white">Recent Bookings</h2>
-          <Link to="/admin/bookings" className="text-xs font-semibold" style={{ color:GOLD }}>View all →</Link>
+          <h2 className="font-bold text-gray-900">Recent Bookings</h2>
+          <Link to="/admin/bookings" className="text-sm font-semibold" style={{ color:GOLD }}>View all →</Link>
         </div>
         {recent.length === 0
-          ? <p className="p-8 text-center text-sm" style={{ color:'rgba(255,255,255,0.35)' }}>No bookings yet</p>
+          ? <p className="p-8 text-center text-base" style={{ color:'#6B7280' }}>No bookings yet</p>
           : recent.map(b => (
-            <div key={b.id} className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-white/5"
-              style={{ borderBottom:`1px solid rgba(255,255,255,0.04)` }}>
+            <div key={b.id} className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-gray-100"
+              style={{ borderBottom:`1px solid #F3F4F6` }}>
               <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
                 style={{ background: b.bookingType==='flight' ? 'rgba(96,165,250,0.15)' : b.bookingType==='hotel' ? 'rgba(251,191,36,0.15)' : 'rgba(52,211,153,0.15)' }}>
                 {b.bookingType==='flight' ? <Plane size={14} style={{ color:'#60a5fa' }}/> : b.bookingType==='hotel' ? <Hotel size={14} style={{ color:'#fbbf24' }}/> : <Car size={14} style={{ color:'#34d399' }}/>}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-white truncate">{b.contact?.name || b.contact?.email || 'Unknown'}</p>
-                <p className="text-xs truncate capitalize" style={{ color:'rgba(255,255,255,0.35)' }}>{b.bookingType} · {b.orderRef || b.id?.slice(0,10)}</p>
+                <p className="font-semibold text-base text-gray-900 truncate">{b.contact?.name || b.contact?.email || 'Unknown'}</p>
+                <p className="text-sm truncate capitalize" style={{ color:'#6B7280' }}>{b.bookingType} · {b.orderRef || b.id?.slice(0,10)}</p>
               </div>
               <StatusBadge status={b.status}/>
-              {b.total > 0 && <span className="text-xs font-bold shrink-0" style={{ color:GOLD }}>{formatNGN(b.total)}</span>}
+              {b.total > 0 && <span className="text-sm font-bold shrink-0" style={{ color:GOLD }}>{formatNGN(b.total)}</span>}
             </div>
           ))
         }
@@ -210,27 +211,27 @@ function BookingsManager({ bookings, onRefresh }) {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-display font-bold text-white text-2xl">Bookings <span className="text-base font-normal ml-1" style={{ color:'rgba(255,255,255,0.4)' }}>({filtered.length})</span></h1>
-        <button onClick={onRefresh} className="flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 rounded-xl transition-all hover:scale-105"
-          style={{ background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.6)' }}>
+        <h1 className="font-display font-bold text-gray-900 text-2xl">Bookings <span className="text-base font-normal ml-1" style={{ color:'#4B5563' }}>({filtered.length})</span></h1>
+        <button onClick={onRefresh} className="flex items-center gap-1.5 text-sm font-bold px-4 py-2.5 rounded-xl transition-all hover:scale-105"
+          style={{ background:'#F3F4F6', color:'#1F2937' }}>
           <RefreshCcw size={13}/> Refresh
         </button>
       </div>
       {/* Filters */}
-      <div className="flex flex-wrap gap-2 p-4 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
-        <div className="flex items-center gap-2 flex-1 min-w-40 px-3 rounded-xl" style={{ background:'rgba(255,255,255,0.06)', border:`1px solid rgba(255,255,255,0.1)` }}>
-          <Search size={13} style={{ color:'rgba(255,255,255,0.35)' }}/>
+      <div className="flex flex-wrap gap-2 p-4 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+        <div className="flex items-center gap-2 flex-1 min-w-40 px-3 rounded-xl" style={{ background:'#F3F4F6', border:`1px solid #E5E7EB` }}>
+          <Search size={13} style={{ color:'#6B7280' }}/>
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name, ref, email…"
-            className="flex-1 bg-transparent text-sm text-white py-2.5 outline-none placeholder-white/25"/>
+            className="flex-1 bg-transparent text-base text-gray-900 py-2.5 outline-none placeholder-gray-400"/>
         </div>
         {[
           [filterStatus, setFilterStatus, [['all','All Status'],['pending_payment','Pending'],['payment_received','Paid'],['processing','Processing'],['tickets_issued','Ticketed'],['confirmed','Confirmed'],['cancelled','Cancelled']]],
           [filterType,   setFilterType,   [['all','All Types'],['flight','Flights'],['hotel','Hotels'],['pickup','Transfers']]],
         ].map(([val, setter, opts], i) => (
           <select key={i} value={val} onChange={e=>setter(e.target.value)}
-            className="px-3 py-2.5 rounded-xl text-xs font-bold focus:outline-none"
-            style={{ background:'rgba(255,255,255,0.06)', border:`1px solid rgba(255,255,255,0.1)`, color:'white', appearance:'none' }}>
-            {opts.map(([v,l]) => <option key={v} value={v} style={{ background:'#0F1826' }}>{l}</option>)}
+            className="px-3 py-2.5 rounded-xl text-sm font-bold focus:outline-none"
+            style={{ background:'#F3F4F6', border:`1px solid #E5E7EB`, color:'#111827', appearance:'none' }}>
+            {opts.map(([v,l]) => <option key={v} value={v} style={{ background:'#FFFFFF' }}>{l}</option>)}
           </select>
         ))}
       </div>
@@ -246,21 +247,21 @@ function BookingsManager({ bookings, onRefresh }) {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-bold text-sm text-white truncate">{b.contact?.name || b.contact?.email || 'Unknown'}</p>
+                  <p className="font-bold text-base text-gray-900 truncate">{b.contact?.name || b.contact?.email || 'Unknown'}</p>
                   <StatusBadge status={b.status}/>
                 </div>
-                <div className="flex flex-wrap gap-3 mt-0.5 text-xs" style={{ color:'rgba(255,255,255,0.4)' }}>
+                <div className="flex flex-wrap gap-3 mt-0.5 text-sm" style={{ color:'#4B5563' }}>
                   <span>{b.orderRef || b.id?.slice(0,10)}</span>
                   {b.contact?.phone && <span> {b.contact.phone}</span>}
                   {b.contact?.email && <span> {b.contact.email}</span>}
                   {b.total > 0 && <span style={{ color:GOLD }}> {formatNGN(b.total)}</span>}
                   {b.pnr && <span className="text-green-400 font-bold">PNR: {b.pnr}</span>}
                 </div>
-                {b.selectedFlight && <p className="text-xs mt-0.5" style={{ color:'rgba(255,255,255,0.4)' }}>{b.selectedFlight.from}→{b.selectedFlight.to} · {b.selectedFlight.date} · {(b.cabinClass||'economy').toUpperCase()}</p>}
+                {b.selectedFlight && <p className="text-sm mt-0.5" style={{ color:'#4B5563' }}>{b.selectedFlight.from}→{b.selectedFlight.to} · {b.selectedFlight.date} · {(b.cabinClass||'economy').toUpperCase()}</p>}
               </div>
               <button onClick={() => setExpanded(expanded===b.id ? null : b.id)}
-                className="p-2 rounded-xl transition-colors hover:bg-white/10"
-                style={{ color:'rgba(255,255,255,0.4)' }}>
+                className="p-2 rounded-xl transition-colors hover:bg-gray-100"
+                style={{ color:'#4B5563' }}>
                 {expanded===b.id ? <X size={15}/> : <ChevronRight size={15}/>}
               </button>
             </div>
@@ -269,13 +270,13 @@ function BookingsManager({ bookings, onRefresh }) {
               {expanded===b.id && (
                 <motion.div initial={{ height:0,opacity:0 }} animate={{ height:'auto',opacity:1 }} exit={{ height:0,opacity:0 }}
                   className="overflow-hidden">
-                  <div className="px-5 pb-5 space-y-4" style={{ borderTop:`1px solid rgba(255,255,255,0.07)` }}>
+                  <div className="px-5 pb-5 space-y-4" style={{ borderTop:`1px solid #F3F4F6` }}>
                     {/* Passenger details */}
                     {b.passengers_info?.length > 0 && (
                       <div className="pt-4">
-                        <p className="text-xs font-bold text-white mb-2">Passengers</p>
+                        <p className="text-sm font-bold text-gray-900 mb-2">Passengers</p>
                         {b.passengers_info.map((p,i) => (
-                          <div key={i} className="text-xs mb-1" style={{ color:'rgba(255,255,255,0.55)' }}>
+                          <div key={i} className="text-sm mb-1" style={{ color:'#374151' }}>
                             {p.title} {p.firstName} {p.middleName||''} {p.lastName} · DOB: {p.dob} · Passport: {p.passportNo} (exp {p.passportExpiry}) · {p.nationality}
                             {p.passportUrl && <a href={p.passportUrl} target="_blank" rel="noreferrer" className="ml-2 underline" style={{ color:GOLD }}> View Scan</a>}
                           </div>
@@ -284,7 +285,7 @@ function BookingsManager({ bookings, onRefresh }) {
                     )}
                     {/* Flight details */}
                     {b.selectedFlight && (
-                      <div className="text-xs space-y-1" style={{ color:'rgba(255,255,255,0.55)' }}>
+                      <div className="text-sm space-y-1" style={{ color:'#374151' }}>
                         <p> {b.selectedFlight.airline} {b.selectedFlight.flightNo} · {b.selectedFlight.dep}–{b.selectedFlight.arr} · {b.selectedFlight.stops===0?'Direct':`${b.selectedFlight.stops} stop(s)`}</p>
                         {b.selectedReturnFlight && <p> {b.selectedReturnFlight.airline} {b.selectedReturnFlight.flightNo} · {b.selectedReturnFlight.from}→{b.selectedReturnFlight.to}</p>}
                         {b.selectedSeats?.length>0 && <p> Seats: {[...(b.selectedSeats||[]),...(b.selectedReturnSeats||[])].join(', ')}</p>}
@@ -295,24 +296,24 @@ function BookingsManager({ bookings, onRefresh }) {
                       </div>
                     )}
                     {/* Admin actions */}
-                    <div className="pt-3 space-y-3" style={{ borderTop:`1px solid rgba(255,255,255,0.07)` }}>
+                    <div className="pt-3 space-y-3" style={{ borderTop:`1px solid #F3F4F6` }}>
                       <div className="grid sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="text-[10px] font-bold uppercase tracking-wider block mb-1.5" style={{ color:'rgba(255,255,255,0.35)' }}>PNR / Ticket Number</label>
+                          <label className="text-[12px] font-bold uppercase tracking-wider block mb-1.5" style={{ color:'#6B7280' }}>PNR / Ticket Number</label>
                           <input value={pnr} onChange={e=>setPnr(e.target.value)} placeholder="e.g. XY7Z2A"
-                            className="w-full px-3 py-2.5 rounded-xl text-sm text-white focus:outline-none"
-                            style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)' }}
-                            onFocus={e=>e.target.style.borderColor=GOLD} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.1)'}/>
+                            className="w-full px-3 py-2.5 rounded-xl text-base text-gray-900 focus:outline-none"
+                            style={{ background:'#F3F4F6', border:'1px solid #E5E7EB' }}
+                            onFocus={e=>e.target.style.borderColor=GOLD} onBlur={e=>e.target.style.borderColor='#E5E7EB'}/>
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold uppercase tracking-wider block mb-1.5" style={{ color:'rgba(255,255,255,0.35)' }}>Admin Note</label>
+                          <label className="text-[12px] font-bold uppercase tracking-wider block mb-1.5" style={{ color:'#6B7280' }}>Admin Note</label>
                           <input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Internal note for this booking"
-                            className="w-full px-3 py-2.5 rounded-xl text-sm text-white focus:outline-none"
-                            style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)' }}
-                            onFocus={e=>e.target.style.borderColor=GOLD} onBlur={e=>e.target.style.borderColor='rgba(255,255,255,0.1)'}/>
+                            className="w-full px-3 py-2.5 rounded-xl text-base text-gray-900 focus:outline-none"
+                            style={{ background:'#F3F4F6', border:'1px solid #E5E7EB' }}
+                            onFocus={e=>e.target.style.borderColor=GOLD} onBlur={e=>e.target.style.borderColor='#E5E7EB'}/>
                         </div>
                       </div>
-                      {b.adminNotes && <p className="text-xs p-2 rounded-lg" style={{ background:'rgba(201,168,76,0.06)', color:'rgba(255,255,255,0.5)' }}>Previous note: {b.adminNotes}</p>}
+                      {b.adminNotes && <p className="text-sm p-2 rounded-lg" style={{ background:'rgba(201,168,76,0.06)', color:'#374151' }}>Previous note: {b.adminNotes}</p>}
                       <div className="flex flex-wrap gap-2">
                         {[
                           { s:'payment_received', l:'Mark Paid',        bg:'rgba(96,165,250,0.15)', c:'#60a5fa' },
@@ -322,7 +323,7 @@ function BookingsManager({ bookings, onRefresh }) {
                           { s:'cancelled',        l:'Cancel',            bg:'rgba(248,113,113,0.15)', c:'#f87171' },
                         ].map(({ s, l, bg, c }) => (
                           <button key={s} onClick={() => updateStatus(b.id, s)} disabled={saving===b.id}
-                            className="px-4 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105 disabled:opacity-60"
+                            className="px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 disabled:opacity-60"
                             style={{ background:bg, color:c }}>
                             {saving===b.id ? '' : l}
                           </button>
@@ -335,7 +336,7 @@ function BookingsManager({ bookings, onRefresh }) {
             </AnimatePresence>
           </div>
         ))}
-        {filtered.length === 0 && <p className="text-center py-16 text-sm" style={{ color:'rgba(255,255,255,0.35)' }}>No bookings match your filters</p>}
+        {filtered.length === 0 && <p className="text-center py-16 text-base" style={{ color:'#6B7280' }}>No bookings match your filters</p>}
       </div>
     </div>
   )
@@ -348,19 +349,19 @@ function CustomersPage({ users, bookings }) {
 
   return (
     <div className="space-y-5">
-      <h1 className="font-display font-bold text-white text-2xl">Customers ({users.length})</h1>
-      <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
-        <Search size={13} style={{ color:'rgba(255,255,255,0.35)' }}/>
+      <h1 className="font-display font-bold text-gray-900 text-2xl">Customers ({users.length})</h1>
+      <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+        <Search size={13} style={{ color:'#6B7280' }}/>
         <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search customers…"
-          className="flex-1 bg-transparent text-sm text-white outline-none placeholder-white/25 py-1"/>
+          className="flex-1 bg-transparent text-base text-gray-900 outline-none placeholder-gray-400 py-1"/>
       </div>
-      <div className="rounded-2xl overflow-hidden" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
+      <div className="rounded-2xl overflow-hidden" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-base">
             <thead>
-              <tr style={{ borderBottom:`1px solid ${BORDER}`, background:'rgba(255,255,255,0.02)' }}>
+              <tr style={{ borderBottom:`1px solid ${BORDER}`, background:'#F3F4F6' }}>
                 {['Customer','Contact','Passport','Role','Bookings','Joined'].map(h => (
-                  <th key={h} className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider" style={{ color:'rgba(255,255,255,0.35)' }}>{h}</th>
+                  <th key={h} className="px-5 py-3.5 text-left text-[13px] font-bold uppercase tracking-wider" style={{ color:'#6B7280' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -368,37 +369,37 @@ function CustomersPage({ users, bookings }) {
               {filtered.map(u => {
                 const userBookings = bookings.filter(b => b.userId === u.uid || b.userId === u.id)
                 return (
-                  <tr key={u.id} className="transition-colors hover:bg-white/5" style={{ borderBottom:`1px solid rgba(255,255,255,0.04)` }}>
+                  <tr key={u.id} className="transition-colors hover:bg-gray-100" style={{ borderBottom:`1px solid #F3F4F6` }}>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs text-navy"
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm text-navy"
                           style={{ background:'linear-gradient(135deg,#C9A84C,#F5C842)', shrink:0 }}>
                           {(u.displayName||u.email||'?')[0].toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-semibold text-white">{u.displayName||'No name'}</p>
-                          {u.nationality && <p className="text-[11px]" style={{ color:'rgba(255,255,255,0.35)' }}>{u.nationality}</p>}
+                          <p className="font-semibold text-gray-900">{u.displayName||'No name'}</p>
+                          {u.nationality && <p className="text-[13px]" style={{ color:'#6B7280' }}>{u.nationality}</p>}
                         </div>
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <p className="text-xs" style={{ color:'rgba(255,255,255,0.6)' }}>{u.email}</p>
-                      {u.phone && <p className="text-xs" style={{ color:'rgba(255,255,255,0.4)' }}>{u.phone}</p>}
+                      <p className="text-sm" style={{ color:'#1F2937' }}>{u.email}</p>
+                      {u.phone && <p className="text-sm" style={{ color:'#4B5563' }}>{u.phone}</p>}
                     </td>
                     <td className="px-5 py-4">
-                      <p className="text-xs" style={{ color:'rgba(255,255,255,0.6)' }}>{u.passportNo||'—'}</p>
-                      {u.passportUrl && <a href={u.passportUrl} target="_blank" rel="noreferrer" className="text-[11px] underline" style={{ color:GOLD }}>View scan</a>}
+                      <p className="text-sm" style={{ color:'#1F2937' }}>{u.passportNo||'—'}</p>
+                      {u.passportUrl && <a href={u.passportUrl} target="_blank" rel="noreferrer" className="text-[13px] underline" style={{ color:GOLD }}>View scan</a>}
                     </td>
                     <td className="px-5 py-4">
-                      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold"
-                        style={{ background:u.role==='admin'?'rgba(239,68,68,0.15)':u.role==='worker'?'rgba(167,139,250,0.15)':'rgba(255,255,255,0.06)', color:u.role==='admin'?'#f87171':u.role==='worker'?'#a78bfa':'rgba(255,255,255,0.5)' }}>
+                      <span className="px-2.5 py-1 rounded-full text-[13px] font-bold"
+                        style={{ background:u.role==='admin'?'rgba(239,68,68,0.15)':u.role==='worker'?'rgba(167,139,250,0.15)':'#F3F4F6', color:u.role==='admin'?'#f87171':u.role==='worker'?'#a78bfa':'#374151' }}>
                         {u.role||'client'}
                       </span>
                     </td>
                     <td className="px-5 py-4">
                       <span className="font-bold" style={{ color:GOLD }}>{userBookings.length}</span>
                     </td>
-                    <td className="px-5 py-4 text-xs" style={{ color:'rgba(255,255,255,0.4)' }}>
+                    <td className="px-5 py-4 text-sm" style={{ color:'#4B5563' }}>
                       {u.createdAt?.seconds ? new Date(u.createdAt.seconds*1000).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'}) : '—'}
                     </td>
                   </tr>
@@ -430,25 +431,25 @@ function WorkersPage({ users, bookings, onRefresh }) {
 
   return (
     <div className="space-y-7">
-      <h1 className="font-display font-bold text-white text-2xl">Workers & Access Control</h1>
+      <h1 className="font-display font-bold text-gray-900 text-2xl">Workers & Access Control</h1>
 
       {/* Current workers */}
       <div>
-        <h2 className="font-bold text-white mb-3 flex items-center gap-2"><Shield size={15} style={{ color:GOLD }}/> Active Workers ({workers.length})</h2>
+        <h2 className="font-bold text-gray-900 mb-3 flex items-center gap-2"><Shield size={15} style={{ color:GOLD }}/> Active Workers ({workers.length})</h2>
         {workers.length === 0
-          ? <p className="text-sm p-5 rounded-xl text-center" style={{ background:CARD_BG, color:'rgba(255,255,255,0.35)' }}>No workers added yet. Promote a client below.</p>
+          ? <p className="text-base p-5 rounded-xl text-center" style={{ background:CARD_BG, color:'#6B7280' }}>No workers added yet. Promote a client below.</p>
           : (
             <div className="space-y-3">
               {workers.map(w => (
                 <div key={w.id} className="flex items-center gap-4 p-4 rounded-xl" style={{ background:CARD_BG, border:`1px solid rgba(167,139,250,0.2)` }}>
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-navy" style={{ background:'linear-gradient(135deg,#a78bfa,#7c3aed)' }}>{(w.displayName||w.email||'W')[0].toUpperCase()}</div>
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-base font-bold text-navy" style={{ background:'linear-gradient(135deg,#a78bfa,#7c3aed)' }}>{(w.displayName||w.email||'W')[0].toUpperCase()}</div>
                   <div className="flex-1">
-                    <p className="font-semibold text-white text-sm">{w.displayName||'Worker'}</p>
-                    <p className="text-xs" style={{ color:'rgba(255,255,255,0.45)' }}>{w.email}</p>
+                    <p className="font-semibold text-gray-900 text-base">{w.displayName||'Worker'}</p>
+                    <p className="text-sm" style={{ color:'#4B5563' }}>{w.email}</p>
                   </div>
-                  <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background:'rgba(167,139,250,0.15)', color:'#a78bfa' }}>Worker</span>
+                  <span className="text-sm font-bold px-3 py-1 rounded-full" style={{ background:'rgba(167,139,250,0.15)', color:'#a78bfa' }}>Worker</span>
                   <button onClick={() => doPromote(w.id,'client')} disabled={saving===w.id}
-                    className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all hover:scale-105"
+                    className="text-sm font-bold px-3 py-1.5 rounded-lg transition-all hover:scale-105"
                     style={{ background:'rgba(248,113,113,0.12)', color:'#f87171' }}>
                     {saving===w.id?'':'Revoke'}
                   </button>
@@ -461,21 +462,21 @@ function WorkersPage({ users, bookings, onRefresh }) {
 
       {/* Promote a client */}
       <div>
-        <h2 className="font-bold text-white mb-3 flex items-center gap-2"><Users size={15} style={{ color:GOLD }}/> Promote Client to Worker</h2>
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-3" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
-          <Search size={13} style={{ color:'rgba(255,255,255,0.35)' }}/>
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search clients…" className="flex-1 bg-transparent text-sm text-white outline-none placeholder-white/25 py-1"/>
+        <h2 className="font-bold text-gray-900 mb-3 flex items-center gap-2"><Users size={15} style={{ color:GOLD }}/> Promote Client to Worker</h2>
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-3" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+          <Search size={13} style={{ color:'#6B7280' }}/>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search clients…" className="flex-1 bg-transparent text-base text-gray-900 outline-none placeholder-gray-400 py-1"/>
         </div>
         <div className="space-y-2">
           {filteredClients.slice(0,10).map(u => (
-            <div key={u.id} className="flex items-center gap-3 p-3.5 rounded-xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-navy" style={{ background:'linear-gradient(135deg,#C9A84C,#F5C842)' }}>{(u.displayName||u.email||'C')[0].toUpperCase()}</div>
+            <div key={u.id} className="flex items-center gap-3 p-3.5 rounded-xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-navy" style={{ background:'linear-gradient(135deg,#C9A84C,#F5C842)' }}>{(u.displayName||u.email||'C')[0].toUpperCase()}</div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-white truncate">{u.displayName||'Client'}</p>
-                <p className="text-xs truncate" style={{ color:'rgba(255,255,255,0.4)' }}>{u.email}</p>
+                <p className="font-semibold text-base text-gray-900 truncate">{u.displayName||'Client'}</p>
+                <p className="text-sm truncate" style={{ color:'#4B5563' }}>{u.email}</p>
               </div>
               <button onClick={() => doPromote(u.id,'worker')} disabled={saving===u.id}
-                className="text-xs font-bold px-3 py-2 rounded-lg transition-all hover:scale-105 shrink-0"
+                className="text-sm font-bold px-3 py-2 rounded-lg transition-all hover:scale-105 shrink-0"
                 style={{ background:'rgba(167,139,250,0.15)', color:'#a78bfa' }}>
                 {saving===u.id?'':'Make Worker'}
               </button>
@@ -485,9 +486,9 @@ function WorkersPage({ users, bookings, onRefresh }) {
       </div>
 
       {/* Worker permissions info */}
-      <div className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
-        <h3 className="font-bold text-white mb-3 text-sm">Worker Permissions</h3>
-        <div className="grid sm:grid-cols-2 gap-2 text-xs" style={{ color:'rgba(255,255,255,0.55)' }}>
+      <div className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+        <h3 className="font-bold text-gray-900 mb-3 text-base">Worker Permissions</h3>
+        <div className="grid sm:grid-cols-2 gap-2 text-sm" style={{ color:'#374151' }}>
           {[' View all bookings',' Update booking status',' Add PNR / ticket numbers',' Add admin notes',' View customer details',' Delete bookings',' Manage workers or admins',' Access financial reports'].map(p => <p key={p}>{p}</p>)}
         </div>
       </div>
@@ -504,7 +505,7 @@ function ReportsPage({ bookings }) {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display font-bold text-white text-2xl">Reports</h1>
+      <h1 className="font-display font-bold text-gray-900 text-2xl">Reports</h1>
       <div className="grid sm:grid-cols-2 gap-4">
         {[
           { label:'Total Booking Value', val:formatNGN(total), sub:'All time' },
@@ -512,34 +513,34 @@ function ReportsPage({ bookings }) {
           { label:'Total Bookings',      val:bookings.length,  sub:'All time' },
           { label:'Avg. Booking Value',  val:bookings.length>0?formatNGN(Math.round(total/bookings.length)):'—', sub:'Per booking' },
         ].map(({ label, val, sub }) => (
-          <div key={label} className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
-            <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color:'rgba(255,255,255,0.4)' }}>{label}</p>
+          <div key={label} className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+            <p className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color:'#4B5563' }}>{label}</p>
             <p className="font-display font-bold text-2xl" style={{ color:GOLD }}>{val}</p>
-            <p className="text-xs mt-1" style={{ color:'rgba(255,255,255,0.3)' }}>{sub}</p>
+            <p className="text-sm mt-1" style={{ color:'#6B7280' }}>{sub}</p>
           </div>
         ))}
       </div>
       <div className="grid sm:grid-cols-2 gap-5">
-        <div className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
-          <h3 className="font-bold text-white mb-4">By Booking Type</h3>
+        <div className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+          <h3 className="font-bold text-gray-900 mb-4">By Booking Type</h3>
           {types.map(({ type, count }) => (
             <div key={type} className="flex items-center gap-3 mb-3">
-              <span className="capitalize text-sm font-medium text-white w-16">{type}</span>
-              <div className="flex-1 h-2 rounded-full" style={{ background:'rgba(255,255,255,0.08)' }}>
+              <span className="capitalize text-base font-medium text-gray-900 w-16">{type}</span>
+              <div className="flex-1 h-2 rounded-full" style={{ background:'#F3F4F6' }}>
                 <div className="h-full rounded-full transition-all" style={{ width:`${bookings.length>0?(count/bookings.length*100):0}%`, background:'linear-gradient(90deg,#C9A84C,#F5C842)' }}/>
               </div>
-              <span className="text-sm font-bold w-8 text-right" style={{ color:GOLD }}>{count}</span>
+              <span className="text-base font-bold w-8 text-right" style={{ color:GOLD }}>{count}</span>
             </div>
           ))}
         </div>
-        <div className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
-          <h3 className="font-bold text-white mb-4">By Status</h3>
+        <div className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+          <h3 className="font-bold text-gray-900 mb-4">By Status</h3>
           {statuses.filter(s=>s.count>0).map(({ status, count }) => {
             const cfg = STATUS_CONFIG[status]
             return (
               <div key={status} className="flex items-center justify-between mb-2">
-                <span className="text-xs" style={{ color:'rgba(255,255,255,0.55)' }}>{cfg.label}</span>
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background:cfg.bg, color:cfg.color }}>{count}</span>
+                <span className="text-sm" style={{ color:'#374151' }}>{cfg.label}</span>
+                <span className="text-sm font-bold px-2 py-0.5 rounded-full" style={{ background:cfg.bg, color:cfg.color }}>{count}</span>
               </div>
             )
           })}
@@ -553,10 +554,10 @@ function ReportsPage({ bookings }) {
 function AdminSettings() {
   return (
     <div className="space-y-5">
-      <h1 className="font-display font-bold text-white text-2xl">Settings</h1>
-      <div className="p-6 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
-        <h2 className="font-bold text-white mb-4">Agency Information</h2>
-        <div className="grid sm:grid-cols-2 gap-3 text-sm" style={{ color:'rgba(255,255,255,0.6)' }}>
+      <h1 className="font-display font-bold text-gray-900 text-2xl">Settings</h1>
+      <div className="p-6 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+        <h2 className="font-bold text-gray-900 mb-4">Agency Information</h2>
+        <div className="grid sm:grid-cols-2 gap-3 text-base" style={{ color:'#1F2937' }}>
           {[
             ['Business Name', BRAND.name],
             ['Phone', BRAND.phone],
@@ -566,19 +567,19 @@ function AdminSettings() {
             ['Hours', BRAND.hours],
           ].map(([k,v]) => (
             <div key={k}>
-              <p className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color:'rgba(255,255,255,0.35)' }}>{k}</p>
-              <p className="text-white">{v}</p>
+              <p className="text-[13px] font-bold uppercase tracking-wider mb-1" style={{ color:'#6B7280' }}>{k}</p>
+              <p className="text-gray-900">{v}</p>
             </div>
           ))}
         </div>
       </div>
-      <div className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}` }}>
-        <h2 className="font-bold text-white mb-3">Payment Settings</h2>
-        <p className="text-sm mb-3" style={{ color:'rgba(255,255,255,0.55)' }}>Configure your Paystack API keys in your .env file:</p>
-        <div className="p-3 rounded-xl text-xs font-mono" style={{ background:'rgba(0,0,0,0.3)', color:'#C9A84C' }}>
+      <div className="p-5 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+        <h2 className="font-bold text-gray-900 mb-3">Payment Settings</h2>
+        <p className="text-base mb-3" style={{ color:'#374151' }}>Configure your Paystack API keys in your .env file:</p>
+        <div className="p-3 rounded-xl text-sm font-mono" style={{ background:'rgba(0,0,0,0.3)', color:'#C9A84C' }}>
           VITE_PAYSTACK_PUBLIC_KEY=pk_live_xxxxxxxxxxxx
         </div>
-        <p className="text-xs mt-3" style={{ color:'rgba(255,255,255,0.35)' }}>Get your keys from <a href="https://dashboard.paystack.com/#/settings/developers" target="_blank" rel="noreferrer" className="underline" style={{ color:GOLD }}>dashboard.paystack.com</a></p>
+        <p className="text-sm mt-3" style={{ color:'#6B7280' }}>Get your keys from <a href="https://dashboard.paystack.com/#/settings/developers" target="_blank" rel="noreferrer" className="underline" style={{ color:GOLD }}>dashboard.paystack.com</a></p>
       </div>
     </div>
   )
@@ -602,14 +603,14 @@ export default function AdminLayout() {
   const refresh = () => setRefreshKey(k => k+1)
   const pending = bookings.filter(b => b.status === 'pending_payment' || b.status === 'payment_received').length
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen" style={{ background:'#070D1A' }}><div className="animate-spin text-4xl" style={{ color:GOLD }}></div></div>
+  if (loading) return <div className="flex items-center justify-center min-h-screen" style={{ background:'#F4F5F7' }}><div className="animate-spin text-4xl" style={{ color:GOLD }}></div></div>
   if (!user) return <Navigate to="/auth/login" state={{ from:'/admin' }} replace/>
   if (!isAdmin && userDoc?.role !== 'worker') return (
-    <div className="flex items-center justify-center min-h-screen text-center px-6" style={{ background:'#070D1A' }}>
+    <div className="flex items-center justify-center min-h-screen text-center px-6" style={{ background:'#F4F5F7' }}>
       <div>
         <div className="text-5xl mb-4"></div>
-        <h1 className="font-display font-bold text-white text-2xl mb-2">Access Denied</h1>
-        <p className="mb-6" style={{ color:'rgba(255,255,255,0.5)' }}>You don't have admin or worker privileges.</p>
+        <h1 className="font-display font-bold text-gray-900 text-2xl mb-2">Access Denied</h1>
+        <p className="mb-6" style={{ color:'#374151' }}>You don't have admin or worker privileges.</p>
         <Link to="/" className="btn-gold">Go Home</Link>
       </div>
     </div>

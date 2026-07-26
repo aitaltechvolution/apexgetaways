@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { onAuthStateChanged } from 'firebase/auth'
-import { auth, getUserDoc, signInWithGoogle, registerWithEmail,
-  loginWithEmail, logout as fbLogout, resetPassword } from '../lib/firebase'
+import { supabase, normalizeUser, getUserDoc, signInWithGoogle, registerWithEmail,
+  loginWithEmail, logout as sbLogout, resetPassword } from '../lib/supabase'
 
 const AuthContext = createContext(null)
 export const useAuth = () => useContext(AuthContext)
@@ -12,36 +11,48 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser)
-        const doc = await getUserDoc(firebaseUser.uid).catch(() => null)
-        setUserDoc(doc)
-      } else {
-        setUser(null)
-        setUserDoc(null)
+    let mounted = true
+
+    const loadFromSession = async (sessionUser) => {
+      if (!sessionUser) {
+        if (mounted) { setUser(null); setUserDoc(null) }
+        return
       }
-      setLoading(false)
+      const u = normalizeUser(sessionUser)
+      if (mounted) setUser(u)
+      const doc = await getUserDoc(u.id).catch(() => null)
+      if (mounted) setUserDoc(doc)
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      loadFromSession(session?.user || null).finally(() => { if (mounted) setLoading(false) })
     })
-    return unsub
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      loadFromSession(session?.user || null)
+    })
+
+    return () => { mounted = false; subscription.unsubscribe() }
   }, [])
 
   const emailRegister = async (email, password, name) => {
     const u = await registerWithEmail(email, password, name)
-    const doc = await getUserDoc(u.uid).catch(() => null)
-    setUserDoc(doc)
+    if (u) {
+      const doc = await getUserDoc(u.id).catch(() => null)
+      setUserDoc(doc)
+    }
     return u
   }
 
   const emailLogin = async (email, password) => {
     const u = await loginWithEmail(email, password)
-    const doc = await getUserDoc(u.uid).catch(() => null)
+    const doc = await getUserDoc(u.id).catch(() => null)
     setUserDoc(doc)
     return u
   }
 
   const logout = async () => {
-    await fbLogout()
+    await sbLogout()
     setUser(null)
     setUserDoc(null)
   }

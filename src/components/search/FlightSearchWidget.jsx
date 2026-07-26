@@ -17,19 +17,19 @@ function PassengerDropdown({ adults, children, infants, onChange }) {
   const total = adults + children + infants
   return (
     <div className="relative">
-      <button type="button" onClick={() => setOpen(!open)} className="flex items-center gap-2 text-sm font-medium text-gray-800 dark:text-white whitespace-nowrap">
+      <button type="button" onClick={() => setOpen(!open)} className="flex items-center gap-2 text-base font-medium text-gray-800 dark:text-white whitespace-nowrap">
         {total} Passenger{total!==1?'s':''} <ChevronDown size={14} className={`transition-transform ${open?'rotate-180':''}`} />
       </button>
       {open && (
         <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-card-hover p-4 z-50">
           {[['Adults','(12+)',adults,'adults'],['Children','(2–11)',children,'children'],['Infants','(under 2)',infants,'infants']].map(([label,sub,val,key]) => (
             <div key={key} className="flex items-center justify-between py-3 border-b border-gray-50 dark:border-gray-800 last:border-0">
-              <div><p className="font-semibold text-sm text-gray-800 dark:text-white">{label}</p><p className="text-xs text-gray-400">{sub}</p></div>
+              <div><p className="font-semibold text-base text-gray-800 dark:text-white">{label}</p><p className="text-sm text-gray-600">{sub}</p></div>
               <div className="flex items-center gap-3">
                 <button type="button" onClick={() => onChange(key, Math.max(key==='adults'?1:0, val-1))} className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:border-primary hover:text-primary transition-colors disabled:opacity-30" disabled={val<=(key==='adults'?1:0)}>
                   <Minus size={13} />
                 </button>
-                <span className="w-6 text-center font-bold text-sm text-gray-800 dark:text-white">{val}</span>
+                <span className="w-6 text-center font-bold text-base text-gray-800 dark:text-white">{val}</span>
                 <button type="button" onClick={() => onChange(key, Math.min(key==='adults'?9:4, val+1))} className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:border-primary hover:text-primary transition-colors">
                   <Plus size={13} />
                 </button>
@@ -65,7 +65,7 @@ export default function FlightSearchWidget({ compact = false }) {
       <div className="flex border-b border-gray-100 dark:border-gray-800">
         {TABS.map(t => (
           <button key={t.key} type="button" onClick={() => set({ type: t.key })}
-            className={`flex-1 py-3.5 text-sm font-semibold transition-colors ${s.type===t.key ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}>
+            className={`flex-1 py-3.5 text-base font-semibold transition-colors ${s.type===t.key ? 'text-primary border-b-2 border-primary' : 'text-gray-600 hover:text-gray-700 dark:hover:text-gray-300'}`}>
             {t.label}
           </button>
         ))}
@@ -77,7 +77,7 @@ export default function FlightSearchWidget({ compact = false }) {
           <div className="flex flex-col md:flex-row gap-3 mb-3">
             {/* Origin */}
             <div className={`${inputCls}`}>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">From</p>
+              <p className="text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1">From</p>
               <AirportInput value={s.origin} label={s.originLabel} placeholder="Departure city" onChange={({ code, label }) => set({ origin: code, originLabel: label })} />
             </div>
 
@@ -88,20 +88,20 @@ export default function FlightSearchWidget({ compact = false }) {
 
             {/* Destination */}
             <div className={`${inputCls}`}>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">To</p>
+              <p className="text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1">To</p>
               <AirportInput value={s.destination} label={s.destinationLabel} placeholder="Destination city" onChange={({ code, label }) => set({ destination: code, destinationLabel: label })} />
             </div>
 
             {/* Dates */}
             <div className={`${inputCls}`}>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Depart</p>
-              <input type="date" value={s.departureDate} min={new Date().toISOString().slice(0,10)} onChange={e => set({ departureDate: e.target.value })} className="bg-transparent text-sm font-medium text-gray-800 dark:text-white outline-none w-full" required />
+              <p className="text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1">Depart</p>
+              <input type="date" value={s.departureDate} min={new Date().toISOString().slice(0,10)} onChange={e => set({ departureDate: e.target.value })} className="bg-transparent text-base font-medium text-gray-800 dark:text-white outline-none w-full" required />
             </div>
 
             {s.type === 'round-trip' && (
               <div className={`${inputCls}`}>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Return</p>
-                <input type="date" value={s.returnDate} min={s.departureDate || new Date().toISOString().slice(0,10)} onChange={e => set({ returnDate: e.target.value })} className="bg-transparent text-sm font-medium text-gray-800 dark:text-white outline-none w-full" />
+                <p className="text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1">Return</p>
+                <input type="date" value={s.returnDate} min={s.departureDate || new Date().toISOString().slice(0,10)} onChange={e => set({ returnDate: e.target.value })} className="bg-transparent text-base font-medium text-gray-800 dark:text-white outline-none w-full" />
               </div>
             )}
           </div>
@@ -112,15 +112,15 @@ export default function FlightSearchWidget({ compact = false }) {
           <div className="space-y-3 mb-3">
             {multiCityLegs.map((leg, i) => (
               <div key={i} className="flex flex-col md:flex-row gap-3 items-center">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">{i+1}</span>
-                <div className={inputCls}><p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">From</p><AirportInput value={leg.origin} label={leg.originLabel} onChange={({code,label})=>dispatch({type:'SET_MULTI_LEG',payload:{index:i,data:{origin:code,originLabel:label}}})} /></div>
-                <div className={inputCls}><p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">To</p><AirportInput value={leg.destination} label={leg.destinationLabel} onChange={({code,label})=>dispatch({type:'SET_MULTI_LEG',payload:{index:i,data:{destination:code,destinationLabel:label}}})} /></div>
-                <div className={inputCls}><p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Date</p><input type="date" value={leg.date} min={new Date().toISOString().slice(0,10)} onChange={e=>dispatch({type:'SET_MULTI_LEG',payload:{index:i,data:{date:e.target.value}}})} className="bg-transparent text-sm font-medium text-gray-800 dark:text-white outline-none w-full" /></div>
+                <span className="shrink-0 w-6 h-6 rounded-full bg-primary text-white text-sm font-bold flex items-center justify-center">{i+1}</span>
+                <div className={inputCls}><p className="text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1">From</p><AirportInput value={leg.origin} label={leg.originLabel} onChange={({code,label})=>dispatch({type:'SET_MULTI_LEG',payload:{index:i,data:{origin:code,originLabel:label}}})} /></div>
+                <div className={inputCls}><p className="text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1">To</p><AirportInput value={leg.destination} label={leg.destinationLabel} onChange={({code,label})=>dispatch({type:'SET_MULTI_LEG',payload:{index:i,data:{destination:code,destinationLabel:label}}})} /></div>
+                <div className={inputCls}><p className="text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1">Date</p><input type="date" value={leg.date} min={new Date().toISOString().slice(0,10)} onChange={e=>dispatch({type:'SET_MULTI_LEG',payload:{index:i,data:{date:e.target.value}}})} className="bg-transparent text-base font-medium text-gray-800 dark:text-white outline-none w-full" /></div>
                 {multiCityLegs.length > 2 && <button type="button" onClick={()=>dispatch({type:'REMOVE_MULTI_LEG',payload:i})} className="shrink-0 w-8 h-8 rounded-full border border-red-200 text-red-400 hover:bg-red-50 flex items-center justify-center"><Minus size={13}/></button>}
               </div>
             ))}
             {multiCityLegs.length < 5 && (
-              <button type="button" onClick={()=>dispatch({type:'ADD_MULTI_LEG'})} className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline ml-8">
+              <button type="button" onClick={()=>dispatch({type:'ADD_MULTI_LEG'})} className="flex items-center gap-2 text-base font-semibold text-primary hover:underline ml-8">
                 <Plus size={15}/> Add another city
               </button>
             )}
@@ -135,13 +135,13 @@ export default function FlightSearchWidget({ compact = false }) {
 
           {/* Cabin */}
           <div className="relative">
-            <button type="button" onClick={() => setCabinOpen(!cabinOpen)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-primary transition-colors">
+            <button type="button" onClick={() => setCabinOpen(!cabinOpen)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:border-primary transition-colors">
               {CABIN_LABELS[s.cabin]} <ChevronDown size={13} className={`transition-transform ${cabinOpen?'rotate-180':''}`} />
             </button>
             {cabinOpen && (
               <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-card-dark rounded-xl border border-gray-100 dark:border-gray-800 shadow-card-hover z-50 overflow-hidden">
                 {CABINS.map(c => (
-                  <button key={c} type="button" onClick={()=>{set({cabin:c});setCabinOpen(false)}} className={`w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors ${s.cabin===c?'text-primary font-semibold bg-primary/5':''}`}>
+                  <button key={c} type="button" onClick={()=>{set({cabin:c});setCabinOpen(false)}} className={`w-full px-4 py-2.5 text-base text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors ${s.cabin===c?'text-primary font-semibold bg-primary/5':''}`}>
                     {CABIN_LABELS[c]}
                   </button>
                 ))}
@@ -149,7 +149,7 @@ export default function FlightSearchWidget({ compact = false }) {
             )}
           </div>
 
-          <button type="submit" className="ml-auto flex items-center gap-2 px-7 py-2.5 rounded-xl font-bold text-sm text-white bg-primary-gradient shadow-glow hover:shadow-none transition-all hover:scale-105">
+          <button type="submit" className="ml-auto flex items-center gap-2 px-7 py-2.5 rounded-xl font-bold text-base text-white bg-primary-gradient shadow-glow hover:shadow-none transition-all hover:scale-105">
             <Search size={15}/> Search Flights
           </button>
         </div>

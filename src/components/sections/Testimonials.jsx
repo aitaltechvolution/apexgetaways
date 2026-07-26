@@ -21,20 +21,20 @@ export default function Testimonials() {
   const t = TESTIMONIALS[active]
 
   return (
-    <section className="section-pad" style={{ background:'#070D1A' }}>
+    <section className="section-pad bg-white">
       <div className="container-pad">
         <div className="text-center mb-14 reveal">
-          <span className="text-xs font-bold uppercase tracking-widest text-gold block mb-3">Client Stories</span>
-          <h2 className="font-display font-bold text-white" style={{ fontSize:'clamp(2rem,4vw,3rem)' }}>What Our Travellers Say</h2>
+          <span className="text-base font-bold uppercase tracking-widest text-gold block mb-3">Client Stories</span>
+          <h2 className="font-display font-bold text-primary" style={{ fontSize:'clamp(2rem,4vw,3rem)' }}>What Our Travellers Say</h2>
           <div className="h-0.5 w-12 mx-auto mt-4" style={{ background:'linear-gradient(90deg,#C9A84C,#F5C842)' }} />
         </div>
 
         {/* Main feature testimonial */}
         <div className="max-w-3xl mx-auto mb-12 reveal">
-          <div className="relative p-8 md:p-12 rounded-3xl overflow-hidden"
-            style={{ background:'linear-gradient(135deg,#0F1826,#162040)', border:'1px solid rgba(201,168,76,0.2)' }}>
+          <div className="relative p-8 md:p-12 rounded-3xl overflow-hidden bg-white"
+            style={{ border:'1px solid rgba(201,168,76,0.3)', boxShadow:'0 12px 40px rgba(10,22,40,0.08)' }}>
             {/* Large quote mark */}
-            <Quote size={80} className="absolute top-6 right-8 opacity-5" style={{ color:'#C9A84C' }} />
+            <Quote size={80} className="absolute top-6 right-8 opacity-10" style={{ color:'#C9A84C' }} />
 
             <AnimatePresence mode="wait" custom={dir}>
               <motion.div key={active}
@@ -48,7 +48,7 @@ export default function Testimonials() {
                     <Star key={i} size={16} fill="#C9A84C" style={{ color:'#C9A84C' }} />
                   ))}
                 </div>
-                <p className="text-lg md:text-xl leading-relaxed italic mb-8 text-white/80">
+                <p className="text-lg md:text-xl leading-relaxed italic mb-8 text-gray-800">
                   "{t.text}"
                 </p>
                 <div className="flex items-center gap-4">
@@ -57,8 +57,8 @@ export default function Testimonials() {
                     {t.name[0]}
                   </div>
                   <div>
-                    <p className="font-bold text-white">{t.name}</p>
-                    <p className="text-xs" style={{ color:'rgba(255,255,255,0.4)' }}>{t.role} · Travelled to {t.dest}</p>
+                    <p className="font-bold text-primary">{t.name}</p>
+                    <p className="text-base text-gray-600">{t.role} · Travelled to {t.dest}</p>
                   </div>
                 </div>
               </motion.div>
@@ -74,7 +74,7 @@ export default function Testimonials() {
                 {TESTIMONIALS.map((_,i) => (
                   <button key={i} onClick={() => { setDir(i>active?1:-1); setActive(i); clearInterval(timer.current) }}
                     className="h-1 rounded-full transition-all duration-300"
-                    style={{ flex: active===i?3:1, background: active===i?'#C9A84C':'rgba(255,255,255,0.15)' }} />
+                    style={{ flex: active===i?3:1, background: active===i?'#C9A84C':'rgba(10,22,40,0.12)' }} />
                 ))}
               </div>
               <button onClick={next} className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
@@ -92,16 +92,16 @@ export default function Testimonials() {
               whileHover={{ y:-4 }}
               className="text-left p-4 rounded-2xl transition-all duration-300 cursor-pointer"
               style={{
-                background: active===i ? 'rgba(201,168,76,0.08)' : 'rgba(255,255,255,0.03)',
-                border: active===i ? '1px solid rgba(201,168,76,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                background: active===i ? 'rgba(201,168,76,0.08)' : '#F8F6F2',
+                border: active===i ? '1px solid rgba(201,168,76,0.4)' : '1px solid rgba(10,22,40,0.08)',
               }}>
               <div className="flex gap-0.5 mb-2">
                 {Array.from({length:t2.stars}).map((_,j) => <Star key={j} size={10} fill="#C9A84C" style={{ color:'#C9A84C' }} />)}
               </div>
-              <p className="text-xs leading-relaxed mb-3 line-clamp-2" style={{ color:'rgba(255,255,255,0.5)' }}>"{t2.text}"</p>
+              <p className="text-base leading-relaxed mb-3 line-clamp-2 text-gray-700">"{t2.text}"</p>
               <div>
-                <p className="text-xs font-bold text-white">{t2.name}</p>
-                <p className="text-[10px]" style={{ color:'rgba(255,255,255,0.3)' }}>{t2.role}</p>
+                <p className="text-base font-bold text-primary">{t2.name}</p>
+                <p className="text-[13px] text-gray-600">{t2.role}</p>
               </div>
             </motion.button>
           ))}

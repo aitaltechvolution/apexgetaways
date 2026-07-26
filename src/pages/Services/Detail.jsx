@@ -33,37 +33,37 @@ export default function ServiceDetailPage() {
       <SEO title={service.title} description={service.desc}/>
 
       {/* Hero */}
-      <section className="pt-36 pb-20" style={{background:'#0A1628'}}>
+      <section className="pt-36 pb-20" style={{background:'#F8F6F2'}}>
         <div className="container-pad">
           <Breadcrumb items={[{to:'/',label:'Home'},{to:'/services',label:'Services'},{label:service.title}]}/>
           <div className="mt-6 flex items-start gap-6">
             <span className="text-6xl">{service.icon}</span>
             <div>
-              <h1 className="font-display font-bold text-white mb-3" style={{fontSize:'clamp(1.8rem,4vw,3rem)'}}>{service.title}</h1>
-              <p className="text-lg max-w-2xl" style={{color:'rgba(255,255,255,0.55)'}}>{service.desc}</p>
+              <h1 className="font-display font-bold text-primary mb-3" style={{fontSize:'clamp(1.8rem,4vw,3rem)'}}>{service.title}</h1>
+              <p className="text-lg max-w-2xl" style={{color:'#374151'}}>{service.desc}</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="section-pad" style={{background:'#070D1A'}}>
+      <section className="section-pad" style={{background:'#F8F6F2'}}>
         <div className="container-pad grid lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-8">
-            <div className="reveal p-6 rounded-2xl" style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)'}}>
-              <h2 className="font-display font-bold text-white text-xl mb-4">Why Choose Apex for {service.title}?</h2>
-              <p className="text-sm leading-relaxed" style={{color:'rgba(255,255,255,0.55)'}}>{detail.why}</p>
+            <div className="reveal p-6 rounded-2xl" style={{background:'#FFFFFF',border:'1px solid #E5E7EB',boxShadow:'0 1px 3px rgba(10,22,40,0.05)'}}>
+              <h2 className="font-display font-bold text-primary text-xl mb-4">Why Choose Apex for {service.title}?</h2>
+              <p className="text-base leading-relaxed" style={{color:'#374151'}}>{detail.why}</p>
             </div>
-            <div className="reveal p-6 rounded-2xl" style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)'}}>
-              <h2 className="font-display font-bold text-white text-xl mb-5">How It Works</h2>
+            <div className="reveal p-6 rounded-2xl" style={{background:'#FFFFFF',border:'1px solid #E5E7EB',boxShadow:'0 1px 3px rgba(10,22,40,0.05)'}}>
+              <h2 className="font-display font-bold text-primary text-xl mb-5">How It Works</h2>
               <div className="space-y-4">
                 {detail.steps.map((step,i)=>(
                   <div key={i} className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-bold text-sm"
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-bold text-base"
                       style={{background:'linear-gradient(135deg,#C9A84C,#F5C842)',color:'#0A1628'}}>
                       {i+1}
                     </div>
                     <div className="pt-1">
-                      <p className="text-sm" style={{color:'rgba(255,255,255,0.6)'}}>{step}</p>
+                      <p className="text-base" style={{color:'#1F2937'}}>{step}</p>
                       {i<detail.steps.length-1 && <div className="w-px h-6 ml-0 mt-2" style={{background:'rgba(201,168,76,0.2)',marginLeft:'-24px',transform:'translateX(20px)'}}/>}
                     </div>
                   </div>
@@ -74,8 +74,8 @@ export default function ServiceDetailPage() {
               <div className="flex items-start gap-3">
                 <CheckCircle size={20} style={{color:'#C9A84C'}} className="shrink-0 mt-0.5"/>
                 <div>
-                  <p className="font-bold text-white mb-1">Free Consultation Available</p>
-                  <p className="text-sm" style={{color:'rgba(255,255,255,0.5)'}}>
+                  <p className="font-bold text-primary mb-1">Free Consultation Available</p>
+                  <p className="text-base" style={{color:'#374151'}}>
                     Speak with one of our travel experts at no cost. We'll assess your needs and recommend the best approach for your situation.
                   </p>
                 </div>
@@ -84,24 +84,24 @@ export default function ServiceDetailPage() {
           </div>
           {/* Sidebar */}
           <div className="reveal">
-            <div className="sticky rounded-2xl p-6 space-y-4" style={{top:'88px',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(201,168,76,0.2)'}}>
-              <h3 className="font-display font-bold text-white text-lg">Ready to Get Started?</h3>
-              <p className="text-xs" style={{color:'rgba(255,255,255,0.4)'}}>Contact us for a free consultation — no obligation, just expert advice.</p>
+            <div className="sticky rounded-2xl p-6 space-y-4" style={{top:'88px',background:'#F3F4F6',border:'1px solid rgba(201,168,76,0.2)'}}>
+              <h3 className="font-display font-bold text-primary text-lg">Ready to Get Started?</h3>
+              <p className="text-sm" style={{color:'#4B5563'}}>Contact us for a free consultation — no obligation, just expert advice.</p>
               <Link to={`/contact?service=${encodeURIComponent(service.title)}`} className="block w-full text-center btn-gold">Enquire Now</Link>
               <a href={`https://wa.me/${BRAND.whatsapp.replace('+','')}`} target="_blank" rel="noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm text-white"
+                className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-base text-primary"
                 style={{background:'#25D366'}}>
                 <Phone size={14}/> WhatsApp Us
               </a>
-              <div className="pt-4" style={{borderTop:'1px solid rgba(255,255,255,0.07)'}}>
-                <p className="text-xs font-bold text-white mb-3">Other Services</p>
+              <div className="pt-4" style={{borderTop:'1px solid #F3F4F6'}}>
+                <p className="text-sm font-bold text-primary mb-3">Other Services</p>
                 <div className="space-y-1">
                   {SERVICES.filter(s=>s.id!==slug).slice(0,5).map(s=>(
                     <Link key={s.id} to={`/services/${s.id}`}
-                      className="flex items-center gap-2 py-2 text-xs transition-colors"
-                      style={{color:'rgba(255,255,255,0.45)'}}
+                      className="flex items-center gap-2 py-2 text-sm transition-colors"
+                      style={{color:'#4B5563'}}
                       onMouseEnter={e=>e.currentTarget.style.color='#C9A84C'}
-                      onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.45)'}>
+                      onMouseLeave={e=>e.currentTarget.style.color='#4B5563'}>
                       <span>{s.icon}</span>{s.title} <ArrowRight size={10} className="ml-auto"/>
                     </Link>
                   ))}

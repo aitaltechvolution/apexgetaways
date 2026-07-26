@@ -5,7 +5,7 @@ import { User, ArrowRight, ArrowLeft, Upload, CheckCircle, Camera, AlertTriangle
 import SEO from '../../components/SEO'
 import { useBooking } from '../../store/BookingContext'
 import { useAuth } from '../../store/AuthContext'
-import { uploadPassport, updateUserDoc } from '../../lib/firebase'
+import { uploadPassport, updateUserDoc } from '../../lib/supabase'
 import { StepBar } from './Extras'
 
 const TITLES    = ['Mr','Mrs','Ms','Dr','Prof','Engr']
@@ -28,23 +28,23 @@ function PassengerForm({ index, data, onChange, isLead, travelDate }) {
 
   const F = (label, field, props = {}) => (
     <div>
-      <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{label}{props.required && ' *'}</label>
+      <label className="block text-[13px] font-bold uppercase tracking-wider mb-1.5" style={{ color: '#4B5563' }}>{label}{props.required && ' *'}</label>
       <input value={data[field] || ''} onChange={e => onChange(field, e.target.value)}
-        className="w-full px-4 py-3 rounded-xl text-sm text-white focus:outline-none transition-all"
-        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+        className="w-full px-4 py-3 rounded-xl text-base text-primary focus:outline-none transition-all"
+        style={{ background: '#F3F4F6', border: '1px solid #E5E7EB' }}
         onFocus={e => e.target.style.borderColor = '#C9A84C'}
-        onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+        onBlur={e => e.target.style.borderColor = '#E5E7EB'}
         {...props} />
     </div>
   )
 
   const Sel = (label, field, options) => (
     <div>
-      <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</label>
+      <label className="block text-[13px] font-bold uppercase tracking-wider mb-1.5" style={{ color: '#4B5563' }}>{label}</label>
       <select value={data[field] || ''} onChange={e => onChange(field, e.target.value)}
-        className="w-full px-4 py-3 rounded-xl text-sm text-white focus:outline-none transition-all"
-        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', appearance: 'none' }}>
-        {options.map(o => <option key={o} value={o} style={{ background: '#0F1826' }}>{o}</option>)}
+        className="w-full px-4 py-3 rounded-xl text-base text-primary focus:outline-none transition-all"
+        style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', appearance: 'none' }}>
+        {options.map(o => <option key={o} value={o} style={{ background: '#FFFFFF' }}>{o}</option>)}
       </select>
     </div>
   )
@@ -63,12 +63,12 @@ function PassengerForm({ index, data, onChange, isLead, travelDate }) {
   const passportWarn = isPassportExpiring(data.passportExpiry, travelDate)
 
   return (
-    <div className="p-6 rounded-2xl space-y-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+    <div className="p-6 rounded-2xl space-y-5" style={{ background:'#FFFFFF', border:'1px solid rgba(201,168,76,0.2)', boxShadow:'0 4px 20px rgba(10,22,40,0.06)' }}>
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: 'linear-gradient(135deg,#C9A84C,#F5C842)', color: '#0A1628' }}>{index + 1}</div>
+        <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-base" style={{ background: 'linear-gradient(135deg,#C9A84C,#F5C842)', color: '#0A1628' }}>{index + 1}</div>
         <div>
-          <p className="font-bold text-white">{isLead ? 'Lead Passenger' : `Passenger ${index + 1}`}</p>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Details must match international passport exactly</p>
+          <p className="font-bold text-primary">{isLead ? 'Lead Passenger' : `Passenger ${index + 1}`}</p>
+          <p className="text-sm" style={{ color: '#4B5563' }}>Details must match international passport exactly</p>
         </div>
       </div>
 
@@ -93,7 +93,7 @@ function PassengerForm({ index, data, onChange, isLead, travelDate }) {
         <div>
           {F('Passport Expiry', 'passportExpiry', { type: 'date', required: true })}
           {passportWarn && (
-            <p className="mt-1.5 text-xs flex items-center gap-1" style={{ color: '#f59e0b' }}>
+            <p className="mt-1.5 text-sm flex items-center gap-1" style={{ color: '#f59e0b' }}>
               <AlertTriangle size={11} /> Passport expires within 6 months of travel
             </p>
           )}
@@ -102,21 +102,21 @@ function PassengerForm({ index, data, onChange, isLead, travelDate }) {
       </div>
 
       {/* Passport upload */}
-      <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.12)' }}>
-        <p className="text-xs font-bold text-white mb-2"> Passport Scan / Photo (optional but recommended)</p>
-        <p className="text-xs mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>Upload a clear scan or photo of the passport data page. This helps our team process your ticket faster.</p>
+      <div className="p-4 rounded-xl" style={{ background: '#F3F4F6', border: '1px dashed #E5E7EB' }}>
+        <p className="text-sm font-bold text-primary mb-2"> Passport Scan / Photo (optional but recommended)</p>
+        <p className="text-sm mb-3" style={{ color: '#4B5563' }}>Upload a clear scan or photo of the passport data page. This helps our team process your ticket faster.</p>
         {data.passportUrl ? (
           <div className="flex items-center gap-3">
             <CheckCircle size={16} style={{ color: '#22c55e' }} />
-            <span className="text-sm text-green-400 font-semibold">Passport uploaded</span>
-            <button onClick={() => onChange('passportUrl', '')} className="text-xs text-red-400 underline ml-auto">Remove</button>
+            <span className="text-base text-green-400 font-semibold">Passport uploaded</span>
+            <button onClick={() => onChange('passportUrl', '')} className="text-sm text-red-400 underline ml-auto">Remove</button>
           </div>
         ) : (
           <div>
             <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={handlePassportUpload} />
             <button type="button" onClick={() => fileRef.current?.click()}
               disabled={uploading}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all hover:scale-105"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all hover:scale-105"
               style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)', color: '#C9A84C' }}>
               {uploading ? <><span className="animate-spin"></span> Uploading…</> : <><Upload size={13} /> Upload Passport</>}
             </button>
@@ -126,9 +126,9 @@ function PassengerForm({ index, data, onChange, isLead, travelDate }) {
 
       {/* Contact info for lead passenger */}
       {isLead && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2" style={{ borderTop: '1px solid #F3F4F6' }}>
           <div className="sm:col-span-2">
-            <p className="text-xs font-bold text-white mb-3"> Contact Information (lead passenger)</p>
+            <p className="text-sm font-bold text-primary mb-3"> Contact Information (lead passenger)</p>
           </div>
           {F('Email Address', 'email', { type: 'email', required: true, placeholder: 'you@example.com' })}
           {F('Phone / WhatsApp', 'phone', { required: true, placeholder: '+234 800 000 0000' })}
@@ -204,10 +204,10 @@ export default function PassengerDetailsPage() {
       <SEO title="Passenger Details" />
       <StepBar step={2} />
 
-      <section className="py-10" style={{ background: '#070D1A', minHeight: '80vh' }}>
+      <section className="py-10" style={{ background: '#F8F6F2', minHeight: '80vh' }}>
         <div className="container-pad max-w-4xl mx-auto">
-          <h1 className="font-display font-bold text-white text-2xl mb-2">Passenger Details</h1>
-          <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          <h1 className="font-display font-bold text-primary text-2xl mb-2">Passenger Details</h1>
+          <p className="text-base mb-8" style={{ color: '#4B5563' }}>
             Enter details <strong className="text-gold">exactly as they appear on the passport</strong>. Incorrect information may result in denied boarding.
           </p>
 
@@ -215,8 +215,8 @@ export default function PassengerDetailsPage() {
             <div className="mb-6 p-4 rounded-xl flex items-start gap-3" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)' }}>
               <AlertTriangle size={18} style={{ color: '#f59e0b' }} className="shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-bold" style={{ color: '#f59e0b' }}>Complete Your Profile</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>Add your passport details to your profile to speed up future bookings.</p>
+                <p className="text-base font-bold" style={{ color: '#f59e0b' }}>Complete Your Profile</p>
+                <p className="text-sm mt-0.5" style={{ color: '#374151' }}>Add your passport details to your profile to speed up future bookings.</p>
               </div>
             </div>
           )}
@@ -230,7 +230,7 @@ export default function PassengerDetailsPage() {
 
           <label className="flex items-start gap-3 mt-6 cursor-pointer">
             <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} className="mt-0.5" />
-            <span className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            <span className="text-base" style={{ color: '#374151' }}>
               I confirm all passenger details are accurate and match the travel documents. I agree to the{' '}
               <a href="/terms" className="underline" style={{ color: '#C9A84C' }}>Terms & Conditions</a> and{' '}
               <a href="/privacy" className="underline" style={{ color: '#C9A84C' }}>Privacy Policy</a>.
@@ -238,11 +238,11 @@ export default function PassengerDetailsPage() {
           </label>
 
           <div className="flex gap-3 mt-6">
-            <button onClick={() => navigate(-1)} className="flex items-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold border-2 transition-all" style={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
+            <button onClick={() => navigate(-1)} className="flex items-center gap-2 px-5 py-3.5 rounded-xl text-base font-bold border-2 transition-all" style={{ borderColor: '#E5E7EB', color: '#1F2937' }}>
               <ArrowLeft size={14} /> Back
             </button>
             <button onClick={proceed} disabled={!canProceed}
-              className="flex-1 btn-gold py-3.5 flex items-center justify-center gap-2 font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed">
+              className="flex-1 btn-gold py-3.5 flex items-center justify-center gap-2 font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed">
               Continue — Review Booking <ArrowRight size={14} />
             </button>
           </div>

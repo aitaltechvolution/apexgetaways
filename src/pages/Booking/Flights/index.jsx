@@ -36,29 +36,29 @@ function PassengerPicker({ value, onChange }) {
   }
   return (
     <div className="relative">
-      <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{color:'rgba(255,255,255,0.45)'}}>Passengers</label>
+      <label className="block text-sm font-bold uppercase tracking-wider mb-2" style={{color:'#4B5563'}}>Passengers</label>
       <button onClick={() => setOpen(!open)} type="button"
-        className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm text-white focus:outline-none transition-all"
-        style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)'}}>
+        className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-base text-primary focus:outline-none transition-all"
+        style={{background:'#F3F4F6',border:'1px solid #E5E7EB'}}>
         <span>{total} Passenger{total!==1?'s':''} · {CABIN_CLASSES.find(c=>c.value===value.cabinClass)?.label||'Economy'}</span>
-        <ChevronDown size={15} style={{color:'rgba(255,255,255,0.5)'}}/>
+        <ChevronDown size={15} style={{color:'#374151'}}/>
       </button>
       <AnimatePresence>
         {open && (
           <motion.div initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}}
             className="absolute top-full left-0 right-0 mt-1 z-50 rounded-2xl shadow-2xl p-5 space-y-4"
-            style={{background:'#0F1826',border:'1px solid rgba(201,168,76,0.2)'}}>
+            style={{background:'#FFFFFF',border:'1px solid rgba(201,168,76,0.2)'}}>
             {[['adults','Adults','12+ years'],['children','Children','2-11 years'],['infants','Infants','Under 2']].map(([k,lbl,sub]) => (
               <div key={k} className="flex items-center justify-between">
-                <div><p className="font-semibold text-sm text-white">{lbl}</p><p className="text-xs" style={{color:'rgba(255,255,255,0.35)'}}>{sub}</p></div>
+                <div><p className="font-semibold text-base text-primary">{lbl}</p><p className="text-sm" style={{color:'#6B7280'}}>{sub}</p></div>
                 <div className="flex items-center gap-3">
-                  <button type="button" onClick={() => adjust(k,-1)} className="w-9 h-9 rounded-full flex items-center justify-center font-bold transition-all" style={{background:'rgba(255,255,255,0.07)',border:'1px solid rgba(255,255,255,0.15)',color:'white'}}><Minus size={13}/></button>
-                  <span className="w-6 text-center font-bold text-white">{value[k]}</span>
+                  <button type="button" onClick={() => adjust(k,-1)} className="w-9 h-9 rounded-full flex items-center justify-center font-bold transition-all" style={{background:'#F3F4F6',border:'1px solid #E5E7EB',color:'#111827'}}><Minus size={13}/></button>
+                  <span className="w-6 text-center font-bold text-primary">{value[k]}</span>
                   <button type="button" onClick={() => adjust(k,1)} className="w-9 h-9 rounded-full flex items-center justify-center font-bold transition-all hover:scale-110" style={{background:'linear-gradient(135deg,#C9A84C,#F5C842)',color:'#0A1628'}}><Plus size={13}/></button>
                 </div>
               </div>
             ))}
-            <button type="button" onClick={() => setOpen(false)} className="w-full py-3 rounded-xl font-bold text-sm btn-gold">Done</button>
+            <button type="button" onClick={() => setOpen(false)} className="w-full py-3 rounded-xl font-bold text-base btn-gold">Done</button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -75,8 +75,8 @@ function FlightCard({ flight, cabinClass, onSelect, selected, onPickSeats, seats
     <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}}
       className="rounded-2xl overflow-hidden transition-all duration-200"
       style={{
-        background:'rgba(255,255,255,0.04)',
-        border:`1px solid ${isSelected?'rgba(201,168,76,0.6)':'rgba(255,255,255,0.08)'}`,
+        background:'#F3F4F6',
+        border:`1px solid ${isSelected?'rgba(201,168,76,0.6)':'#F3F4F6'}`,
         boxShadow: isSelected ? '0 0 0 2px rgba(201,168,76,0.3)' : 'none',
       }}>
       <div className="p-5">
@@ -85,47 +85,47 @@ function FlightCard({ flight, cabinClass, onSelect, selected, onPickSeats, seats
           <div className="flex items-center gap-2.5 w-36 shrink-0">
             <span className="text-2xl">{flight.logo}</span>
             <div>
-              <p className="font-bold text-xs text-white">{flight.airline}</p>
-              <p className="text-[11px]" style={{color:'rgba(255,255,255,0.35)'}}>{flight.flightNo}</p>
+              <p className="font-bold text-sm text-primary">{flight.airline}</p>
+              <p className="text-[13px]" style={{color:'#6B7280'}}>{flight.flightNo}</p>
             </div>
           </div>
           {/* Times */}
           <div className="flex items-center gap-4 flex-1 min-w-0">
             <div className="text-center">
-              <p className="font-bold text-2xl text-white">{flight.dep}</p>
-              <p className="text-xs font-semibold" style={{color:'#C9A84C'}}>{flight.from}</p>
+              <p className="font-bold text-2xl text-primary">{flight.dep}</p>
+              <p className="text-sm font-semibold" style={{color:'#C9A84C'}}>{flight.from}</p>
             </div>
             <div className="flex-1 flex flex-col items-center gap-1 min-w-[80px]">
-              <p className="text-[11px]" style={{color:'rgba(255,255,255,0.4)'}}>{flight.duration}</p>
+              <p className="text-[13px]" style={{color:'#4B5563'}}>{flight.duration}</p>
               <div className="relative w-full flex items-center">
-                <div className="flex-1 h-px" style={{background:'rgba(255,255,255,0.15)'}}/>
+                <div className="flex-1 h-px" style={{background:'#E5E7EB'}}/>
                 <Plane size={12} style={{color:'#C9A84C'}} className="mx-1 shrink-0"/>
-                <div className="flex-1 h-px" style={{background:'rgba(255,255,255,0.15)'}}/>
+                <div className="flex-1 h-px" style={{background:'#E5E7EB'}}/>
               </div>
-              <p className="text-[11px]" style={{color:'rgba(255,255,255,0.4)'}}>
+              <p className="text-[13px]" style={{color:'#4B5563'}}>
                 {flight.stops===0?'Direct':`${flight.stops} stop${flight.stops>1?'s':''}${flight.stopCity?` · ${flight.stopCity}`:''}`}
               </p>
             </div>
             <div className="text-center">
-              <p className="font-bold text-2xl text-white">{flight.arr}</p>
-              <p className="text-xs font-semibold" style={{color:'#C9A84C'}}>{flight.to}</p>
+              <p className="font-bold text-2xl text-primary">{flight.arr}</p>
+              <p className="text-sm font-semibold" style={{color:'#C9A84C'}}>{flight.to}</p>
             </div>
           </div>
           {/* Price + select */}
           <div className="flex items-center gap-4 ml-auto shrink-0">
             <div className="text-right">
               <p className="font-bold text-xl" style={{color:'#C9A84C'}}>{formatNGN(price)}</p>
-              <p className="text-[11px]" style={{color:'rgba(255,255,255,0.35)'}}>per person</p>
+              <p className="text-[13px]" style={{color:'#6B7280'}}>per person</p>
               <div className="flex items-center justify-end gap-1 mt-0.5">
-                <Luggage size={10} style={{color:'rgba(255,255,255,0.3)'}}/>
-                <span className="text-[10px]" style={{color:'rgba(255,255,255,0.3)'}}>{flight.baggage}</span>
+                <Luggage size={10} style={{color:'#6B7280'}}/>
+                <span className="text-[12px]" style={{color:'#6B7280'}}>{flight.baggage}</span>
               </div>
-              <span className={`text-[10px] font-semibold ${flight.refundable?'text-green-400':'text-red-400'}`}>
+              <span className={`text-[12px] font-semibold ${flight.refundable?'text-green-400':'text-red-400'}`}>
                 {flight.refundable?' Refundable':' Non-refundable'}
               </span>
             </div>
             <button onClick={() => onSelect(flight)}
-              className={`px-5 py-3 rounded-xl font-bold text-sm transition-all hover:scale-105 ${isSelected?'text-navy':'text-navy'}`}
+              className={`px-5 py-3 rounded-xl font-bold text-base transition-all hover:scale-105 ${isSelected?'text-navy':'text-navy'}`}
               style={{background:isSelected?'linear-gradient(135deg,#22c55e,#16a34a)':'linear-gradient(135deg,#C9A84C,#F5C842)'}}>
               {isSelected ? ' Selected' : 'Select'}
             </button>
@@ -135,19 +135,19 @@ function FlightCard({ flight, cabinClass, onSelect, selected, onPickSeats, seats
         {/* Seat badges */}
         {isSelected && seats.length > 0 && (
           <div className="mt-3 flex items-center gap-2 flex-wrap">
-            <span className="text-xs" style={{color:'rgba(255,255,255,0.4)'}}>Seats:</span>
-            {seats.map(s => <span key={s} className="px-2.5 py-1 rounded-lg text-xs font-bold" style={{background:'rgba(201,168,76,0.15)',color:'#C9A84C'}}>{s}</span>)}
-            <button onClick={() => onPickSeats(flight, isReturn)} className="text-xs underline" style={{color:'#C9A84C'}}>Change</button>
+            <span className="text-sm" style={{color:'#4B5563'}}>Seats:</span>
+            {seats.map(s => <span key={s} className="px-2.5 py-1 rounded-lg text-sm font-bold" style={{background:'rgba(201,168,76,0.15)',color:'#C9A84C'}}>{s}</span>)}
+            <button onClick={() => onPickSeats(flight, isReturn)} className="text-sm underline" style={{color:'#C9A84C'}}>Change</button>
           </div>
         )}
         {isSelected && seats.length === 0 && (
           <button onClick={() => onPickSeats(flight, isReturn)}
-            className="mt-3 text-xs font-semibold flex items-center gap-1.5 underline" style={{color:'#C9A84C'}}>
+            className="mt-3 text-sm font-semibold flex items-center gap-1.5 underline" style={{color:'#C9A84C'}}>
             <Plane size={11}/> Choose seat (optional — free)
           </button>
         )}
 
-        <button onClick={() => setExpanded(!expanded)} className="mt-3 flex items-center gap-1 text-xs font-semibold" style={{color:'rgba(255,255,255,0.5)'}}>
+        <button onClick={() => setExpanded(!expanded)} className="mt-3 flex items-center gap-1 text-sm font-semibold" style={{color:'#374151'}}>
           {expanded ? <><ChevronUp size={12}/>Hide details</> : <><ChevronDown size={12}/>Flight details & amenities</>}
         </button>
       </div>
@@ -155,7 +155,7 @@ function FlightCard({ flight, cabinClass, onSelect, selected, onPickSeats, seats
       <AnimatePresence>
         {expanded && (
           <motion.div initial={{height:0}} animate={{height:'auto'}} exit={{height:0}} className="overflow-hidden">
-            <div className="px-5 pb-5 pt-0 border-t" style={{borderColor:'rgba(255,255,255,0.07)'}}>
+            <div className="px-5 pb-5 pt-0 border-t" style={{borderColor:'#F3F4F6'}}>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
                 {[
                   ['Duration', flight.duration, Clock],
@@ -164,14 +164,14 @@ function FlightCard({ flight, cabinClass, onSelect, selected, onPickSeats, seats
                   ['Seats left', `${flight.seatsLeft} remaining`, AlertCircle],
                 ].map(([label, val, Icon]) => (
                   <div key={label}>
-                    <p className="text-[11px] mb-1" style={{color:'rgba(255,255,255,0.35)'}}>{label}</p>
-                    <p className="text-sm font-semibold text-white flex items-center gap-1"><Icon size={12} style={{color:'#C9A84C'}}/>{val}</p>
+                    <p className="text-[13px] mb-1" style={{color:'#6B7280'}}>{label}</p>
+                    <p className="text-base font-semibold text-primary flex items-center gap-1"><Icon size={12} style={{color:'#C9A84C'}}/>{val}</p>
                   </div>
                 ))}
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 {['Cabin bag included','USB charging port','In-flight entertainment','Meal service'].map(a => (
-                  <span key={a} className="text-[11px] px-2.5 py-1 rounded-full" style={{background:'rgba(255,255,255,0.05)',color:'rgba(255,255,255,0.45)'}}>{a}</span>
+                  <span key={a} className="text-[13px] px-2.5 py-1 rounded-full" style={{background:'#F3F4F6',color:'#4B5563'}}>{a}</span>
                 ))}
               </div>
             </div>
@@ -262,23 +262,23 @@ export default function FlightsPage() {
       )}
 
       {/* Search header */}
-      <section className="pt-20 pb-8" style={{background:'#0A1628',borderBottom:'1px solid rgba(201,168,76,0.15)'}}>
+      <section className="pt-20 pb-8" style={{background:'#F8F6F2',borderBottom:'1px solid rgba(201,168,76,0.2)'}}>
         <div className="container-pad">
           <div className="text-center mb-6 pt-4">
-            <h1 className="font-display font-bold text-white text-3xl">Search Flights</h1>
-            <p className="text-sm mt-1" style={{color:'rgba(255,255,255,0.45)'}}>One-way · Round trip · Multi-city · All airlines</p>
+            <h1 className="font-display font-bold text-primary text-3xl">Search Flights</h1>
+            <p className="text-base mt-1" style={{color:'#4B5563'}}>One-way · Round trip · Multi-city · All airlines</p>
           </div>
 
-          <div className="rounded-2xl p-5 md:p-6" style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.1)'}}>
+          <div className="rounded-2xl p-5 md:p-6" style={{background:'#F3F4F6',border:'1px solid #E5E7EB'}}>
             {/* Trip type */}
             <div className="flex gap-2 mb-5 flex-wrap">
               {[['oneWay','One Way'],['roundTrip','Round Trip'],['multiCity','Multi-City']].map(([v,l]) => (
                 <button key={v} type="button" onClick={() => { setType(v); setSearched(false) }}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold transition-all"
+                  className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
                   style={{
-                    background:type===v?'linear-gradient(135deg,#C9A84C,#F5C842)':'rgba(255,255,255,0.06)',
-                    color:type===v?'#0A1628':'rgba(255,255,255,0.55)',
-                    border:`1px solid ${type===v?'#C9A84C':'rgba(255,255,255,0.1)'}`,
+                    background:type===v?'linear-gradient(135deg,#C9A84C,#F5C842)':'#F3F4F6',
+                    color:type===v?'#0A1628':'#374151',
+                    border:`1px solid ${type===v?'#C9A84C':'#E5E7EB'}`,
                   }}>{l}</button>
               ))}
             </div>
@@ -294,13 +294,13 @@ export default function FlightsPage() {
                   </button>
                   <AirportInput value={seg.to} onChange={v=>updateSeg(i,{to:v})} label={i===0?'To':`To (Leg ${i+1})`} placeholder="Destination city or airport"/>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{color:'rgba(255,255,255,0.45)'}}>
+                    <label className="block text-sm font-bold uppercase tracking-wider mb-2" style={{color:'#4B5563'}}>
                       {type==='multiCity'?`Date (Leg ${i+1})`:'Depart'}
                     </label>
                     <input type="date" min={today} value={seg.date} onChange={e=>updateSeg(i,{date:e.target.value})}
-                      className="w-full px-4 py-3.5 rounded-xl text-sm text-white focus:outline-none"
-                      style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)'}}
-                      onFocus={e=>{e.target.style.borderColor='#C9A84C'}} onBlur={e=>{e.target.style.borderColor='rgba(255,255,255,0.15)'}}/>
+                      className="w-full px-4 py-3.5 rounded-xl text-base text-primary focus:outline-none"
+                      style={{background:'#F3F4F6',border:'1px solid #E5E7EB'}}
+                      onFocus={e=>{e.target.style.borderColor='#C9A84C'}} onBlur={e=>{e.target.style.borderColor='#E5E7EB'}}/>
                   </div>
                   {type==='multiCity' && i>1 && (
                     <button type="button" onClick={() => setSegments(s=>s.filter((_,idx)=>idx!==i))}
@@ -312,18 +312,18 @@ export default function FlightsPage() {
               {type==='roundTrip' && (
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <div className="md:col-start-4">
-                    <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{color:'rgba(255,255,255,0.45)'}}>Return</label>
+                    <label className="block text-sm font-bold uppercase tracking-wider mb-2" style={{color:'#4B5563'}}>Return</label>
                     <input type="date" min={segments[0].date||today} value={segments[1].date} onChange={e=>updateSeg(1,{date:e.target.value})}
-                      className="w-full px-4 py-3.5 rounded-xl text-sm text-white focus:outline-none"
-                      style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)'}}
-                      onFocus={e=>{e.target.style.borderColor='#C9A84C'}} onBlur={e=>{e.target.style.borderColor='rgba(255,255,255,0.15)'}}/>
+                      className="w-full px-4 py-3.5 rounded-xl text-base text-primary focus:outline-none"
+                      style={{background:'#F3F4F6',border:'1px solid #E5E7EB'}}
+                      onFocus={e=>{e.target.style.borderColor='#C9A84C'}} onBlur={e=>{e.target.style.borderColor='#E5E7EB'}}/>
                   </div>
                 </div>
               )}
 
               {type==='multiCity' && segments.length<5 && (
                 <button type="button" onClick={() => setSegments(s=>[...s,{from:null,to:null,date:''}])}
-                  className="flex items-center gap-2 text-sm font-bold w-full justify-center py-3 rounded-xl border-2 border-dashed transition-all"
+                  className="flex items-center gap-2 text-base font-bold w-full justify-center py-3 rounded-xl border-2 border-dashed transition-all"
                   style={{borderColor:'rgba(201,168,76,0.3)',color:'#C9A84C'}}>
                   <Plus size={15}/> Add Another City
                 </button>
@@ -332,18 +332,18 @@ export default function FlightsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{color:'rgba(255,255,255,0.45)'}}>Cabin Class</label>
+                <label className="block text-sm font-bold uppercase tracking-wider mb-2" style={{color:'#4B5563'}}>Cabin Class</label>
                 <select value={cabinClass} onChange={e=>setCabinClass(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-xl text-sm text-white focus:outline-none"
-                  style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',appearance:'none'}}>
-                  {CABIN_CLASSES.map(c=><option key={c.value} value={c.value} style={{background:'#0F1826'}}>{c.label}</option>)}
+                  className="w-full px-4 py-3.5 rounded-xl text-base text-primary focus:outline-none"
+                  style={{background:'#F3F4F6',border:'1px solid #E5E7EB',appearance:'none'}}>
+                  {CABIN_CLASSES.map(c=><option key={c.value} value={c.value} style={{background:'#FFFFFF'}}>{c.label}</option>)}
                 </select>
               </div>
               <PassengerPicker value={passengers} onChange={setPassengers}/>
               <div className="flex items-end">
                 <button onClick={doSearch} type="button"
                   disabled={!segments[0].from||!segments[0].to||!segments[0].date||loading}
-                  className="w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 btn-gold text-navy">
+                  className="w-full py-3.5 rounded-xl font-bold text-base flex items-center justify-center gap-2 disabled:opacity-50 btn-gold text-navy">
                   {loading ? <><RefreshCcw size={15} className="animate-spin"/>Searching…</> : <><Plane size={15}/>Search Flights</>}
                 </button>
               </div>
@@ -354,29 +354,29 @@ export default function FlightsPage() {
 
       {/* Results */}
       {searched && (
-        <section className="py-10" style={{background:'#070D1A',minHeight:'60vh'}}>
+        <section className="py-10" style={{background:'#F8F6F2',minHeight:'60vh'}}>
           <div className="container-pad">
             {/* Filter bar */}
-            <div className="flex flex-wrap items-center gap-3 mb-6 p-4 rounded-2xl" style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)'}}>
+            <div className="flex flex-wrap items-center gap-3 mb-6 p-4 rounded-2xl" style={{background:'#FFFFFF', border:'1px solid rgba(201,168,76,0.2)', boxShadow:'0 4px 20px rgba(10,22,40,0.06)'}}>
               <Filter size={15} style={{color:'#C9A84C'}}/>
-              <span className="text-xs font-bold text-white">{sortAndFilter(outFlights).length} results</span>
+              <span className="text-sm font-bold text-primary">{sortAndFilter(outFlights).length} results</span>
               <div className="flex flex-wrap gap-2 ml-auto">
                 <select value={filterStops} onChange={e=>setFilterStops(e.target.value)}
-                  className="px-3 py-2 rounded-xl text-xs font-bold focus:outline-none"
-                  style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',color:'white'}}>
+                  className="px-3 py-2 rounded-xl text-sm font-bold focus:outline-none"
+                  style={{background:'#F3F4F6',border:'1px solid #E5E7EB',color:'#111827'}}>
                   <option value="all">All stops</option>
                   <option value="direct">Direct only</option>
                   <option value="stops">1+ stops</option>
                 </select>
                 <select value={filterAirline} onChange={e=>setFilterAirline(e.target.value)}
-                  className="px-3 py-2 rounded-xl text-xs font-bold focus:outline-none"
-                  style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',color:'white'}}>
+                  className="px-3 py-2 rounded-xl text-sm font-bold focus:outline-none"
+                  style={{background:'#F3F4F6',border:'1px solid #E5E7EB',color:'#111827'}}>
                   <option value="all">All airlines</option>
-                  {airlines.map(a=><option key={a} value={a} style={{background:'#0F1826'}}>{a}</option>)}
+                  {airlines.map(a=><option key={a} value={a} style={{background:'#FFFFFF'}}>{a}</option>)}
                 </select>
                 <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
-                  className="px-3 py-2 rounded-xl text-xs font-bold focus:outline-none"
-                  style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',color:'white'}}>
+                  className="px-3 py-2 rounded-xl text-sm font-bold focus:outline-none"
+                  style={{background:'#F3F4F6',border:'1px solid #E5E7EB',color:'#111827'}}>
                   <option value="price">Cheapest first</option>
                   <option value="duration">Shortest first</option>
                   <option value="dep">Earliest depart</option>
@@ -385,9 +385,9 @@ export default function FlightsPage() {
             </div>
 
             {/* Outbound */}
-            <h2 className="font-bold text-lg text-white mb-4">
+            <h2 className="font-bold text-lg text-primary mb-4">
               {type==='roundTrip'?' Outbound ·':' '} {segments[0].from?.city} → {segments[0].to?.city}
-              <span className="text-sm font-normal ml-2" style={{color:'rgba(255,255,255,0.4)'}}>{segments[0].date}</span>
+              <span className="text-base font-normal ml-2" style={{color:'#4B5563'}}>{segments[0].date}</span>
             </h2>
             <div className="space-y-3 mb-10">
               {sortAndFilter(outFlights).map(f => (
@@ -401,9 +401,9 @@ export default function FlightsPage() {
             {/* Return */}
             {type==='roundTrip' && retFlights.length>0 && (
               <>
-                <h2 className="font-bold text-lg text-white mb-4">
+                <h2 className="font-bold text-lg text-primary mb-4">
                    Return · {segments[0].to?.city} → {segments[0].from?.city}
-                  <span className="text-sm font-normal ml-2" style={{color:'rgba(255,255,255,0.4)'}}>{segments[1].date}</span>
+                  <span className="text-base font-normal ml-2" style={{color:'#4B5563'}}>{segments[1].date}</span>
                 </h2>
                 <div className="space-y-3 mb-10">
                   {sortAndFilter(retFlights).map(f => (
@@ -420,15 +420,15 @@ export default function FlightsPage() {
             {canProceed && (
               <motion.div initial={{opacity:0,y:40}} animate={{opacity:1,y:0}}
                 className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-2xl z-40 rounded-2xl p-4 flex items-center justify-between gap-4"
-                style={{background:'rgba(10,22,40,0.97)',border:'1px solid rgba(201,168,76,0.3)',backdropFilter:'blur(24px)',boxShadow:'0 8px 40px rgba(0,0,0,0.5)'}}>
+                style={{background:'rgba(255,255,255,0.97)',border:'1px solid rgba(201,168,76,0.3)',backdropFilter:'blur(24px)',boxShadow:'0 8px 40px rgba(10,22,40,0.15)'}}>
                 <div>
-                  <p className="text-xs mb-0.5" style={{color:'rgba(255,255,255,0.4)'}}>Total for {totalPax} passenger{totalPax>1?'s':''}</p>
+                  <p className="text-sm mb-0.5" style={{color:'#4B5563'}}>Total for {totalPax} passenger{totalPax>1?'s':''}</p>
                   <p className="font-display font-bold text-xl" style={{color:'#C9A84C'}}>{formatNGN(totalFare)}</p>
                   {(outSeats.length>0||retSeats.length>0) && (
-                    <p className="text-xs text-green-400 mt-0.5">Seats: {[...outSeats,...retSeats].join(', ')}</p>
+                    <p className="text-sm text-green-600 mt-0.5">Seats: {[...outSeats,...retSeats].join(', ')}</p>
                   )}
                 </div>
-                <button onClick={proceed} className="btn-gold px-8 py-3.5 text-sm font-bold flex items-center gap-2">
+                <button onClick={proceed} className="btn-gold px-8 py-3.5 text-base font-bold flex items-center gap-2">
                   Continue — Add Extras <ArrowRight size={15}/>
                 </button>
               </motion.div>

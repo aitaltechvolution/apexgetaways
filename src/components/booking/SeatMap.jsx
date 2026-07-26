@@ -69,7 +69,7 @@ function Seat({ col, row, cabin, occupied, selected, onClick, selectable }) {
         onClick={() => !occupied && selectable && onClick(`${row}${col}`)}
         disabled={occupied || !selectable}
         title={occupied ? 'Occupied' : `Seat ${row}${col}${isWindow ? ' (Window)' : isAisle ? ' (Aisle)' : ' (Middle)'}`}
-        className={`w-7 h-8 sm:w-8 sm:h-9 rounded-t-lg rounded-b-sm text-[10px] font-bold transition-all duration-150 ${seatStyle}`}
+        className={`w-7 h-8 sm:w-8 sm:h-9 rounded-t-lg rounded-b-sm text-[12px] font-bold transition-all duration-150 ${seatStyle}`}
       >
         {selected ? '' : occupied ? '' : col}
       </motion.button>
@@ -112,7 +112,7 @@ export default function SeatMap({ flight, passengers = 1, onConfirm, onClose, se
         <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
           <div>
             <h2 className="font-bold text-lg text-gray-900 dark:text-white">Choose Your Seat{passengers > 1 ? 's' : ''}</h2>
-            <p className="text-xs text-gray-400 mt-0.5">{flight?.flightNo} · {flight?.from} → {flight?.to} · Select {passengers} seat{passengers > 1 ? 's' : ''}</p>
+            <p className="text-sm text-gray-600 mt-0.5">{flight?.flightNo} · {flight?.from} → {flight?.to} · Select {passengers} seat{passengers > 1 ? 's' : ''}</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <X size={18} />
@@ -129,7 +129,7 @@ export default function SeatMap({ flight, passengers = 1, onConfirm, onClose, se
           ].map(({ color, label }) => (
             <div key={label} className="flex items-center gap-1.5">
               <div className={`w-4 h-4 rounded-sm ${color}`} />
-              <span className="text-[11px] text-gray-500">{label}</span>
+              <span className="text-[13px] text-gray-600">{label}</span>
             </div>
           ))}
         </div>
@@ -139,7 +139,7 @@ export default function SeatMap({ flight, passengers = 1, onConfirm, onClose, se
           {/* Nose */}
           <div className="text-center mb-4">
             <div className="inline-block text-3xl"></div>
-            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest">Front of Aircraft</p>
+            <p className="text-[12px] text-gray-600 font-semibold uppercase tracking-widest">Front of Aircraft</p>
           </div>
 
           <div className="space-y-1">
@@ -148,7 +148,7 @@ export default function SeatMap({ flight, passengers = 1, onConfirm, onClose, se
                 return (
                   <div key={`exit-${row.num}`} className="flex items-center justify-center py-2">
                     <div className="flex-1 h-px bg-green-300 dark:bg-green-800" />
-                    <span className="mx-3 text-xs text-green-600 font-semibold">{row.label}</span>
+                    <span className="mx-3 text-sm text-green-600 font-semibold">{row.label}</span>
                     <div className="flex-1 h-px bg-green-300 dark:bg-green-800" />
                   </div>
                 )
@@ -162,7 +162,7 @@ export default function SeatMap({ flight, passengers = 1, onConfirm, onClose, se
               return (
                 <div key={row.num} className={`flex items-center gap-2 px-2 py-0.5 rounded-lg ${cabinColor}`}>
                   {/* Row number */}
-                  <span className="text-[10px] text-gray-400 w-5 text-center font-mono">{row.num}</span>
+                  <span className="text-[12px] text-gray-600 w-5 text-center font-mono">{row.num}</span>
 
                   {/* Left seats */}
                   <div className="flex gap-1">
@@ -192,7 +192,7 @@ export default function SeatMap({ flight, passengers = 1, onConfirm, onClose, se
                   </div>
 
                   {/* Cabin label on first row of each cabin */}
-                  <span className="ml-2 text-[9px] text-gray-400 w-16 truncate">
+                  <span className="ml-2 text-[13px] text-gray-600 w-16 truncate">
                     {CABIN_COLORS[row.cabin]?.label}
                   </span>
                 </div>
@@ -201,7 +201,7 @@ export default function SeatMap({ flight, passengers = 1, onConfirm, onClose, se
           </div>
 
           <div className="text-center mt-4">
-            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest">Rear of Aircraft</p>
+            <p className="text-[12px] text-gray-600 font-semibold uppercase tracking-widest">Rear of Aircraft</p>
           </div>
         </div>
 
@@ -209,24 +209,24 @@ export default function SeatMap({ flight, passengers = 1, onConfirm, onClose, se
         <div className="p-5 border-t border-gray-100 dark:border-gray-800">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">
+              <p className="text-base font-semibold text-gray-900 dark:text-white">
                 Selected: {selected.length > 0 ? selected.join(', ') : 'None'}
               </p>
-              <p className="text-xs text-gray-400">{passengers - selected.length} more seat{passengers - selected.length !== 1 ? 's' : ''} needed</p>
+              <p className="text-sm text-gray-600">{passengers - selected.length} more seat{passengers - selected.length !== 1 ? 's' : ''} needed</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-400">Seat fee</p>
+              <p className="text-sm text-gray-600">Seat fee</p>
               <p className="font-bold text-primary">{selected.length > 0 ? 'Included' : '—'}</p>
             </div>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => onConfirm([])} className="flex-1 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-600 dark:text-gray-400 hover:border-primary hover:text-primary transition-all">
+            <button onClick={() => onConfirm([])} className="flex-1 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-base font-bold text-gray-600 dark:text-gray-600 hover:border-primary hover:text-primary transition-all">
               Skip — Random Seat
             </button>
             <button
               onClick={() => selected.length === passengers ? onConfirm(selected) : null}
               disabled={selected.length !== passengers}
-              className="flex-1 py-3 rounded-xl font-bold text-sm text-white bg-primary-gradient shadow-glow hover:shadow-none transition-all disabled:opacity-50 disabled:pointer-events-none"
+              className="flex-1 py-3 rounded-xl font-bold text-base text-white bg-primary-gradient shadow-glow hover:shadow-none transition-all disabled:opacity-50 disabled:pointer-events-none"
             >
               Confirm Seat{passengers > 1 ? 's' : ''} →
             </button>

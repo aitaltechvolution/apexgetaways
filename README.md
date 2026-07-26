@@ -18,44 +18,28 @@ npm run dev                # http://localhost:5173
 
 | Variable | Source | Required? |
 |---|---|---|
-| `VITE_FIREBASE_API_KEY` | [console.firebase.google.com](https://console.firebase.google.com) | ✅ For auth & bookings |
-| `VITE_FIREBASE_AUTH_DOMAIN` | Firebase project settings | ✅ |
-| `VITE_FIREBASE_PROJECT_ID` | Firebase project settings | ✅ |
-| `VITE_FIREBASE_STORAGE_BUCKET` | Firebase project settings | ✅ |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase project settings | ✅ |
-| `VITE_FIREBASE_APP_ID` | Firebase project settings | ✅ |
+| `VITE_SUPABASE_URL` | [supabase.com/dashboard](https://supabase.com/dashboard) → Project Settings → API | ✅ For auth & bookings |
+| `VITE_SUPABASE_ANON_KEY` | Supabase project settings → API | ✅ |
+| `VITE_PAYSTACK_PUBLIC_KEY` | [dashboard.paystack.com](https://dashboard.paystack.com/#/settings/developers) | ✅ For payments |
 | `VITE_UNSPLASH_KEY` | [unsplash.com/developers](https://unsplash.com/developers) | Optional (hotel photos) |
 | `VITE_AVIATION_KEY` | [aviationstack.com](https://aviationstack.com) | Optional (live airport search) |
 
 ---
 
-## 🔥 Firebase Setup
+## 🟢 Supabase Setup
 
-1. Go to [console.firebase.google.com](https://console.firebase.google.com)
-2. Create a project → **Add Web App** → copy config into `.env`
-3. **Authentication** → Sign-in methods → Enable **Google** and **Email/Password**
-4. **Firestore Database** → Create database → Start in **test mode**
-5. Set Firestore rules (Production):
+See **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** for full step-by-step instructions
+(create project → run `supabase/schema.sql` → set env vars → make yourself admin).
 
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{uid} {
-      allow read, write: if request.auth.uid == uid;
-      allow read: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-    match /bookings/{id} {
-      allow create: if request.auth != null;
-      allow read, write: if request.auth.uid == resource.data.userId
-        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-  }
-}
-```
-
-### Make yourself Admin
-In Firestore Console → `users` collection → find your user document → edit `role` field → set to `"admin"` → then visit `/admin`.
+Quick version:
+1. Create a project at [supabase.com/dashboard](https://supabase.com/dashboard)
+2. SQL Editor → paste & run `supabase/schema.sql` (creates `profiles`, `bookings`, storage bucket, RLS policies)
+3. Copy your Project URL + anon key into `.env`
+4. Sign up once on the site, then run:
+   ```sql
+   update public.profiles set role = 'admin' where email = 'you@example.com';
+   ```
+   → visit `/admin`
 
 ---
 
@@ -70,8 +54,8 @@ In Firestore Console → `users` collection → find your user document → edit
 - **State Persistence** — Search inputs saved to sessionStorage; navigating Home → Flights restores your search
 
 ### Authentication
-- Google OAuth sign-in
 - Email/password registration with password strength meter
+- Google OAuth scaffold (ready to wire up — see SUPABASE_SETUP.md)
 - Forgot password email reset
 - Protected routes
 
@@ -79,10 +63,10 @@ In Firestore Console → `users` collection → find your user document → edit
 - Dashboard with booking stats
 - Bookings manager — filter by status, update to Processing/Confirmed/Cancelled with admin notes
 - Customer list
-- Access-controlled (role: 'admin' in Firestore)
+- Access-controlled (role: 'admin' in the `profiles` table)
 
 ### UX
-- System dark/light mode detection + manual toggle
+- Light-mode-first design, legible type scale throughout
 - Keyboard-navigable airport dropdown (↑↓ arrows + Enter + Escape)
 - Fully responsive — mobile hamburger nav
 - Smooth page transitions with Framer Motion
@@ -102,7 +86,7 @@ src/
 │   └── ui/          Button, Card, Badge, Modal, PageHero...
 ├── data/            Airports, Airlines, Hotels, Packages, mock generators
 ├── lib/
-│   ├── firebase.js  Auth + Firestore helpers
+│   ├── supabase.js  Auth + Postgres (profiles/bookings) + Storage helpers
 │   ├── api.js       Unsplash, AviationStack, CountriesNow, ExchangeRate
 │   └── utils.js     formatNGN, cn, slugify, truncate
 ├── pages/
@@ -113,9 +97,12 @@ src/
 │   ├── Destinations/ List + Detail
 │   └── ...          About, Contact, FAQ, Packages, Services, Testimonials, Legal
 └── store/
-    ├── AuthContext    Firebase auth state
+    ├── AuthContext    Supabase session/auth state
     ├── BookingContext sessionStorage-persisted booking state
-    └── ThemeContext   System preference + manual toggle
+    └── ThemeContext   Light-mode-by-default theme
+
+supabase/
+└── schema.sql       Run once in Supabase SQL Editor — tables, RLS, triggers, storage bucket
 ```
 
 ---
@@ -136,7 +123,7 @@ src/
 
 ```bash
 npm run build          # outputs to /dist
-# Deploy dist/ to Vercel, Netlify, or Firebase Hosting
+# Deploy dist/ to Vercel, Netlify, or any static host
 ```
 
 For Vercel: push to GitHub → import project → add `.env` variables in dashboard.
