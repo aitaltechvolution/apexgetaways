@@ -5,6 +5,7 @@ import { Phone, Mail, MapPin, Send, CheckCircle, Instagram } from 'lucide-react'
 import SEO from '../../components/SEO'
 import { BRAND, PACKAGES, DESTINATIONS, SERVICES } from '../../data'
 import useReveal from '../../hooks/useReveal'
+import { saveLead } from '../../lib/supabase'
 
 function TikTokIcon({ size=16 }) {
   return (
@@ -62,6 +63,7 @@ export default function ContactPage() {
   const [form, setForm] = useState({ name:'', email:'', phone:'', service:'', interest:'', message:'' })
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const pkg = params.get('package')
@@ -75,11 +77,17 @@ export default function ContactPage() {
   const submit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1200))
-    setSent(true)
-    setLoading(false)
-    setForm({ name:'', email:'', phone:'', service:'', interest:'', message:'' })
-    setTimeout(() => setSent(false), 10000)
+    setError('')
+    try {
+      await saveLead({ source: 'contact', ...form })
+      setSent(true)
+      setForm({ name:'', email:'', phone:'', service:'', interest:'', message:'' })
+      setTimeout(() => setSent(false), 10000)
+    } catch (err) {
+      setError('Something went wrong sending your message. Please try again, or reach us directly at ' + BRAND.phone + '.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -124,6 +132,11 @@ export default function ContactPage() {
               </motion.div>
             ) : (
               <form onSubmit={submit} className="space-y-5">
+                {error && (
+                  <div className="p-3.5 rounded-xl text-sm font-semibold" style={{ background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.25)', color:'#dc2626' }}>
+                    {error}
+                  </div>
+                )}
                 <div className="grid sm:grid-cols-2 gap-5">
                   <ApexInput label="Full Name *" name="name" value={form.name} onChange={h} required placeholder="Your full name"/>
                   <ApexInput label="Phone / WhatsApp" name="phone" value={form.phone} onChange={h} placeholder="+234 800 000 0000"/>

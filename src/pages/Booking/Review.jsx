@@ -4,6 +4,7 @@ import SEO from '../../components/SEO'
 import { useBooking } from '../../store/BookingContext'
 import { formatNGN } from '../../data'
 import { StepBar } from './Extras'
+import EmptyBookingGuard from '../../components/booking/EmptyBookingGuard'
 
 function Row({ label, value }) {
   if (!value) return null
@@ -31,6 +32,8 @@ export default function ReviewPage() {
   const navigate = useNavigate()
   const fd = getFareBreakdown()
 
+  if (!booking.bookingType) return <EmptyBookingGuard show={true} />
+
   const {
     bookingType, selectedFlight, selectedReturnFlight,
     selectedSeats, selectedReturnSeats, cabinClass,
@@ -39,12 +42,8 @@ export default function ReviewPage() {
     pickupVehicle, pickupFrom, pickupTo, pickupDate, pickupTime,
   } = booking
 
-  const extras = (baggage?.outbound?.price || 0) + (baggage?.return?.price || 0) + (addons?.insurance ? 15000 : 0)
-  const grandTotal = fd
-    ? fd.total + extras
-    : selectedHotel
-      ? (selectedRoomType?.price || 0) * Math.max(1, Math.round((new Date(hotelCheckOut) - new Date(hotelCheckIn)) / 86400000))
-      : pickupVehicle?.basePrice || 0
+  const extras = (bookingType === 'flight' ? (baggage?.outbound?.price || 0) + (baggage?.return?.price || 0) : 0) + (addons?.insurance ? 15000 : 0)
+  const grandTotal = fd ? fd.total + extras : 0
 
   return (
     <>
@@ -129,12 +128,18 @@ export default function ReviewPage() {
             {/* Price breakdown */}
             <div className="p-5 rounded-2xl" style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.2)' }}>
               <h3 className="font-bold text-primary mb-4">Price Breakdown</h3>
-              {fd && (<>
+              {fd && bookingType === 'flight' && (<>
                 <Row label={`Base fare — ${fd.pax.adults} adult${fd.pax.adults > 1 ? 's' : ''}`} value={formatNGN(fd.adultTotal)} />
                 {fd.pax.children > 0 && <Row label={`${fd.pax.children} child${fd.pax.children > 1 ? 'ren' : ''} (75%)`} value={formatNGN(fd.childTotal)} />}
                 {fd.pax.infants  > 0 && <Row label={`${fd.pax.infants} infant${fd.pax.infants > 1 ? 's' : ''} (10%)`} value={formatNGN(fd.infantTotal)} />}
                 <Row label="Taxes & surcharges (7.5%)" value={formatNGN(fd.taxes)} />
               </>)}
+              {fd && bookingType === 'hotel' && (
+                <Row label={`${formatNGN(fd.perNight)} × ${fd.nights} night${fd.nights > 1 ? 's' : ''} × ${fd.rooms} room${fd.rooms > 1 ? 's' : ''}`} value={formatNGN(fd.subtotal)} />
+              )}
+              {fd && bookingType === 'pickup' && (
+                <Row label={pickupVehicle?.name ? `${pickupVehicle.name}${booking.pickupReturnNeeded ? ' (round trip)' : ''}` : 'Transfer'} value={formatNGN(fd.subtotal)} />
+              )}
               {(baggage?.outbound?.price || 0) > 0 && (
                 <Row label="Baggage fee" value={formatNGN((baggage?.outbound?.price || 0) + (baggage?.return?.price || 0))} />
               )}
@@ -149,7 +154,7 @@ export default function ReviewPage() {
             <div className="p-4 rounded-xl flex items-start gap-3" style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)' }}>
               <Shield size={16} className="shrink-0 mt-0.5" style={{ color: '#22c55e' }} />
               <div>
-                <p className="text-base font-bold text-green-400">Secured by Paystack</p>
+                <p className="text-base font-bold" style={{ color: '#16803d' }}>Secured by Paystack</p>
                 <p className="text-sm mt-0.5" style={{ color: '#4B5563' }}>
                   Card details are encrypted and never stored on our servers.
                 </p>

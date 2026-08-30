@@ -5,6 +5,7 @@ import { Luggage, Shield, Utensils, Accessibility, ArrowRight, ArrowLeft, Plane,
 import SEO from '../../components/SEO'
 import { useBooking } from '../../store/BookingContext'
 import { formatNGN } from '../../data'
+import EmptyBookingGuard from '../../components/booking/EmptyBookingGuard'
 
 const BAGGAGE_OPTIONS = [
   { id:'none',   label:'No extra bag',  sub:'Cabin bag only (7kg)',   pieces:0, weight:'Cabin only', price:0 },
@@ -57,6 +58,8 @@ export default function ExtrasPage() {
   const [insurance, setInsurance] = useState(booking.addons?.insurance || false)
   const [mealPref, setMealPref]   = useState(booking.addons?.mealPref  || 'standard')
   const [assistance, setAssistance] = useState(booking.addons?.specialAssistance || false)
+
+  if (!booking.bookingType) return <EmptyBookingGuard show={true} />
 
   const outBagOption = BAGGAGE_OPTIONS.find(b => b.id === outBag)
   const retBagOption = BAGGAGE_OPTIONS.find(b => b.id === retBag)

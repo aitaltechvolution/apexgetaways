@@ -96,6 +96,10 @@ export async function resetPassword(email) {
   })
   if (error) throw error
 }
+export async function changePassword(newPassword) {
+  const { error } = await supabase.auth.updateUser({ password: newPassword })
+  if (error) throw error
+}
 
 export async function getUserDoc(uid) {
   const { data, error } = await supabase.from('profiles').select('*').eq('id', uid).maybeSingle()
@@ -121,6 +125,17 @@ export async function setUserRole(uid, role) {
   if (error) throw error
 }
 
+// ─── LEADS (Contact form + Newsletter) ─────────────────────────────────────
+export async function saveLead({ source = 'contact', name, email, phone, service, interest, message }) {
+  const { error } = await supabase.from('leads').insert({ source, name, email, phone, service, interest, message })
+  if (error) throw error
+}
+export async function getLeads() {
+  const { data, error } = await supabase.from('leads').select('*').order('created_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
 // ─── FILE UPLOAD ──────────────────────────────────────────────────────────────
 export async function uploadPassport(uid, file) {
   try {
@@ -135,6 +150,81 @@ export async function uploadPassport(uid, file) {
     // Demo mode — return placeholder
     return `https://placehold.co/400x300?text=Passport+Uploaded`
   }
+}
+
+// ─── PRICING / MARKUP SETTINGS ────────────────────────────────────────────────
+// Admin-configurable flat "gain" (in NGN) added on top of whatever the
+// flight/hotel source returns, before it's shown to the client.
+const DEFAULT_MARKUP = { flightMarkupAmount: 0, hotelMarkupAmount: 0 }
+
+export async function getPricingSettings() {
+  try {
+    const { data, error } = await supabase.from('pricing_settings').select('*').eq('id', 1).maybeSingle()
+    if (error || !data) return DEFAULT_MARKUP
+    return {
+      flightMarkupAmount: Number(data.flight_markup_amount) || 0,
+      hotelMarkupAmount:  Number(data.hotel_markup_amount)  || 0,
+    }
+  } catch { return DEFAULT_MARKUP }
+}
+export async function updatePricingSettings({ flightMarkupAmount, hotelMarkupAmount }) {
+  const { error } = await supabase.from('pricing_settings').update({
+    flight_markup_amount: flightMarkupAmount,
+    hotel_markup_amount:  hotelMarkupAmount,
+  }).eq('id', 1)
+  if (error) throw error
+}
+// Adds a flat NGN amount to a price.
+export function applyMarkup(amount, flatAmount) {
+  return Math.round(Number(amount || 0) + Number(flatAmount || 0))
+}
+
+// ─── LOCATION PRICING (hotel pickups) ─────────────────────────────────────────
+// Admin sets an exact NGN price per country, per Nigerian state, or for
+// Nigeria as a whole (scope='country', code='NG').
+function locationFromRow(row) {
+  if (!row) return null
+  return {
+    id: row.id, scope: row.scope, code: row.code, name: row.name,
+    currency: row.currency, price: Number(row.price), updatedAt: row.updated_at,
+  }
+}
+export async function getLocationPricing() {
+  const { data, error } = await supabase.from('location_pricing').select('*').order('name')
+  if (error) throw error
+  return (data || []).map(locationFromRow)
+}
+export async function addLocationPricing({ scope, code, name, currency, price }) {
+  const { error } = await supabase.from('location_pricing')
+    .upsert({ scope, code, name, currency, price }, { onConflict: 'scope,code' })
+  if (error) throw error
+}
+export async function updateLocationPricing(id, price) {
+  const { error } = await supabase.from('location_pricing').update({ price }).eq('id', id)
+  if (error) throw error
+}
+export async function deleteLocationPricing(id) {
+  const { error } = await supabase.from('location_pricing').delete().eq('id', id)
+  if (error) throw error
+}
+// Looks up a price for a state, falling back to its country ('NG' for
+// Nigerian states), then to a sensible default if nothing is configured yet.
+export function resolveLocationPrice(list, { scope, code }) {
+  const exact = list.find(l => l.scope === scope && l.code === code)
+  if (exact) return exact.price
+  if (scope === 'state') {
+    const wholeCountry = list.find(l => l.scope === 'country' && l.code === 'NG')
+    if (wholeCountry) return wholeCountry.price
+  }
+  return null // caller decides the fallback (e.g. the static rate card)
+}
+
+export async function uploadBookingDocument(bookingId, file) {
+  const path = `${bookingId}/${Date.now()}_${file.name}`
+  const { error: upErr } = await supabase.storage.from('tickets').upload(path, file, { upsert: true })
+  if (upErr) throw upErr
+  const { data } = supabase.storage.from('tickets').getPublicUrl(path)
+  return data.publicUrl
 }
 
 // ─── BOOKINGS ────────────────────────────────────────────────────────────────

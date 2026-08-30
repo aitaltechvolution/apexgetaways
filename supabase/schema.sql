@@ -165,6 +165,134 @@ create policy "passport_read_own_or_staff"
     )
   );
 
+-- Tickets / travel documents (e-tickets, hotel vouchers, itineraries) —
+-- admin uploads, public read via the direct link shown on the client's
+-- Dashboard (booking IDs are unguessable UUIDs, so this is low-risk; switch
+-- to signed URLs later if you want stricter access control).
+insert into storage.buckets (id, name, public)
+values ('tickets', 'tickets', true)
+on conflict (id) do nothing;
+
+create policy "tickets_upload_admin"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'tickets'
+    and exists (select 1 from public.profiles p where p.id = auth.uid() and p.role in ('admin','worker'))
+  );
+
+create policy "tickets_read_all"
+  on storage.objects for select
+  using (bucket_id = 'tickets');
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- PRICING SETTINGS  (admin-configurable flat "gain" amount, in NGN, added on
+-- top of whatever the flight/hotel source returns — single row, id always 1)
+-- ────────────────────────────────────────────────────────────────────────────
+create table if not exists public.pricing_settings (
+  id                    int primary key default 1,
+  flight_markup_amount  numeric not null default 0,
+  hotel_markup_amount   numeric not null default 0,
+  updated_at            timestamptz not null default now(),
+  constraint single_row check (id = 1)
+);
+
+-- If you already ran an earlier version of this schema with percentage
+-- columns, migrate them across automatically:
+do $$
+begin
+  if exists (select 1 from information_schema.columns where table_schema='public' and table_name='pricing_settings' and column_name='flight_markup_percent') then
+    alter table public.pricing_settings add column if not exists flight_markup_amount numeric not null default 0;
+    alter table public.pricing_settings add column if not exists hotel_markup_amount numeric not null default 0;
+    alter table public.pricing_settings drop column if exists flight_markup_percent;
+    alter table public.pricing_settings drop column if exists hotel_markup_percent;
+    alter table public.pricing_settings drop column if exists pickup_markup_percent;
+  end if;
+end $$;
+
+insert into public.pricing_settings (id) values (1) on conflict (id) do nothing;
+
+alter table public.pricing_settings enable row level security;
+
+drop policy if exists "pricing_settings_select_all" on public.pricing_settings;
+create policy "pricing_settings_select_all"
+  on public.pricing_settings for select
+  using (true); -- prices need to be readable by every visitor to price search results
+
+drop policy if exists "pricing_settings_update_admin" on public.pricing_settings;
+create policy "pricing_settings_update_admin"
+  on public.pricing_settings for update
+  using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin')
+  );
+
+drop trigger if exists pricing_settings_set_updated_at on public.pricing_settings;
+create trigger pricing_settings_set_updated_at
+  before update on public.pricing_settings
+  for each row execute procedure public.set_updated_at();
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- LOCATION PRICING  (hotel-pickup prices, set by admin per country, per
+-- Nigerian state, or for Nigeria as a whole — e.g. Nigeria: ₦50,000)
+-- ────────────────────────────────────────────────────────────────────────────
+create table if not exists public.location_pricing (
+  id          uuid primary key default gen_random_uuid(),
+  scope       text not null check (scope in ('country','state')),
+  code        text not null,          -- ISO country code (e.g. 'NG','GB') or a state slug (e.g. 'lagos')
+  name        text not null,          -- display name, e.g. "Nigeria", "Lagos", "United Kingdom"
+  currency    text not null default 'NGN', -- that location's local currency — reference only
+  price       numeric not null,       -- the actual charge, always in NGN
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  unique (scope, code)
+);
+
+alter table public.location_pricing enable row level security;
+
+drop policy if exists "location_pricing_select_all" on public.location_pricing;
+create policy "location_pricing_select_all"
+  on public.location_pricing for select
+  using (true); -- needed to price the Pickup page for every visitor
+
+drop policy if exists "location_pricing_write_admin" on public.location_pricing;
+create policy "location_pricing_write_admin"
+  on public.location_pricing for all
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'))
+  with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+drop trigger if exists location_pricing_set_updated_at on public.location_pricing;
+create trigger location_pricing_set_updated_at
+  before update on public.location_pricing
+  for each row execute procedure public.set_updated_at();
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- LEADS  (Contact form + Newsletter signups — public inserts, admin-only reads)
+-- ────────────────────────────────────────────────────────────────────────────
+create table if not exists public.leads (
+  id          uuid primary key default gen_random_uuid(),
+  source      text not null default 'contact', -- 'contact' | 'newsletter'
+  name        text,
+  email       text not null,
+  phone       text,
+  service     text,
+  interest    text,
+  message     text,
+  created_at  timestamptz not null default now()
+);
+
+alter table public.leads enable row level security;
+
+-- Anyone (including anonymous visitors) can submit the public contact/newsletter forms.
+drop policy if exists "leads_insert_public" on public.leads;
+create policy "leads_insert_public"
+  on public.leads for insert
+  with check (true);
+
+-- Only admins can read submitted leads.
+drop policy if exists "leads_select_admin" on public.leads;
+create policy "leads_select_admin"
+  on public.leads for select
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
 -- ────────────────────────────────────────────────────────────────────────────
 -- Make yourself an admin after you sign up once through the site:
 --   update public.profiles set role = 'admin' where email = 'you@example.com';

@@ -88,8 +88,8 @@ function BookingCard({ booking }) {
             {booking.baggage?.outbound && <p style={{ color: '#374151' }}>Baggage: {booking.baggage.outbound.label}</p>}
             {booking.addons?.insurance && <p style={{ color: '#374151' }}>Travel insurance included</p>}
             {booking.paymentRef && <p style={{ color: '#4B5563' }}>Payment: {booking.paymentRef}</p>}
-            {booking.pnr && <p className="font-bold" style={{ color: '#22c55e' }}>PNR: {booking.pnr}</p>}
-            {booking.adminNotes && <p style={{ color: '#60a5fa' }}>Note: {booking.adminNotes}</p>}
+            {booking.pnr && <p className="font-bold" style={{ color: '#16803d' }}>PNR: {booking.pnr}</p>}
+            {booking.adminNotes && <p style={{ color: '#2563eb' }}>Note: {booking.adminNotes}</p>}
             {(booking.status === 'confirmed' || booking.status === 'tickets_issued') && (
               <a href={booking.ticketUrl || '#'} className="inline-flex items-center gap-1.5 mt-2 px-3 py-2 rounded-lg text-sm font-bold"
                 style={{ background: 'linear-gradient(135deg,#C9A84C,#F5C842)', color: '#0A1628' }}>
@@ -165,7 +165,7 @@ function ProfileTab({ userDoc, user }) {
         {form.passportUrl ? (
           <div className="flex items-center gap-2">
             <CheckCircle size={14} style={{ color: '#22c55e' }}/>
-            <span className="text-sm text-green-400">Passport on file</span>
+            <span className="text-sm text-green-600">Passport on file</span>
             <a href={form.passportUrl} target="_blank" rel="noreferrer" className="text-sm underline ml-1" style={{ color: '#C9A84C' }}>View</a>
             <button onClick={() => fileRef.current?.click()} className="text-sm underline ml-auto" style={{ color: '#4B5563' }}>Replace</button>
           </div>
@@ -182,7 +182,52 @@ function ProfileTab({ userDoc, user }) {
         className="w-full btn-gold py-3 font-bold text-base mt-4 flex items-center justify-center gap-2">
         {saving ? 'Saving…' : saved ? <><CheckCircle size={15}/> Saved</> : 'Save Changes'}
       </button>
+
+      <ChangePasswordCard/>
     </div>
+  )
+}
+
+function ChangePasswordCard() {
+  const { changePassword } = useAuth()
+  const [pw, setPw] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState(null) // { type: 'ok'|'error', text }
+
+  const submit = async (e) => {
+    e.preventDefault()
+    setMsg(null)
+    if (pw.length < 6) { setMsg({ type: 'error', text: 'Password must be at least 6 characters.' }); return }
+    if (pw !== confirm) { setMsg({ type: 'error', text: 'Passwords do not match.' }); return }
+    setSaving(true)
+    try {
+      await changePassword(pw)
+      setMsg({ type: 'ok', text: 'Password updated.' })
+      setPw(''); setConfirm('')
+    } catch (err) {
+      setMsg({ type: 'error', text: err.message || 'Could not update password.' })
+    } finally { setSaving(false) }
+  }
+
+  return (
+    <form onSubmit={submit} className="mt-6 pt-6" style={{ borderTop: '1px solid #F3F4F6' }}>
+      <p className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#6B7280' }}>Change Password</p>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <input type="password" placeholder="New password" value={pw} onChange={e => setPw(e.target.value)}
+          className="w-full rounded-xl px-4 py-3 text-base" style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', color: '#111827' }}/>
+        <input type="password" placeholder="Confirm new password" value={confirm} onChange={e => setConfirm(e.target.value)}
+          className="w-full rounded-xl px-4 py-3 text-base" style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', color: '#111827' }}/>
+      </div>
+      {msg && (
+        <p className="text-sm mt-2 font-semibold" style={{ color: msg.type === 'ok' ? '#16803d' : '#dc2626' }}>{msg.text}</p>
+      )}
+      <button type="submit" disabled={saving || !pw}
+        className="mt-3 px-6 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50"
+        style={{ background: '#F3F4F6', color: '#111827', border: '1px solid #E5E7EB' }}>
+        {saving ? 'Updating…' : 'Update Password'}
+      </button>
+    </form>
   )
 }
 

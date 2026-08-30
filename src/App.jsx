@@ -39,6 +39,7 @@ import ConfirmationPage from './pages/Booking/Confirmation'
 import LoginPage        from './pages/Auth/Login'
 import RegisterPage     from './pages/Auth/Register'
 import ForgotPage       from './pages/Auth/ForgotPassword'
+import ResetPasswordPage from './pages/Auth/ResetPassword'
 
 // Dashboard + Admin
 import DashboardPage    from './pages/Dashboard/index'
@@ -99,6 +100,7 @@ export default function App() {
               <Route path="/auth/login"          element={<LoginPage/>}/>
               <Route path="/auth/register"       element={<RegisterPage/>}/>
               <Route path="/auth/forgot-password" element={<ForgotPage/>}/>
+              <Route path="/auth/reset-password"  element={<ResetPasswordPage/>}/>
 
               {/* Client dashboard */}
               <Route path="/dashboard"          element={<Wrap><DashboardPage/></Wrap>}/>

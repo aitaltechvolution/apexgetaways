@@ -1,13 +1,26 @@
 import { useState } from 'react'
-import { Mail, CheckCircle } from 'lucide-react'
+import { Mail, CheckCircle, AlertCircle } from 'lucide-react'
 import useReveal from '../../hooks/useReveal'
+import { saveLead } from '../../lib/supabase'
 
 export default function NewsletterSection() {
   useReveal()
   const [email, setEmail] = useState('')
   const [done, setDone] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const submit = e => { e.preventDefault(); if (email) setDone(true) }
+  const submit = async e => {
+    e.preventDefault()
+    if (!email) return
+    setLoading(true); setError('')
+    try {
+      await saveLead({ source: 'newsletter', email })
+      setDone(true)
+    } catch {
+      setError('Could not subscribe right now. Please try again.')
+    } finally { setLoading(false) }
+  }
 
   return (
     <section className="py-16" style={{ background: '#FFFFFF', borderTop: '1px solid rgba(201,168,76,0.15)' }}>
@@ -38,8 +51,15 @@ export default function NewsletterSection() {
               }}
               onFocus={e => { e.target.style.borderColor = '#C9A84C' }}
               onBlur={e => { e.target.style.borderColor = 'rgba(201,168,76,0.3)' }}/>
-            <button type="submit" className="btn-gold px-6 py-3.5 whitespace-nowrap">Subscribe</button>
+            <button type="submit" disabled={loading} className="btn-gold px-6 py-3.5 whitespace-nowrap disabled:opacity-60">
+              {loading ? 'Subscribing…' : 'Subscribe'}
+            </button>
           </form>
+        )}
+        {error && (
+          <p className="flex items-center justify-center gap-1.5 text-sm font-semibold mt-3" style={{ color: '#dc2626' }}>
+            <AlertCircle size={14}/> {error}
+          </p>
         )}
         <p className="text-sm mt-4" style={{ color: '#bbb' }}>No spam. Unsubscribe anytime.</p>
       </div>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, ChevronDown, Plane, Hotel, Car, Package, Phone } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Menu, X, ChevronDown, Plane, Hotel, Car, Package, Phone, User, LayoutDashboard, Shield, LogOut } from 'lucide-react'
 import { useTheme } from '../../store/ThemeContext'
+import { useAuth } from '../../store/AuthContext'
 import { BRAND } from '../../data'
 
 const BOOK_MENU = [
@@ -24,8 +25,18 @@ export default function Navbar() {
   const [open, setOpen]       = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [bookOpen, setBookOpen] = useState(false)
+  const [acctOpen, setAcctOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
   const isHome = location.pathname === '/'
+  const { user, userDoc, isAdmin, logout } = useAuth() || {}
+  const isWorker = userDoc?.role === 'worker'
+  const accountHref = (isAdmin || isWorker) ? '/admin' : '/dashboard'
+  const handleLogout = async () => {
+    setAcctOpen(false); setOpen(false)
+    await logout()
+    navigate('/')
+  }
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 60)
@@ -38,7 +49,9 @@ export default function Navbar() {
   useEffect(() => { document.body.style.overflow = open ? 'hidden' : ''; return () => { document.body.style.overflow = '' } }, [open])
 
   // On home: transparent → white on scroll. On other pages: always white.
-  const solid = scrolled || !isHome
+  // Also force solid styling while the mobile drawer is open — its white
+  // panel sits directly behind the nav bar, so a white "X" on it disappears.
+  const solid = scrolled || !isHome || open
 
   const navBg    = solid ? 'rgba(255,255,255,0.97)' : 'transparent'
   const navBdr   = solid ? '1px solid rgba(201,168,76,0.2)' : 'none'
@@ -111,15 +124,49 @@ export default function Navbar() {
 
           {/* Right */}
           <div className="flex items-center gap-2 ml-auto">
-            <a href={`tel:${BRAND.phone}`}
+            {/* <a href={`tel:${BRAND.phone}`}
               className="hidden md:flex items-center gap-1.5 text-base font-semibold transition-colors"
               style={{ color: solid ? '#C9A84C' : '#F5C842' }}>
               <Phone size={13}/>{BRAND.phone}
-            </a>
+            </a> */}
             <Link to="/booking"
               className="hidden md:inline-flex btn-gold text-sm px-5 py-2.5">
               Book Now
             </Link>
+
+            {/* Account / Login */}
+            {user ? (
+              <div className="relative hidden md:block" onMouseEnter={() => setAcctOpen(true)} onMouseLeave={() => setAcctOpen(false)}>
+                <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-base font-medium transition-colors"
+                  style={{ color: linkColor }}>
+                  <User size={16}/> {userDoc?.displayName?.split(' ')[0] || 'Account'}
+                  <ChevronDown size={13} className={`transition-transform ${acctOpen ? 'rotate-180' : ''}`}/>
+                </button>
+                {acctOpen && (
+                  <div className="absolute top-full right-0 pt-2 w-56 z-50">
+                    <div className="rounded-2xl overflow-hidden shadow-xl bg-white" style={{ border: '1px solid rgba(201,168,76,0.2)' }}>
+                      <Link to={accountHref} onClick={() => setAcctOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-amber-50 transition-colors text-sm font-semibold" style={{ color: '#0A1628' }}>
+                        {isAdmin || isWorker ? <Shield size={15} style={{ color: '#C9A84C' }}/> : <LayoutDashboard size={15} style={{ color: '#C9A84C' }}/>}
+                        {isAdmin || isWorker ? 'Admin Panel' : 'My Dashboard'}
+                      </Link>
+                      <button onClick={handleLogout}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-sm font-semibold w-full text-left"
+                        style={{ color: '#dc2626', borderTop: '1px solid rgba(201,168,76,0.1)' }}>
+                        <LogOut size={15}/> Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link to="/auth/login"
+                className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-base font-medium transition-colors"
+                style={{ color: linkColor }}>
+                <User size={16}/> Login
+              </Link>
+            )}
+
             <button onClick={() => setOpen(!open)}
               className="lg:hidden p-2.5 rounded-xl transition-all"
               style={{ color: solid ? '#0A1628' : 'white', background: solid ? 'rgba(201,168,76,0.08)' : 'rgba(255,255,255,0.1)' }}
@@ -156,11 +203,36 @@ export default function Navbar() {
             ))}
             <div className="mt-4 pt-4 space-y-3" style={{ borderTop: '1px solid rgba(201,168,76,0.15)' }}>
               <Link to="/booking" className="block w-full text-center btn-gold">Book Now</Link>
-              <a href={`tel:${BRAND.phone}`}
+              {/* <a href={`tel:${BRAND.phone}`}
                 className="block w-full text-center py-3 rounded-xl text-base font-bold border-2"
                 style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#C9A84C' }}>
                 {BRAND.phone}
-              </a>
+              </a> */}
+            </div>
+
+            {/* Account / Login (mobile) */}
+            <div className="mt-4 pt-4 space-y-1" style={{ borderTop: '1px solid rgba(201,168,76,0.15)' }}>
+              {user ? (
+                <>
+                  <Link to={accountHref}
+                    className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold transition-all hover:bg-amber-50"
+                    style={{ color: '#1a1a1a' }}>
+                    {isAdmin || isWorker ? <Shield size={16} style={{ color: '#C9A84C' }}/> : <LayoutDashboard size={16} style={{ color: '#C9A84C' }}/>}
+                    {isAdmin || isWorker ? 'Admin Panel' : 'My Dashboard'}
+                  </Link>
+                  <button onClick={handleLogout}
+                    className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold transition-all hover:bg-red-50 w-full text-left"
+                    style={{ color: '#dc2626' }}>
+                    <LogOut size={16}/> Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link to="/auth/login"
+                  className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold transition-all hover:bg-amber-50"
+                  style={{ color: '#1a1a1a' }}>
+                  <User size={16} style={{ color: '#C9A84C' }}/> Login / Sign Up
+                </Link>
+              )}
             </div>
           </div>
         </div>

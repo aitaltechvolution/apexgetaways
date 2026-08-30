@@ -62,9 +62,31 @@ export function BookingProvider({ children }) {
   const reset   = () => { sessionStorage.removeItem(KEY); setBooking(INIT) }
   const totalPax = (b = booking) => b.passengers.adults + b.passengers.children + b.passengers.infants
 
-  // Fare breakdown
+  // Fare breakdown — one function for all booking types, so Review/Payment
+  // never have to guess which fields exist. Every branch always returns a
+  // `.total` (what actually gets charged) plus `.subtotal`/`.taxes` for the
+  // summary UI.
   const getFareBreakdown = () => {
-    const f = booking.selectedFlight
+    const { bookingType, selectedFlight, selectedHotel, pickupVehicle } = booking
+
+    if (bookingType === 'hotel' || selectedHotel) {
+      const nights = booking.hotelCheckIn && booking.hotelCheckOut
+        ? Math.max(1, Math.round((new Date(booking.hotelCheckOut) - new Date(booking.hotelCheckIn)) / 86400000))
+        : (selectedHotel?.nights || 1)
+      const rooms = booking.hotelRooms || 1
+      const perNight = booking.selectedRoomType?.price || 0
+      const subtotal = perNight * nights * rooms
+      return { subtotal, taxes: 0, total: subtotal, nights, rooms, perNight }
+    }
+
+    if (bookingType === 'pickup' || pickupVehicle) {
+      const base = pickupVehicle?.basePrice || 0
+      const subtotal = base * (booking.pickupReturnNeeded ? 2 : 1)
+      return { subtotal, taxes: 0, total: subtotal }
+    }
+
+    // Flights
+    const f = selectedFlight
     const r = booking.selectedReturnFlight
     if (!f) return null
     const priceKey = booking.cabinClass || 'economy'

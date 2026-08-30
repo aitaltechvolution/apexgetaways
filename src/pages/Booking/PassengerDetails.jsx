@@ -7,6 +7,7 @@ import { useBooking } from '../../store/BookingContext'
 import { useAuth } from '../../store/AuthContext'
 import { uploadPassport, updateUserDoc } from '../../lib/supabase'
 import { StepBar } from './Extras'
+import EmptyBookingGuard from '../../components/booking/EmptyBookingGuard'
 
 const TITLES    = ['Mr','Mrs','Ms','Dr','Prof','Engr']
 const COUNTRIES = ['Nigeria','Ghana','Kenya','South Africa','Egypt','United Kingdom','United States','Canada','UAE','Germany','France','Italy','India','China','Australia','Other']
@@ -108,8 +109,8 @@ function PassengerForm({ index, data, onChange, isLead, travelDate }) {
         {data.passportUrl ? (
           <div className="flex items-center gap-3">
             <CheckCircle size={16} style={{ color: '#22c55e' }} />
-            <span className="text-base text-green-400 font-semibold">Passport uploaded</span>
-            <button onClick={() => onChange('passportUrl', '')} className="text-sm text-red-400 underline ml-auto">Remove</button>
+            <span className="text-base text-green-700 font-semibold">Passport uploaded</span>
+            <button onClick={() => onChange('passportUrl', '')} className="text-sm text-red-600 underline ml-auto">Remove</button>
           </div>
         ) : (
           <div>
@@ -173,6 +174,8 @@ export default function PassengerDetailsPage() {
     }))
   )
   const [agreed, setAgreed] = useState(false)
+
+  if (!booking.bookingType) return <EmptyBookingGuard show={true} />
 
   const update1 = (i, field, val) =>
     setPassengers(p => p.map((px, idx) => idx === i ? { ...px, [field]: val } : px))

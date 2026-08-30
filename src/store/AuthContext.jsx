@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { supabase, normalizeUser, getUserDoc, signInWithGoogle, registerWithEmail,
-  loginWithEmail, logout as sbLogout, resetPassword } from '../lib/supabase'
+  loginWithEmail, logout as sbLogout, resetPassword, changePassword } from '../lib/supabase'
 
 const AuthContext = createContext(null)
 export const useAuth = () => useContext(AuthContext)
@@ -62,7 +62,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       user, userDoc, loading, isAdmin,
-      emailRegister, emailLogin, logout, resetPassword
+      emailRegister, emailLogin, logout, resetPassword, changePassword
     }}>
       {!loading && children}
     </AuthContext.Provider>

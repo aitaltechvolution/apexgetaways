@@ -9,6 +9,7 @@ import SEO from '../../../components/SEO'
 import AirportInput from '../../../components/search/AirportInput'
 import SeatMap from '../../../components/booking/SeatMap'
 import { generateFlights, formatNGN, AIRLINES } from '../../../data'
+import { getPricingSettings, applyMarkup } from '../../../lib/supabase'
 import { useBooking } from '../../../store/BookingContext'
 
 const CABIN_CLASSES = [
@@ -120,7 +121,7 @@ function FlightCard({ flight, cabinClass, onSelect, selected, onPickSeats, seats
                 <Luggage size={10} style={{color:'#6B7280'}}/>
                 <span className="text-[12px]" style={{color:'#6B7280'}}>{flight.baggage}</span>
               </div>
-              <span className={`text-[12px] font-semibold ${flight.refundable?'text-green-400':'text-red-400'}`}>
+              <span className={`text-[12px] font-semibold ${flight.refundable?'text-green-700':'text-red-600'}`}>
                 {flight.refundable?' Refundable':' Non-refundable'}
               </span>
             </div>
@@ -161,7 +162,7 @@ function FlightCard({ flight, cabinClass, onSelect, selected, onPickSeats, seats
                   ['Duration', flight.duration, Clock],
                   ['Checked Bag', flight.baggage, Luggage],
                   ['Cabin', (cabinClass||'economy').replace('_',' '), Plane],
-                  ['Seats left', `${flight.seatsLeft} remaining`, AlertCircle],
+                  ['Seats left', flight.seatsLeft ? `${flight.seatsLeft} remaining` : 'Available', AlertCircle],
                 ].map(([label, val, Icon]) => (
                   <div key={label}>
                     <p className="text-[13px] mb-1" style={{color:'#6B7280'}}>{label}</p>
@@ -209,6 +210,18 @@ export default function FlightsPage() {
   const [sortBy, setSortBy]           = useState('price')
   const [filterStops, setFilterStops] = useState('all')
   const [filterAirline, setFilterAirline] = useState('all')
+  const [markupAmt, setMarkupAmt]     = useState(0)
+  const [dataSource, setDataSource]   = useState(null) // 'duffel' | 'demo' | null
+
+  useEffect(() => { getPricingSettings().then(s => setMarkupAmt(s.flightMarkupAmount)) }, [])
+
+  const withMarkup = (flights) => flights.map(f => ({
+    ...f,
+    economy: applyMarkup(f.economy, markupAmt),
+    business: applyMarkup(f.business, markupAmt),
+    first: applyMarkup(f.first, markupAmt),
+    premium_economy: applyMarkup(f.premium_economy, markupAmt),
+  }))
 
   const today = new Date().toISOString().split('T')[0]
   const totalPax = passengers.adults + passengers.children + passengers.infants
@@ -216,16 +229,50 @@ export default function FlightsPage() {
   const updateSeg = (i, patch) => setSegments(s => s.map((seg,idx) => idx===i ? {...seg,...patch} : seg))
   const swap = (i) => setSegments(s => s.map((seg,idx) => idx===i ? {...seg,from:seg.to,to:seg.from} : seg))
 
-  const doSearch = () => {
+  const duffelPassengers = () => {
+    const list = []
+    for (let i=0;i<passengers.adults;i++) list.push({ type:'adult' })
+    for (let i=0;i<passengers.children;i++) list.push({ age:10 }) // exact ages aren't collected at search time
+    for (let i=0;i<passengers.infants;i++) list.push({ age:1 })
+    return list
+  }
+
+  const searchLive = async () => {
+    const res = await fetch('/api/flights', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: segments[0].from.code, to: segments[0].to.code, date: segments[0].date,
+        returnDate: type==='roundTrip' ? segments[1].date : undefined,
+        passengers: duffelPassengers(), cabinClass,
+      }),
+    })
+    if (!res.ok) throw new Error('duffel search failed')
+    const { outbound, inbound } = await res.json()
+    if (!outbound?.length) throw new Error('no live offers')
+    return { out: outbound, ret: inbound || [] }
+  }
+
+  const doSearch = async () => {
     if (!segments[0].from || !segments[0].to || !segments[0].date) return
     setLoading(true); setSelectedOut(null); setSelectedRet(null); setOutSeats([]); setRetSeats([])
-    setTimeout(() => {
-      setOutFlights(generateFlights(segments[0].from.code, segments[0].to.code, segments[0].date))
+    try {
+      const { out, ret } = await searchLive()
+      setOutFlights(withMarkup(out))
+      setRetFlights(withMarkup(ret))
+      setDataSource('duffel')
+    } catch {
+      // No Duffel token configured, request failed, or no offers — fall back to demo data
+      // so the search flow never breaks.
+      await new Promise(r => setTimeout(r, 900))
+      setOutFlights(withMarkup(generateFlights(segments[0].from.code, segments[0].to.code, segments[0].date)))
       if (type==='roundTrip' && segments[1].date)
-        setRetFlights(generateFlights(segments[0].to.code, segments[0].from.code, segments[1].date))
+        setRetFlights(withMarkup(generateFlights(segments[0].to.code, segments[0].from.code, segments[1].date)))
       else setRetFlights([])
+      setDataSource('demo')
+    } finally {
       setLoading(false); setSearched(true)
-    }, 1400)
+    }
   }
 
   const sortAndFilter = (list) => {
@@ -356,6 +403,16 @@ export default function FlightsPage() {
       {searched && (
         <section className="py-10" style={{background:'#F8F6F2',minHeight:'60vh'}}>
           <div className="container-pad">
+            {dataSource === 'demo' && (
+              <div className="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-xl text-sm font-semibold" style={{background:'rgba(201,168,76,0.12)', color:'#8a6d1f'}}>
+                <AlertCircle size={14}/> Showing demo pricing — live flight search is unavailable right now.
+              </div>
+            )}
+            {dataSource === 'duffel' && (
+              <div className="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-xl text-sm font-semibold" style={{background:'rgba(34,197,94,0.1)', color:'#16803d'}}>
+                <CheckCircle size={14}/> Live prices
+              </div>
+            )}
             {/* Filter bar */}
             <div className="flex flex-wrap items-center gap-3 mb-6 p-4 rounded-2xl" style={{background:'#FFFFFF', border:'1px solid rgba(201,168,76,0.2)', boxShadow:'0 4px 20px rgba(10,22,40,0.06)'}}>
               <Filter size={15} style={{color:'#C9A84C'}}/>

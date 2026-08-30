@@ -23,19 +23,38 @@ export default function ConfirmationPage() {
   const { booking, reset, getFareBreakdown } = useBooking()
   const fired = useRef(false)
 
+  const hasRealOrder = !!booking.orderRef
+
   useEffect(() => {
-    if (!fired.current) {
+    if (hasRealOrder && !fired.current) {
       fired.current = true
       confetti({ particleCount: 120, spread: 90, origin: { y: 0.55 }, colors: ['#C9A84C', '#F5C842', '#ffffff', '#0A1628'] })
     }
-  }, [])
+  }, [hasRealOrder])
+
+  if (!hasRealOrder) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center px-4 py-24 text-center">
+        <div className="max-w-md">
+          <h1 className="font-display font-bold text-2xl mb-2" style={{ color: '#0A1628' }}>No booking to confirm</h1>
+          <p className="text-base mb-6" style={{ color: '#4B5563' }}>
+            We couldn't find a completed booking. If you just paid, check your email for confirmation —
+            otherwise, start a new search below.
+          </p>
+          <Link to="/booking" className="btn-gold inline-block">Start a Search</Link>
+        </div>
+      </div>
+    )
+  }
 
   const { orderRef, bookingType, selectedFlight, selectedReturnFlight,
     selectedSeats, selectedReturnSeats, contact, passengers_info,
-    baggage, addons, paymentRef } = booking
+    baggage, addons, paymentRef,
+    selectedHotel, selectedRoomType, hotelCheckIn, hotelCheckOut, hotelRooms,
+    pickupVehicle, pickupFrom, pickupTo, pickupDate, pickupTime, pickupReturnNeeded } = booking
 
   const fd = getFareBreakdown?.()
-  const extras = (baggage?.outbound?.price || 0) + (baggage?.return?.price || 0) + (addons?.insurance ? 15000 : 0)
+  const extras = (bookingType === 'flight' ? (baggage?.outbound?.price || 0) + (baggage?.return?.price || 0) : 0) + (addons?.insurance ? 15000 : 0)
   const total = fd ? fd.total + extras : 0
 
   const TypeIcon = bookingType === 'hotel' ? Hotel : bookingType === 'pickup' ? Car : Plane
@@ -57,7 +76,11 @@ export default function ConfirmationPage() {
             </div>
             <h1 className="font-display font-bold text-primary text-3xl mb-2">Payment Confirmed</h1>
             <p className="text-base" style={{ color: '#374151' }}>
-              Your booking is confirmed. Your e-ticket will be issued within <strong className="text-gold">2–4 hours</strong>.
+              Your booking is confirmed. {bookingType === 'hotel'
+                ? <>Your hotel voucher will be issued within <strong className="text-gold">2–4 hours</strong>.</>
+                : bookingType === 'pickup'
+                ? <>Your driver details will be confirmed within <strong className="text-gold">2–4 hours</strong>.</>
+                : <>Your e-ticket will be issued within <strong className="text-gold">2–4 hours</strong>.</>}
             </p>
           </motion.div>
 
@@ -67,13 +90,13 @@ export default function ConfirmationPage() {
             style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.25)' }}>
             <p className="text-sm font-bold uppercase tracking-widest mb-2" style={{ color: '#4B5563' }}>Booking Reference</p>
             <p className="font-display font-bold tracking-widest mb-1" style={{ fontSize: '2.2rem', color: '#C9A84C' }}>
-              {orderRef || 'APX-DEMO'}
+              {orderRef}
             </p>
             <p className="text-sm" style={{ color: '#6B7280' }}>Payment ref: {paymentRef || 'demo_ref'}</p>
             {total > 0 && (
               <div className="flex items-center justify-center gap-2 mt-3">
                 <CheckCircle size={15} style={{ color: '#22c55e' }} />
-                <span className="text-base font-bold text-green-400">{formatNGN(total)} — Payment Received</span>
+                <span className="text-base font-bold" style={{ color: '#16803d' }}>{formatNGN(total)} — Payment Received</span>
               </div>
             )}
           </motion.div>
@@ -96,6 +119,25 @@ export default function ConfirmationPage() {
                 {addons?.insurance && <InfoRow label="Insurance" value="Travel insurance included" icon={Shield} />}
               </div>
             )}
+            {bookingType === 'hotel' && selectedHotel && (
+              <div>
+                <InfoRow label="Hotel" value={selectedHotel.name} icon={Hotel} />
+                <InfoRow label="Room" value={selectedRoomType?.type} />
+                <InfoRow label="Check-in" value={hotelCheckIn} />
+                <InfoRow label="Check-out" value={hotelCheckOut} />
+                <InfoRow label="Rooms" value={String(hotelRooms || 1)} />
+                {addons?.insurance && <InfoRow label="Insurance" value="Travel insurance included" icon={Shield} />}
+              </div>
+            )}
+            {bookingType === 'pickup' && (
+              <div>
+                <InfoRow label="Vehicle" value={pickupVehicle?.name} icon={Car} />
+                <InfoRow label="Pickup" value={pickupFrom} />
+                <InfoRow label="Drop-off" value={pickupTo} />
+                <InfoRow label="Date & Time" value={pickupDate && pickupTime ? `${pickupDate} · ${pickupTime}` : pickupDate} icon={Clock} />
+                {pickupReturnNeeded && <InfoRow label="Return trip" value="Included" />}
+              </div>
+            )}
             {passengers_info?.length > 0 && (
               <div className="mt-3 pt-3" style={{ borderTop: '1px solid #F3F4F6' }}>
                 {passengers_info.map((p, i) => (
@@ -114,12 +156,22 @@ export default function ConfirmationPage() {
               <Clock size={16} style={{ color: '#C9A84C' }} /> What Happens Next
             </h2>
             <ol className="space-y-3">
-              {[
+              {(bookingType === 'hotel' ? [
+                ['Within 2–4 hrs', 'Our team confirms your reservation directly with the hotel'],
+                ['By email', `Confirmation with your booking voucher sent to ${contact?.email || 'your email'}`],
+                ['By phone', `Our agent may call ${contact?.phone || 'your number'} to confirm details`],
+                ['At check-in', 'Present a valid ID and this booking reference at the hotel'],
+              ] : bookingType === 'pickup' ? [
+                ['Within 2–4 hrs', 'Our team assigns and confirms your driver'],
+                ['By email', `Confirmation with driver details sent to ${contact?.email || 'your email'}`],
+                ['By phone', `Our driver may call ${contact?.phone || 'your number'} before pickup`],
+                ['On the day', 'Your driver will meet you at the agreed location and time'],
+              ] : [
                 ['Within 2–4 hrs', 'Our team processes your booking and issues your e-ticket'],
                 ['By email', `Confirmation with PNR and ticket PDF sent to ${contact?.email || 'your email'}`],
                 ['By phone', `Our agent may call ${contact?.phone || 'your number'} to confirm`],
                 ['Before departure', 'Use your PNR to check in online with the airline'],
-              ].map(([time, text], i) => (
+              ]).map(([time, text], i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="w-6 h-6 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0 mt-0.5"
                     style={{ background: 'linear-gradient(135deg,#C9A84C,#F5C842)', color: '#0A1628' }}>{i + 1}</span>

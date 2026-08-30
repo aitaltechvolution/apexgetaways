@@ -6,6 +6,7 @@ import { Hotel, Star, MapPin, Wifi, ChevronDown, ChevronUp,
 import SEO from '../../../components/SEO'
 import { generateHotels, formatNGN } from '../../../data'
 import { fetchHotelImages } from '../../../lib/api'
+import { getPricingSettings, applyMarkup } from '../../../lib/supabase'
 import { useBooking } from '../../../store/BookingContext'
 
 function StarRating({ count }) {
@@ -123,6 +124,9 @@ export default function HotelsPage() {
   const [selected, setSelected] = useState(null)
   const [sortBy, setSortBy] = useState('price')
   const [filterStars, setFilterStars] = useState('all')
+  const [markupAmt, setMarkupAmt] = useState(0)
+
+  useEffect(() => { getPricingSettings().then(s => setMarkupAmt(s.hotelMarkupAmount)) }, [])
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -133,17 +137,28 @@ export default function HotelsPage() {
       // Generate hotels then fetch real images
       const base = generateHotels(city, checkIn, checkOut)
       const imgs = await fetchHotelImages(city, base.length)
-      const hotelsWithRealImgs = base.map((h, i) => ({
-        ...h,
-        img: imgs[i % imgs.length] || h.img
-      }))
+      const hotelsWithRealImgs = base.map((h, i) => {
+        // Markup is a flat amount per night (mirrors flights: markup is
+        // per-passenger there, multiplied by pax count for the total).
+        // Compute the marked-up per-night price first, then derive every
+        // other total FROM it, so the search-results total and the
+        // room-selection total never disagree.
+        const perNight = applyMarkup(h.perNight, markupAmt)
+        return {
+          ...h,
+          img: imgs[i % imgs.length] || h.img,
+          perNight,
+          total: perNight * h.nights,
+          roomTypes: h.roomTypes.map(r => ({ ...r, price: applyMarkup(r.price, markupAmt) })),
+        }
+      })
       setHotels(hotelsWithRealImgs)
       setSearched(true)
       setSelected(null)
     } finally {
       setLoading(false)
     }
-  }, [city, checkIn, checkOut])
+  }, [city, checkIn, checkOut, markupAmt])
 
   const sorted = [...hotels]
     .filter(h => filterStars==='all' ? true : h.stars===Number(filterStars))
@@ -253,7 +268,7 @@ export default function HotelsPage() {
                 className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-2xl bg-white dark:bg-card-dark rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 p-4 flex items-center justify-between gap-4 z-40">
                 <div>
                   <p className="text-sm text-gray-600 mb-0.5">{selected.hotel.name} · {selected.room.type}</p>
-                  <p className="font-extrabold text-xl text-primary">{formatNGN(selected.room.price * selected.hotel.nights)}</p>
+                  <p className="font-extrabold text-xl text-primary">{formatNGN(selected.room.price * selected.hotel.nights * rooms)}</p>
                   <p className="text-sm text-gray-600">{selected.hotel.nights} night{selected.hotel.nights!==1?'s':''} · {rooms} room{rooms!==1?'s':''}</p>
                 </div>
                 <button onClick={proceed}

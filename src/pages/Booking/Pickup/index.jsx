@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MapPin, Clock, Users, ArrowRight, Car, CheckCircle, Luggage, Wind, RotateCcw } from 'lucide-react'
 import SEO from '../../../components/SEO'
+import LocationPicker from '../../../components/LocationPicker'
 import { useBooking } from '../../../store/BookingContext'
 import { PICKUP_VEHICLES, PICKUP_LOCATIONS, formatNGN } from '../../../data'
+import { getLocationPricing, resolveLocationPrice } from '../../../lib/supabase'
 
 const iStyle = {
   width: '100%', padding: '13px 16px', borderRadius: '12px', fontSize: '0.875rem',
   background: '#F3F4F6', border: '1px solid #E5E7EB',
-  color: '#fff', outline: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif',
+  color: '#111827', outline: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif',
 }
 const focus = e => { e.target.style.borderColor = '#C9A84C' }
 const blur  = e => { e.target.style.borderColor = '#E5E7EB' }
@@ -16,6 +18,8 @@ const blur  = e => { e.target.style.borderColor = '#E5E7EB' }
 function Label({ children }) {
   return <label className="block text-[13px] font-bold uppercase tracking-wider mb-2" style={{ color: '#4B5563' }}>{children}</label>
 }
+
+const FALLBACK_PRICE = Math.min(...PICKUP_VEHICLES.map(v => v.basePrice)) // used only if admin hasn't set any prices yet
 
 export default function PickupPage() {
   const { booking, update } = useBooking()
@@ -31,14 +35,29 @@ export default function PickupPage() {
   const [returnDate, setReturnDate] = useState('')
   const [returnTime, setReturnTime] = useState('')
   const [notes, setNotes] = useState('')
+  const [guestLocation, setGuestLocation] = useState(null) // where the guest is arriving from
+  const [priceList, setPriceList] = useState([])
   const today = new Date().toISOString().split('T')[0]
 
-  const eligibleVehicles = PICKUP_VEHICLES.filter(v => v.seats >= pax)
+  useEffect(() => { getLocationPricing().then(setPriceList).catch(() => setPriceList([])) }, [])
+  useEffect(() => { setVehicle(null) }, [guestLocation]) // price depends on location — re-select after it changes
+
+  // The location's price is the base price; each vehicle tier adds its usual
+  // differential on top (so upgrading vehicle still costs a bit more).
+  const cheapestBase = Math.min(...PICKUP_VEHICLES.map(v => v.basePrice))
+  const locationPrice = guestLocation
+    ? (resolveLocationPrice(priceList, guestLocation) ?? FALLBACK_PRICE)
+    : FALLBACK_PRICE
+  const vehicles = PICKUP_VEHICLES.map(v => ({
+    ...v,
+    basePrice: locationPrice + (v.basePrice - cheapestBase),
+  }))
+  const eligibleVehicles = vehicles.filter(v => v.seats >= pax)
 
   const proceed = () => {
     update({
       bookingType: 'pickup', pickupFrom, pickupTo, pickupDate: date, pickupTime: time,
-      pickupPassengers: pax, pickupVehicle: vehicle,
+      pickupPassengers: pax, pickupVehicle: vehicle, guestLocation,
       pickupReturnNeeded: returnNeeded, pickupReturnDate: returnDate, pickupReturnTime: returnTime,
       pickupNotes: notes,
     })
@@ -75,6 +94,11 @@ export default function PickupPage() {
               <Label>Drop-off Location</Label>
               <input value={pickupTo} onChange={e => setPickupTo(e.target.value)}
                 placeholder="Hotel name or full address" style={iStyle} onFocus={focus} onBlur={blur}/>
+            </div>
+            <div>
+              <Label>Guest is arriving from</Label>
+              <LocationPicker value={guestLocation} onChange={setGuestLocation}/>
+              <p className="text-sm mt-1.5" style={{ color: '#6B7280' }}>Pricing is based on the guest's country or Nigerian state of origin.</p>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div>

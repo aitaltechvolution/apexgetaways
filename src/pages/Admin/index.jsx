@@ -6,13 +6,17 @@ import {
   Plane, Hotel, Car, TrendingUp, Clock, CheckCircle, XCircle,
   AlertCircle, ChevronRight, Menu, X, Bell, Search, Eye,
   Edit, Save, Trash2, Phone, Mail, User, Shield, RefreshCcw,
-  Download, BarChart2, Filter, ChevronDown
+  Download, BarChart2, Filter, ChevronDown, MessageSquare
 } from 'lucide-react'
 import SEO from '../../components/SEO'
 import { useAuth } from '../../store/AuthContext'
+import LocationPicker from '../../components/LocationPicker'
 import {
   subscribeBookings, getAllUsers, updateBooking,
-  getUsersByRole, setUserRole, BOOKING_STATUSES
+  getUsersByRole, setUserRole, BOOKING_STATUSES,
+  getPricingSettings, updatePricingSettings,
+  getLocationPricing, addLocationPricing, updateLocationPricing, deleteLocationPricing,
+  uploadBookingDocument, getLeads
 } from '../../lib/supabase'
 import { formatNGN, BRAND } from '../../data'
 
@@ -45,14 +49,16 @@ const NAV_ITEMS = [
   { to:'/admin',           label:'Dashboard',    icon:LayoutDashboard, exact:true },
   { to:'/admin/bookings',  label:'Bookings',     icon:BookOpen },
   { to:'/admin/customers', label:'Customers',    icon:Users },
+  { to:'/admin/leads',     label:'Leads',        icon:MessageSquare },
   { to:'/admin/workers',   label:'Workers',      icon:Shield },
   { to:'/admin/reports',   label:'Reports',      icon:BarChart2 },
   { to:'/admin/settings',  label:'Settings',     icon:Settings },
 ]
 
-function Sidebar({ open, setOpen }) {
+function Sidebar({ open, setOpen, isWorker }) {
   const { logout, user } = useAuth()
   const loc = useLocation()
+  const items = isWorker ? NAV_ITEMS.filter(i => i.to !== '/admin/workers' && i.to !== '/admin/reports') : NAV_ITEMS
   return (
     <>
       <aside className={`fixed inset-y-0 left-0 z-40 w-60 flex flex-col transition-transform duration-300 ${open?'translate-x-0':'-translate-x-full xl:translate-x-0'}`}
@@ -69,7 +75,7 @@ function Sidebar({ open, setOpen }) {
         </div>
         {/* Nav */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          {NAV_ITEMS.map(({ to, label, icon:Icon, exact }) => {
+          {items.map(({ to, label, icon:Icon, exact }) => {
             const active = exact ? loc.pathname === to : loc.pathname.startsWith(to) && to !== '/admin'
             return (
               <Link key={to} to={to} onClick={() => setOpen(false)}
@@ -193,6 +199,20 @@ function BookingsManager({ bookings, onRefresh }) {
   const [saving, setSaving]           = useState(null)
   const [notes, setNotes]             = useState('')
   const [pnr, setPnr]                 = useState('')
+  const [uploadingDoc, setUploadingDoc] = useState(null) // booking id currently uploading
+  const [uploadError, setUploadError]   = useState(null) // { bookingId, message }
+
+  const uploadDoc = async (bookingId, file) => {
+    setUploadingDoc(bookingId)
+    setUploadError(null)
+    try {
+      const url = await uploadBookingDocument(bookingId, file)
+      await updateBooking(bookingId, { ticketUrl: url })
+      onRefresh()
+    } catch {
+      setUploadError({ bookingId, message: 'Upload failed. Please try again.' })
+    } finally { setUploadingDoc(null) }
+  }
 
   const filtered = bookings.filter(b => {
     const matchS = filterStatus === 'all' || b.status === filterStatus
@@ -255,7 +275,7 @@ function BookingsManager({ bookings, onRefresh }) {
                   {b.contact?.phone && <span> {b.contact.phone}</span>}
                   {b.contact?.email && <span> {b.contact.email}</span>}
                   {b.total > 0 && <span style={{ color:GOLD }}> {formatNGN(b.total)}</span>}
-                  {b.pnr && <span className="text-green-400 font-bold">PNR: {b.pnr}</span>}
+                  {b.pnr && <span className="text-green-700 font-bold">PNR: {b.pnr}</span>}
                 </div>
                 {b.selectedFlight && <p className="text-sm mt-0.5" style={{ color:'#4B5563' }}>{b.selectedFlight.from}→{b.selectedFlight.to} · {b.selectedFlight.date} · {(b.cabinClass||'economy').toUpperCase()}</p>}
               </div>
@@ -314,6 +334,22 @@ function BookingsManager({ bookings, onRefresh }) {
                         </div>
                       </div>
                       {b.adminNotes && <p className="text-sm p-2 rounded-lg" style={{ background:'rgba(201,168,76,0.06)', color:'#374151' }}>Previous note: {b.adminNotes}</p>}
+                      <div>
+                        <label className="text-[12px] font-bold uppercase tracking-wider block mb-1.5" style={{ color:'#6B7280' }}>Ticket / Travel Document</label>
+                        {b.ticketUrl && (
+                          <a href={b.ticketUrl} target="_blank" rel="noreferrer" className="text-sm underline inline-block mb-2" style={{ color:GOLD }}>View current document</a>
+                        )}
+                        <input type="file" accept="application/pdf,image/*" id={`doc-upload-${b.id}`} className="hidden"
+                          onChange={e => e.target.files[0] && uploadDoc(b.id, e.target.files[0])}/>
+                        <label htmlFor={`doc-upload-${b.id}`}
+                          className="inline-flex items-center gap-2 text-sm font-bold px-3 py-2 rounded-lg cursor-pointer"
+                          style={{ background:'rgba(201,168,76,0.1)', color:GOLD, border:'1px solid rgba(201,168,76,0.25)' }}>
+                          {uploadingDoc === b.id ? 'Uploading…' : <><Download size={12}/> {b.ticketUrl ? 'Replace document' : 'Upload ticket/voucher (PDF or image)'}</>}
+                        </label>
+                        {uploadError?.bookingId === b.id && (
+                          <p className="text-sm font-semibold mt-2" style={{ color: '#dc2626' }}>{uploadError.message}</p>
+                        )}
+                      </div>
                       <div className="flex flex-wrap gap-2">
                         {[
                           { s:'payment_received', l:'Mark Paid',        bg:'rgba(96,165,250,0.15)', c:'#60a5fa' },
@@ -497,6 +533,72 @@ function WorkersPage({ users, bookings, onRefresh }) {
 }
 
 //  Reports 
+function LeadsPage() {
+  const [leads, setLeads] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [filterSource, setFilterSource] = useState('all')
+
+  useEffect(() => { getLeads().then(setLeads).catch(()=>{}).finally(() => setLoading(false)) }, [])
+
+  const filtered = leads.filter(l => {
+    const matchS = filterSource === 'all' || l.source === filterSource
+    const matchQ = !search.trim() || [l.name, l.email, l.phone, l.message].join(' ').toLowerCase().includes(search.toLowerCase())
+    return matchS && matchQ
+  })
+
+  return (
+    <div className="space-y-5">
+      <h1 className="font-display font-bold text-gray-900 text-2xl">Leads <span className="text-base font-normal ml-1" style={{ color:'#4B5563' }}>({filtered.length})</span></h1>
+      <div className="flex flex-wrap gap-2 p-4 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+        <div className="flex items-center gap-2 flex-1 min-w-40 px-3 rounded-xl" style={{ background:'#F3F4F6', border:`1px solid #E5E7EB` }}>
+          <Search size={13} style={{ color:'#6B7280' }}/>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name, email, message…"
+            className="flex-1 bg-transparent text-base text-gray-900 py-2.5 outline-none placeholder-gray-400"/>
+        </div>
+        <select value={filterSource} onChange={e=>setFilterSource(e.target.value)}
+          className="px-3 py-2.5 rounded-xl text-sm font-bold focus:outline-none"
+          style={{ background:'#F3F4F6', border:`1px solid #E5E7EB`, color:'#111827', appearance:'none' }}>
+          <option value="all">All Sources</option>
+          <option value="contact">Contact Form</option>
+          <option value="newsletter">Newsletter</option>
+        </select>
+      </div>
+
+      {loading ? (
+        <p className="text-center py-16 text-base" style={{ color:'#6B7280' }}>Loading…</p>
+      ) : filtered.length === 0 ? (
+        <p className="text-center py-16 text-base" style={{ color:'#6B7280' }}>No leads yet.</p>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map(l => (
+            <div key={l.id} className="p-4 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-bold text-gray-900">{l.name || l.email}</p>
+                  <span className="text-[13px] font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: l.source==='newsletter' ? 'rgba(167,139,250,0.15)' : 'rgba(96,165,250,0.15)', color: l.source==='newsletter' ? '#a78bfa' : '#60a5fa' }}>
+                    {l.source === 'newsletter' ? 'Newsletter' : 'Contact'}
+                  </span>
+                </div>
+                <span className="text-sm" style={{ color:'#9CA3AF' }}>{l.created_at ? new Date(l.created_at).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'}) : ''}</span>
+              </div>
+              <div className="flex flex-wrap gap-3 mt-1.5 text-sm" style={{ color:'#4B5563' }}>
+                <span>{l.email}</span>
+                {l.phone && <span>{l.phone}</span>}
+                {l.service && <span>Service: {l.service}</span>}
+                {l.interest && <span>Interest: {l.interest}</span>}
+              </div>
+              {l.message && <p className="text-sm mt-2" style={{ color:'#374151' }}>{l.message}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+//  Reports 
 function ReportsPage({ bookings }) {
   const total    = bookings.reduce((s,b) => s+(b.total||0), 0)
   const paid     = bookings.filter(b=>!['pending_payment','cancelled','refunded'].includes(b.status)).reduce((s,b)=>s+(b.total||0),0)
@@ -552,9 +654,192 @@ function ReportsPage({ bookings }) {
 
 //  Settings 
 function AdminSettings() {
+  const { changePassword } = useAuth()
+  const [pw, setPw] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [pwSaving, setPwSaving] = useState(false)
+  const [pwMsg, setPwMsg] = useState(null)
+
+  const submitPw = async (e) => {
+    e.preventDefault()
+    setPwMsg(null)
+    if (pw.length < 6) { setPwMsg({ type: 'error', text: 'Password must be at least 6 characters.' }); return }
+    if (pw !== confirm) { setPwMsg({ type: 'error', text: 'Passwords do not match.' }); return }
+    setPwSaving(true)
+    try {
+      await changePassword(pw)
+      setPwMsg({ type: 'ok', text: 'Password updated.' })
+      setPw(''); setConfirm('')
+    } catch (err) {
+      setPwMsg({ type: 'error', text: err.message || 'Could not update password.' })
+    } finally { setPwSaving(false) }
+  }
+
+  const [pricing, setPricing] = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const [locations, setLocations] = useState([])
+  const [locLoading, setLocLoading] = useState(true)
+  const [adding, setAdding] = useState(false)
+  const [newLoc, setNewLoc] = useState(null)
+  const [newPrice, setNewPrice] = useState('')
+  const [editingId, setEditingId] = useState(null)
+  const [editPrice, setEditPrice] = useState('')
+
+  const loadLocations = () => { setLocLoading(true); getLocationPricing().then(setLocations).finally(() => setLocLoading(false)) }
+  useEffect(() => { getPricingSettings().then(setPricing); loadLocations() }, [])
+
+  const savePricing = async () => {
+    setSaving(true)
+    try {
+      await updatePricingSettings(pricing)
+      setSaved(true); setTimeout(() => setSaved(false), 2000)
+    } finally { setSaving(false) }
+  }
+
+  const field = (label, key) => (
+    <div>
+      <p className="text-[13px] font-bold uppercase tracking-wider mb-1" style={{ color:'#6B7280' }}>{label}</p>
+      <div className="flex items-center gap-2">
+        <span className="text-gray-600 font-bold">₦</span>
+        <input type="number" step="500" min="0"
+          value={pricing?.[key] ?? 0}
+          onChange={e => setPricing(p => ({ ...p, [key]: Number(e.target.value) }))}
+          className="w-32 rounded-lg px-3 py-2 text-base"
+          style={{ background:'#F9FAFB', border:'1px solid #E5E7EB', color:'#111827' }}/>
+      </div>
+    </div>
+  )
+
+  const saveNewLocation = async () => {
+    if (!newLoc || !newPrice) return
+    await addLocationPricing({ scope: newLoc.scope, code: newLoc.code, name: newLoc.name, currency: newLoc.currency, price: Number(newPrice) })
+    setNewLoc(null); setNewPrice(''); setAdding(false)
+    loadLocations()
+  }
+  const saveEdit = async (id) => {
+    await updateLocationPricing(id, Number(editPrice))
+    setEditingId(null); setEditPrice('')
+    loadLocations()
+  }
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+  const removeLocation = async (id) => {
+    if (confirmDeleteId !== id) { setConfirmDeleteId(id); return }
+    setConfirmDeleteId(null)
+    await deleteLocationPricing(id)
+    loadLocations()
+  }
+
   return (
     <div className="space-y-5">
       <h1 className="font-display font-bold text-gray-900 text-2xl">Settings</h1>
+
+      <div className="p-6 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+        <h2 className="font-bold text-gray-900 mb-1">Flight & Hotel Pricing</h2>
+        <p className="text-base mb-4" style={{ color:'#6B7280' }}>
+          Set your exact gain (₦) added on top of every fetched price before it's shown to clients —
+          per passenger for flights, per night for hotels.
+        </p>
+        {pricing ? (
+          <div className="grid sm:grid-cols-2 gap-4">
+            {field('Flights (per passenger)', 'flightMarkupAmount')}
+            {field('Hotels (per night)', 'hotelMarkupAmount')}
+          </div>
+        ) : <p className="text-base" style={{ color:'#6B7280' }}>Loading…</p>}
+        <button onClick={savePricing} disabled={saving || !pricing}
+          className="btn-gold mt-5 px-6 py-2.5 text-base font-bold disabled:opacity-50">
+          {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save Pricing'}
+        </button>
+      </div>
+
+      <div className="p-6 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="font-bold text-gray-900">Hotel Pickup Pricing</h2>
+          {!adding && (
+            <button onClick={() => setAdding(true)} className="btn-gold px-4 py-2 text-sm font-bold">+ Add New Price</button>
+          )}
+        </div>
+        <p className="text-base mb-4" style={{ color:'#6B7280' }}>
+          Set an exact price (₦) per country, per Nigerian state, or for Nigeria as a whole — e.g. Nigeria: ₦50,000.
+        </p>
+
+        {adding && (
+          <div className="p-4 rounded-xl mb-4 space-y-3" style={{ background:'#F9FAFB', border:'1px solid #E5E7EB' }}>
+            <LocationPicker value={newLoc} onChange={setNewLoc}/>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-600 font-bold">₦</span>
+              <input type="number" min="0" placeholder="Price"
+                value={newPrice} onChange={e => setNewPrice(e.target.value)}
+                className="w-40 rounded-lg px-3 py-2 text-base"
+                style={{ background:'#FFFFFF', border:'1px solid #E5E7EB', color:'#111827' }}/>
+              <button onClick={saveNewLocation} disabled={!newLoc || !newPrice}
+                className="btn-gold px-4 py-2 text-sm font-bold disabled:opacity-50">Save</button>
+              <button onClick={() => { setAdding(false); setNewLoc(null); setNewPrice('') }}
+                className="px-4 py-2 text-sm font-bold rounded-xl" style={{ color:'#6B7280' }}>Cancel</button>
+            </div>
+          </div>
+        )}
+
+        {locLoading ? (
+          <p className="text-base" style={{ color:'#6B7280' }}>Loading…</p>
+        ) : locations.length === 0 ? (
+          <p className="text-base" style={{ color:'#6B7280' }}>No prices set yet. Add one above — e.g. Nigeria: ₦50,000.</p>
+        ) : (
+          <div className="divide-y" style={{ borderColor: '#F3F4F6' }}>
+            {locations.map(loc => (
+              <div key={loc.id} className="flex items-center justify-between py-3">
+                <div>
+                  <p className="font-semibold text-gray-900">{loc.name}</p>
+                  <p className="text-sm" style={{ color:'#6B7280' }}>{loc.scope === 'country' ? 'Country' : 'Nigerian state'} · {loc.currency}</p>
+                </div>
+                {editingId === loc.id ? (
+                  <div className="flex items-center gap-2">
+                    <input type="number" min="0" value={editPrice} onChange={e => setEditPrice(e.target.value)}
+                      className="w-32 rounded-lg px-3 py-2 text-base"
+                      style={{ background:'#FFFFFF', border:'1px solid #E5E7EB', color:'#111827' }} autoFocus/>
+                    <button onClick={() => saveEdit(loc.id)} className="btn-gold px-3 py-2 text-sm font-bold">Save</button>
+                    <button onClick={() => setEditingId(null)} className="px-3 py-2 text-sm font-bold" style={{ color:'#6B7280' }}>Cancel</button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-primary">{formatNGN(loc.price)}</span>
+                    <button onClick={() => { setEditingId(loc.id); setEditPrice(String(loc.price)) }}
+                      className="p-2 rounded-lg hover:bg-gray-50" title="Edit"><Edit size={14} style={{ color:'#6B7280' }}/></button>
+                    {confirmDeleteId === loc.id ? (
+                      <button onClick={() => removeLocation(loc.id)} onBlur={() => setConfirmDeleteId(null)} autoFocus
+                        className="text-sm font-bold px-3 py-2 rounded-lg" style={{ background:'rgba(239,68,68,0.12)', color:'#dc2626' }}>
+                        Confirm remove?
+                      </button>
+                    ) : (
+                      <button onClick={() => removeLocation(loc.id)}
+                        className="p-2 rounded-lg hover:bg-gray-50" title="Remove"><Trash2 size={14} style={{ color:'#ef4444' }}/></button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="p-6 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
+        <h2 className="font-bold text-gray-900 mb-4">Change Password</h2>
+        <form onSubmit={submitPw} className="max-w-lg">
+          <div className="grid sm:grid-cols-2 gap-3">
+            <input type="password" placeholder="New password" value={pw} onChange={e => setPw(e.target.value)}
+              className="w-full rounded-xl px-4 py-3 text-base" style={{ background:'#F9FAFB', border:'1px solid #E5E7EB', color:'#111827' }}/>
+            <input type="password" placeholder="Confirm new password" value={confirm} onChange={e => setConfirm(e.target.value)}
+              className="w-full rounded-xl px-4 py-3 text-base" style={{ background:'#F9FAFB', border:'1px solid #E5E7EB', color:'#111827' }}/>
+          </div>
+          {pwMsg && <p className="text-sm mt-2 font-semibold" style={{ color: pwMsg.type === 'ok' ? '#16803d' : '#dc2626' }}>{pwMsg.text}</p>}
+          <button type="submit" disabled={pwSaving || !pw}
+            className="btn-gold mt-3 px-6 py-2.5 text-base font-bold disabled:opacity-50">
+            {pwSaving ? 'Updating…' : 'Update Password'}
+          </button>
+        </form>
+      </div>
+
       <div className="p-6 rounded-2xl" style={{ background:CARD_BG, border:`1px solid ${BORDER}`, boxShadow:CARD_SHADOW }}>
         <h2 className="font-bold text-gray-900 mb-4">Agency Information</h2>
         <div className="grid sm:grid-cols-2 gap-3 text-base" style={{ color:'#1F2937' }}>
@@ -620,7 +905,7 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen" style={{ background:PANEL_BG }}>
-      <Sidebar open={navOpen} setOpen={setNavOpen}/>
+      <Sidebar open={navOpen} setOpen={setNavOpen} isWorker={isWorker}/>
       <div className="xl:pl-60">
         <Topbar onMenu={() => setNavOpen(true)} pendingCount={pending}/>
         <main className="p-5 lg:p-7 max-w-6xl mx-auto">
@@ -628,9 +913,11 @@ export default function AdminLayout() {
             <Route index element={<DashboardHome bookings={bookings} users={users}/>}/>
             <Route path="bookings" element={<BookingsManager bookings={bookings} onRefresh={refresh}/>}/>
             <Route path="customers" element={<CustomersPage users={users} bookings={bookings}/>}/>
+            <Route path="leads" element={<LeadsPage/>}/>
             {!isWorker && <Route path="workers" element={<WorkersPage users={users} bookings={bookings} onRefresh={refresh}/>}/>}
             {!isWorker && <Route path="reports" element={<ReportsPage bookings={bookings}/>}/>}
             <Route path="settings" element={<AdminSettings/>}/>
+            <Route path="*" element={<Navigate to="/admin" replace/>}/>
           </Routes>
         </main>
       </div>

@@ -8,6 +8,7 @@ import { useAuth } from '../../store/AuthContext'
 import { saveBooking, initPaystack, BOOKING_STATUSES } from '../../lib/supabase'
 import { formatNGN } from '../../data'
 import { StepBar } from './Extras'
+import EmptyBookingGuard from '../../components/booking/EmptyBookingGuard'
 
 export default function PaymentPage() {
   const { booking, update, getFareBreakdown, reset } = useBooking()
@@ -16,8 +17,10 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  if (!booking.bookingType) return <EmptyBookingGuard show={true} />
+
   const fd = getFareBreakdown()
-  const extras = (booking.baggage?.outbound?.price || 0) + (booking.baggage?.return?.price || 0) + (booking.addons?.insurance ? 15000 : 0)
+  const extras = (booking.bookingType === 'flight' ? (booking.baggage?.outbound?.price || 0) + (booking.baggage?.return?.price || 0) : 0) + (booking.addons?.insurance ? 15000 : 0)
   const grandTotal = fd ? fd.total + extras : 0
   const email = booking.contact?.email || user?.email || ''
 
