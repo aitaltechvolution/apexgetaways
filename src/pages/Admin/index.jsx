@@ -64,6 +64,7 @@ function Sidebar({ open, setOpen, isWorker }) {
       <aside className={`fixed inset-y-0 left-0 z-40 w-60 flex flex-col transition-transform duration-300 ${open?'translate-x-0':'-translate-x-full xl:translate-x-0'}`}
         style={{ background:'#0A1628', borderRight:`1px solid rgba(201,168,76,0.12)` }}>
         {/* Logo */}
+        <Link to="/">
         <div className="px-5 py-5" style={{ borderBottom:'1px solid rgba(201,168,76,0.12)' }}>
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Apex Getaways" style={{height:32,width:'auto',objectFit:'contain'}}/>
@@ -73,6 +74,7 @@ function Sidebar({ open, setOpen, isWorker }) {
             </div>
           </div>
         </div>
+        </Link>
         {/* Nav */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {items.map(({ to, label, icon:Icon, exact }) => {
