@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Hotel, Star, MapPin, Wifi, ChevronDown, ChevronUp,
-  CheckCircle, ArrowRight, RefreshCcw, Search, Car, Coffee } from 'lucide-react'
+  CheckCircle, ArrowRight, RefreshCcw, Search, Car, Coffee, AlertCircle } from 'lucide-react'
 import SEO from '../../../components/SEO'
 import { generateHotels, formatNGN } from '../../../data'
 import { fetchHotelImages } from '../../../lib/api'
@@ -48,7 +48,7 @@ function HotelCard({ hotel, onSelect, selected }) {
             </div>
             <div className="text-right shrink-0">
               <div className="flex items-center gap-1 mb-1 justify-end">
-                <span className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white text-sm font-bold">{hotel.rating}</span>
+                <span className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white text-[12px] font-bold">{Number(hotel.rating) > 0 ? hotel.rating : 'New'}</span>
                 <span className="text-sm text-gray-600">{hotel.reviews} reviews</span>
               </div>
               <p className="font-extrabold text-lg text-primary">{formatNGN(hotel.perNight)}</p>
@@ -125,40 +125,63 @@ export default function HotelsPage() {
   const [sortBy, setSortBy] = useState('price')
   const [filterStars, setFilterStars] = useState('all')
   const [markupAmt, setMarkupAmt] = useState(0)
+  const [dataSource, setDataSource] = useState(null) // 'duffel' | 'demo' | null
 
   useEffect(() => { getPricingSettings().then(s => setMarkupAmt(s.hotelMarkupAmount)) }, [])
 
   const today = new Date().toISOString().split('T')[0]
 
+  const withMarkup = (list) => list.map(h => {
+    // Markup is a flat amount per night (mirrors flights: markup is
+    // per-passenger there, multiplied by pax count for the total).
+    // Compute the marked-up per-night price first, then derive every
+    // other total FROM it, so the search-results total and the
+    // room-selection total never disagree.
+    const perNight = applyMarkup(h.perNight, markupAmt)
+    return {
+      ...h,
+      perNight,
+      total: perNight * h.nights,
+      roomTypes: h.roomTypes.map(r => ({ ...r, price: applyMarkup(r.price, markupAmt) })),
+    }
+  })
+
+  const searchLive = async () => {
+    const res = await fetch('/api/hotels', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ city, checkIn, checkOut, adults: guests, rooms }),
+    })
+    if (!res.ok) throw new Error('duffel stays search failed')
+    const { hotels: live } = await res.json()
+    if (!live?.length) throw new Error('no live results')
+    return live
+  }
+
   const search = useCallback(async () => {
     if (!city || !checkIn || !checkOut) return
     setLoading(true)
     try {
-      // Generate hotels then fetch real images
+      const live = await searchLive()
+      setHotels(withMarkup(live))
+      setDataSource('duffel')
+      setSearched(true)
+      setSelected(null)
+    } catch {
+      // No Duffel token configured, geocoding failed, no coverage for this
+      // city, or the request failed — fall back to demo data so the search
+      // flow never breaks.
       const base = generateHotels(city, checkIn, checkOut)
       const imgs = await fetchHotelImages(city, base.length)
-      const hotelsWithRealImgs = base.map((h, i) => {
-        // Markup is a flat amount per night (mirrors flights: markup is
-        // per-passenger there, multiplied by pax count for the total).
-        // Compute the marked-up per-night price first, then derive every
-        // other total FROM it, so the search-results total and the
-        // room-selection total never disagree.
-        const perNight = applyMarkup(h.perNight, markupAmt)
-        return {
-          ...h,
-          img: imgs[i % imgs.length] || h.img,
-          perNight,
-          total: perNight * h.nights,
-          roomTypes: h.roomTypes.map(r => ({ ...r, price: applyMarkup(r.price, markupAmt) })),
-        }
-      })
-      setHotels(hotelsWithRealImgs)
+      const demo = base.map((h, i) => ({ ...h, img: imgs[i % imgs.length] || h.img }))
+      setHotels(withMarkup(demo))
+      setDataSource('demo')
       setSearched(true)
       setSelected(null)
     } finally {
       setLoading(false)
     }
-  }, [city, checkIn, checkOut, markupAmt])
+  }, [city, checkIn, checkOut, guests, rooms, markupAmt])
 
   const sorted = [...hotels]
     .filter(h => filterStars==='all' ? true : h.stars===Number(filterStars))
@@ -238,6 +261,16 @@ export default function HotelsPage() {
       {searched && (
         <section className="section-pad bg-surface-light dark:bg-surface-dark">
           <div className="container-pad">
+            {dataSource === 'demo' && (
+              <div className="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-xl text-sm font-semibold bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+                <AlertCircle size={14}/> Showing demo pricing — live hotel search is unavailable right now.
+              </div>
+            )}
+            {dataSource === 'duffel' && (
+              <div className="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-xl text-sm font-semibold bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+                <CheckCircle size={14}/> Live prices
+              </div>
+            )}
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
               <p className="text-base font-semibold text-gray-600 dark:text-gray-600">
                 {sorted.length} hotels in <strong className="text-gray-900 dark:text-white">{city}</strong>
