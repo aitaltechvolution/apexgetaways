@@ -9,7 +9,7 @@ export default function LoginPage() {
   const { emailLogin } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const from = location.state?.from || '/'
+  const from = location.state?.from || null
 
   const [email, setEmail]     = useState('')
   const [password, setPassword] = useState('')
@@ -21,8 +21,11 @@ export default function LoginPage() {
     e.preventDefault()
     setError(''); setLoading(true)
     try {
-      await emailLogin(email, password)
-      navigate(from, { replace: true })
+      const { doc } = await emailLogin(email, password)
+      const dest = doc?.role === 'admin' || doc?.role === 'worker'
+        ? '/admin'
+        : (from || '/dashboard')
+      navigate(dest, { replace: true })
     } catch (err) {
       setError(friendlyError(err.message))
     } finally { setLoading(false) }

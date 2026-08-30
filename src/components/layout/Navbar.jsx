@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Menu, X, ChevronDown, Plane, Hotel, Car, Package, Phone, User, LayoutDashboard, Shield, LogOut } from 'lucide-react'
+import { Menu, X, ChevronDown, Plane, Hotel, Car, Package, User, LayoutDashboard, Shield, LogOut } from 'lucide-react'
 import { useTheme } from '../../store/ThemeContext'
 import { useAuth } from '../../store/AuthContext'
-import { BRAND } from '../../data'
 
 const BOOK_MENU = [
   { to: '/booking/flights', icon: Plane,   label: 'Flights',         sub: 'One-way · Return · Multi-city' },
@@ -124,11 +123,6 @@ export default function Navbar() {
 
           {/* Right */}
           <div className="flex items-center gap-2 ml-auto">
-            {/* <a href={`tel:${BRAND.phone}`}
-              className="hidden md:flex items-center gap-1.5 text-base font-semibold transition-colors"
-              style={{ color: solid ? '#C9A84C' : '#F5C842' }}>
-              <Phone size={13}/>{BRAND.phone}
-            </a> */}
             <Link to="/booking"
               className="hidden md:inline-flex btn-gold text-sm px-5 py-2.5">
               Book Now
@@ -203,11 +197,6 @@ export default function Navbar() {
             ))}
             <div className="mt-4 pt-4 space-y-3" style={{ borderTop: '1px solid rgba(201,168,76,0.15)' }}>
               <Link to="/booking" className="block w-full text-center btn-gold">Book Now</Link>
-              {/* <a href={`tel:${BRAND.phone}`}
-                className="block w-full text-center py-3 rounded-xl text-base font-bold border-2"
-                style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#C9A84C' }}>
-                {BRAND.phone}
-              </a> */}
             </div>
 
             {/* Account / Login (mobile) */}

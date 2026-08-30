@@ -48,7 +48,7 @@ export function AuthProvider({ children }) {
     const u = await loginWithEmail(email, password)
     const doc = await getUserDoc(u.id).catch(() => null)
     setUserDoc(doc)
-    return u
+    return { user: u, doc }
   }
 
   const logout = async () => {

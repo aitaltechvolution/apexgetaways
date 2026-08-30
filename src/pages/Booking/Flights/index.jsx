@@ -80,10 +80,10 @@ function FlightCard({ flight, cabinClass, onSelect, selected, onPickSeats, seats
         border:`1px solid ${isSelected?'rgba(201,168,76,0.6)':'#F3F4F6'}`,
         boxShadow: isSelected ? '0 0 0 2px rgba(201,168,76,0.3)' : 'none',
       }}>
-      <div className="p-5">
-        <div className="flex flex-wrap items-center gap-4">
+      <div className="p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           {/* Airline */}
-          <div className="flex items-center gap-2.5 w-36 shrink-0">
+          <div className="flex items-center gap-2.5 sm:w-36 sm:shrink-0">
             <span className="text-2xl">{flight.logo}</span>
             <div>
               <p className="font-bold text-sm text-primary">{flight.airline}</p>
@@ -91,44 +91,44 @@ function FlightCard({ flight, cabinClass, onSelect, selected, onPickSeats, seats
             </div>
           </div>
           {/* Times */}
-          <div className="flex items-center gap-4 flex-1 min-w-0">
-            <div className="text-center">
-              <p className="font-bold text-2xl text-primary">{flight.dep}</p>
+          <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+            <div className="text-center shrink-0">
+              <p className="font-bold text-xl sm:text-2xl text-primary">{flight.dep}</p>
               <p className="text-sm font-semibold" style={{color:'#C9A84C'}}>{flight.from}</p>
             </div>
-            <div className="flex-1 flex flex-col items-center gap-1 min-w-[80px]">
-              <p className="text-[13px]" style={{color:'#4B5563'}}>{flight.duration}</p>
+            <div className="flex-1 flex flex-col items-center gap-1 min-w-[56px]">
+              <p className="text-[12px] sm:text-[13px] whitespace-nowrap" style={{color:'#4B5563'}}>{flight.duration}</p>
               <div className="relative w-full flex items-center">
                 <div className="flex-1 h-px" style={{background:'#E5E7EB'}}/>
                 <Plane size={12} style={{color:'#C9A84C'}} className="mx-1 shrink-0"/>
                 <div className="flex-1 h-px" style={{background:'#E5E7EB'}}/>
               </div>
-              <p className="text-[13px]" style={{color:'#4B5563'}}>
+              <p className="text-[12px] sm:text-[13px] whitespace-nowrap" style={{color:'#4B5563'}}>
                 {flight.stops===0?'Direct':`${flight.stops} stop${flight.stops>1?'s':''}${flight.stopCity?` · ${flight.stopCity}`:''}`}
               </p>
             </div>
-            <div className="text-center">
-              <p className="font-bold text-2xl text-primary">{flight.arr}</p>
+            <div className="text-center shrink-0">
+              <p className="font-bold text-xl sm:text-2xl text-primary">{flight.arr}</p>
               <p className="text-sm font-semibold" style={{color:'#C9A84C'}}>{flight.to}</p>
             </div>
           </div>
           {/* Price + select */}
-          <div className="flex items-center gap-4 ml-auto shrink-0">
-            <div className="text-right">
-              <p className="font-bold text-xl" style={{color:'#C9A84C'}}>{formatNGN(price)}</p>
+          <div className="flex items-center justify-between sm:justify-end gap-4 sm:ml-auto sm:shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0" style={{borderColor:'#E5E7EB'}}>
+            <div className="text-left sm:text-right">
+              <p className="font-bold text-lg sm:text-xl" style={{color:'#C9A84C'}}>{formatNGN(price)}</p>
               <p className="text-[13px]" style={{color:'#6B7280'}}>per person</p>
-              <div className="flex items-center justify-end gap-1 mt-0.5">
+              <div className="flex items-center sm:justify-end gap-1 mt-0.5">
                 <Luggage size={10} style={{color:'#6B7280'}}/>
                 <span className="text-[12px]" style={{color:'#6B7280'}}>{flight.baggage}</span>
               </div>
-              <span className={`text-[12px] font-semibold ${flight.refundable?'text-green-700':'text-red-600'}`}>
-                {flight.refundable?' Refundable':' Non-refundable'}
+              <span className={`text-[12px] font-semibold block sm:inline-block ${flight.refundable?'text-green-700':'text-red-600'}`}>
+                {flight.refundable?'Refundable':'Non-refundable'}
               </span>
             </div>
             <button onClick={() => onSelect(flight)}
-              className={`px-5 py-3 rounded-xl font-bold text-base transition-all hover:scale-105 ${isSelected?'text-navy':'text-navy'}`}
+              className="px-5 py-3 rounded-xl font-bold text-base transition-all hover:scale-105 shrink-0 text-navy"
               style={{background:isSelected?'linear-gradient(135deg,#22c55e,#16a34a)':'linear-gradient(135deg,#C9A84C,#F5C842)'}}>
-              {isSelected ? ' Selected' : 'Select'}
+              {isSelected ? 'Selected' : 'Select'}
             </button>
           </div>
         </div>

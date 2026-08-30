@@ -31,6 +31,7 @@ create table if not exists public.profiles (
 alter table public.profiles enable row level security;
 
 -- Everyone can read their own profile; admins can read all.
+drop policy if exists "profiles_select_own_or_admin" on public.profiles;
 create policy "profiles_select_own_or_admin"
   on public.profiles for select
   using (
@@ -39,6 +40,7 @@ create policy "profiles_select_own_or_admin"
   );
 
 -- Users can update their own profile; admins can update any (e.g. change role).
+drop policy if exists "profiles_update_own_or_admin" on public.profiles;
 create policy "profiles_update_own_or_admin"
   on public.profiles for update
   using (
@@ -47,6 +49,7 @@ create policy "profiles_update_own_or_admin"
   );
 
 -- Profiles are created automatically by the trigger below (not by client inserts).
+drop policy if exists "profiles_insert_self" on public.profiles;
 create policy "profiles_insert_self"
   on public.profiles for insert
   with check (auth.uid() = id);
@@ -102,6 +105,7 @@ create index if not exists bookings_created_at_idx on public.bookings(created_at
 
 alter table public.bookings enable row level security;
 
+drop policy if exists "bookings_select_own_or_staff" on public.bookings;
 create policy "bookings_select_own_or_staff"
   on public.bookings for select
   using (
@@ -109,10 +113,12 @@ create policy "bookings_select_own_or_staff"
     or exists (select 1 from public.profiles p where p.id = auth.uid() and p.role in ('admin','worker'))
   );
 
+drop policy if exists "bookings_insert_own_or_guest" on public.bookings;
 create policy "bookings_insert_own_or_guest"
   on public.bookings for insert
   with check (true); -- guests (no session) can also create a pending booking before paying
 
+drop policy if exists "bookings_update_staff" on public.bookings;
 create policy "bookings_update_staff"
   on public.bookings for update
   using (
@@ -139,7 +145,15 @@ create trigger profiles_set_updated_at
   for each row execute procedure public.set_updated_at();
 
 -- Enable realtime (used for the live admin bookings feed & "My Bookings")
-alter publication supabase_realtime add table public.bookings;
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'bookings'
+  ) then
+    alter publication supabase_realtime add table public.bookings;
+  end if;
+end $$;
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- STORAGE  (mirrors Firebase Storage "passports/{uid}/..." uploads)
@@ -148,6 +162,7 @@ insert into storage.buckets (id, name, public)
 values ('passports', 'passports', true)
 on conflict (id) do nothing;
 
+drop policy if exists "passport_upload_own_folder" on storage.objects;
 create policy "passport_upload_own_folder"
   on storage.objects for insert
   with check (
@@ -155,6 +170,7 @@ create policy "passport_upload_own_folder"
     and (auth.uid())::text = (storage.foldername(name))[1]
   );
 
+drop policy if exists "passport_read_own_or_staff" on storage.objects;
 create policy "passport_read_own_or_staff"
   on storage.objects for select
   using (
@@ -173,6 +189,7 @@ insert into storage.buckets (id, name, public)
 values ('tickets', 'tickets', true)
 on conflict (id) do nothing;
 
+drop policy if exists "tickets_upload_admin" on storage.objects;
 create policy "tickets_upload_admin"
   on storage.objects for insert
   with check (
@@ -180,6 +197,7 @@ create policy "tickets_upload_admin"
     and exists (select 1 from public.profiles p where p.id = auth.uid() and p.role in ('admin','worker'))
   );
 
+drop policy if exists "tickets_read_all" on storage.objects;
 create policy "tickets_read_all"
   on storage.objects for select
   using (bucket_id = 'tickets');
